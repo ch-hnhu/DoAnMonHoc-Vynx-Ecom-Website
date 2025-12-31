@@ -186,7 +186,7 @@ DB_PASSWORD=
 # Pull code mới nhất
 git pull origin main
 
-# Tạo branch mới cho feature
+# Checkout vào branch của mình
 git checkout dev/<ten>
 # Ví dụ:
 git checkout dev/nhu
@@ -198,7 +198,7 @@ git add .
 git commit -m "feat: mô tả feature"
 git push origin dev/<ten>
 
-# Tạo Pull Request trên GitHub
+# Tạo Pull Request trên GitHub (Leader mới có quyền merge PR vào main)
 ```
 
 ## 👥 Team Members
