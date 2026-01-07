@@ -68,7 +68,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-3.png'
+														src='/img/product-3.png'
 														className='img-fluid w-100 rounded-top'
 														alt=''
 													/>
@@ -133,7 +133,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-4.png'
+														src='/img/product-4.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -199,7 +199,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-5.png'
+														src='/img/product-5.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -264,7 +264,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-6.png'
+														src='/img/product-6.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -330,7 +330,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-7.png'
+														src='/img/product-7.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -396,7 +396,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-8.png'
+														src='/img/product-8.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -461,7 +461,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-9.png'
+														src='/img/product-9.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -527,7 +527,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-10.png'
+														src='/img/product-10.png'
 														className='img-fluid w-100 rounded-top'
 														alt=''
 													/>
@@ -597,7 +597,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-3.png'
+														src='/img/product-3.png'
 														className='img-fluid rounded-top'
 														alt=''
 													/>
@@ -663,7 +663,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-4.png'
+														src='/img/product-4.png'
 														className='img-fluid w-100 rounded-top'
 														alt=''
 													/>
@@ -729,7 +729,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-5.png'
+														src='/img/product-5.png'
 														className='img-fluid w-100 rounded-top'
 														alt=''
 													/>
@@ -795,7 +795,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-6.png'
+														src='/img/product-6.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -865,7 +865,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-9.png'
+														src='/img/product-9.png'
 														className='img-fluid w-100 rounded-top'
 														alt=''
 													/>
@@ -930,7 +930,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-10.png'
+														src='/img/product-10.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -995,7 +995,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-11.png'
+														src='/img/product-11.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -1060,7 +1060,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-12.png'
+														src='/img/product-12.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -1129,7 +1129,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-14.png'
+														src='/img/product-14.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -1194,7 +1194,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-15.png'
+														src='/img/product-15.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -1259,7 +1259,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-17.png'
+														src='/img/product-17.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>
@@ -1324,7 +1324,7 @@ export default function OurProducts() {
 											<div className='product-item-inner border rounded'>
 												<div className='product-item-inner-item'>
 													<img
-														src='img/product-16.png'
+														src='/img/product-16.png'
 														className='img-fluid w-100 rounded-top'
 														alt='Image'
 													/>

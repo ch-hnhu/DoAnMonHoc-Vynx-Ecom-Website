@@ -6,7 +6,7 @@ import ProductDetails from "../pages/user/ProductDetails.jsx";
 import Cart from "../pages/user/Cart.jsx";
 import Support from "../pages/user/Support.jsx";
 import Checkout from "../pages/user/Checkout.jsx";
-import NotFound from "../pages/user/404.jsx";
+import NotFound from "../pages/user/NotFound.jsx";
 
 export default function AppRoutes() {
 	return (
@@ -24,7 +24,7 @@ export default function AppRoutes() {
 				<Route path='*' element={<NotFound />} />
 			</Route>
 
-			{/* User Routes */}
+			{/* Admin Routes */}
 		</Routes>
 	);
 }

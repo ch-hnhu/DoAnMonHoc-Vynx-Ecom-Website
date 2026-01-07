@@ -1,15 +1,15 @@
 import { Helmet } from "react-helmet-async";
+import NotFoundContent from "../../components/user/NotFound/NotFoundContent";
 import PageHeader from "../../components/user/Partial/PageHeader";
-import SupportSection from "../../components/user/Support/SupportSection";
 
-export default function Support() {
+export default function NotFound() {
 	return (
 		<>
 			<Helmet>
-				<title>Support Page - Electro</title>
+				<title>Page Not Found - Electro</title>
 			</Helmet>
 			<PageHeader />
-			<SupportSection />
+			<NotFoundContent />
 		</>
 	);
 }

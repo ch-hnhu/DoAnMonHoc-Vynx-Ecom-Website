@@ -1,10 +1,10 @@
-import BestsellerProducts from "../../components/user/home/BestsellerProducts";
-import Carousel from "../../components/user/home/Carousel";
-import OurProducts from "../../components/user/home/OurProducts";
-import ProductBanner from "../../components/user/home/ProductBanner";
-import ProductList from "../../components/user/home/ProductList";
-import ProductOffers from "../../components/user/home/ProductOffers";
-import ServicesBar from "../../components/user/home/ServicesBar";
+import BestsellerProducts from "../../components/user/Home/BestsellerProducts";
+import Carousel from "../../components/user/Home/Carousel";
+import OurProducts from "../../components/user/Home/OurProducts";
+import ProductBanner from "../../components/user/Partial/ProductBanner";
+import ProductList from "../../components/user/Home/ProductList";
+import ProductOffers from "../../components/user/Partial/ProductOffers";
+import ServicesBar from "../../components/user/Partial/ServicesBar";
 
 export default function Home() {
 	return (

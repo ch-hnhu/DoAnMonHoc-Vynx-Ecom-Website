@@ -1,7 +1,15 @@
+import { useEffect } from "react";
+
 export default function Carousel() {
+	useEffect(() => {
+		// Call the carousel init function from main.js
+		if (window.initCarousels?.header) {
+			window.initCarousels.header();
+		}
+	}, []);
+
 	return (
 		<>
-			{/* Carousel Start */}
 			<div className='container-fluid carousel bg-light px-0'>
 				<div className='row g-0 justify-content-end'>
 					<div className='col-12 col-lg-7 col-xl-9'>
@@ -11,7 +19,7 @@ export default function Carousel() {
 									className='col-xl-6 carousel-img wow fadeInLeft'
 									data-wow-delay='0.1s'>
 									<img
-										src='img/carousel-1.png'
+										src='/img/carousel-1.png'
 										className='img-fluid w-100'
 										alt='Image'
 									/>
@@ -44,7 +52,7 @@ export default function Carousel() {
 									className='col-xl-6 carousel-img wow fadeInLeft'
 									data-wow-delay='0.1s'>
 									<img
-										src='img/carousel-2.png'
+										src='/img/carousel-2.png'
 										className='img-fluid w-100'
 										alt='Image'
 									/>
@@ -77,7 +85,7 @@ export default function Carousel() {
 					<div className='col-12 col-lg-5 col-xl-3 wow fadeInRight' data-wow-delay='0.1s'>
 						<div className='carousel-header-banner h-100'>
 							<img
-								src='img/header-img.jpg'
+								src='/img/header-img.jpg'
 								className='img-fluid w-100 h-100'
 								style={{ objectFit: "cover" }}
 								alt='Image'
@@ -107,7 +115,6 @@ export default function Carousel() {
 					</div>
 				</div>
 			</div>
-			{/*Carousel End*/}
 		</>
 	);
 }

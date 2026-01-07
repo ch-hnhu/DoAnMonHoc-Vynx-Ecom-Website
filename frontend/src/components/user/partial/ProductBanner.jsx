@@ -9,7 +9,7 @@ export default function ProductBanner() {
 							<div style={{ cursor: "pointer" }}>
 								<div className='bg-primary rounded position-relative'>
 									<img
-										src='img/product-banner.jpg'
+										src='/img/product-banner.jpg'
 										className='img-fluid w-100 rounded'
 										alt=''
 									/>
@@ -33,7 +33,7 @@ export default function ProductBanner() {
 							<div style={{ cursor: "pointer" }}>
 								<div className='text-center bg-primary rounded position-relative'>
 									<img
-										src='img/product-banner-2.jpg'
+										src='/img/product-banner-2.jpg'
 										className='img-fluid w-100'
 										alt=''
 									/>

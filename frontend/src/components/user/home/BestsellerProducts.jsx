@@ -25,7 +25,7 @@ export default function BestsellerProducts() {
 									<div className='col-5'>
 										<div className='products-mini-img border-end h-100'>
 											<img
-												src='img/product-3.png'
+												src='/img/product-3.png'
 												className='img-fluid w-100 h-100'
 												alt='Image'
 											/>
@@ -82,7 +82,7 @@ export default function BestsellerProducts() {
 									<div className='col-5'>
 										<div className='products-mini-img border-end h-100'>
 											<img
-												src='img/product-4.png'
+												src='/img/product-4.png'
 												className='img-fluid w-100 h-100'
 												alt='Image'
 											/>
@@ -139,7 +139,7 @@ export default function BestsellerProducts() {
 									<div className='col-5'>
 										<div className='products-mini-img border-end h-100'>
 											<img
-												src='img/product-5.png'
+												src='/img/product-5.png'
 												className='img-fluid w-100 h-100'
 												alt='Image'
 											/>
@@ -196,7 +196,7 @@ export default function BestsellerProducts() {
 									<div className='col-5'>
 										<div className='products-mini-img border-end h-100'>
 											<img
-												src='img/product-6.png'
+												src='/img/product-6.png'
 												className='img-fluid w-100 h-100'
 												alt='Image'
 											/>
@@ -253,7 +253,7 @@ export default function BestsellerProducts() {
 									<div className='col-5'>
 										<div className='products-mini-img border-end h-100'>
 											<img
-												src='img/product-7.png'
+												src='/img/product-7.png'
 												className='img-fluid w-100 h-100'
 												alt='Image'
 											/>
@@ -310,7 +310,7 @@ export default function BestsellerProducts() {
 									<div className='col-5'>
 										<div className='products-mini-img border-end h-100'>
 											<img
-												src='img/product-11.png'
+												src='/img/product-11.png'
 												className='img-fluid w-100 h-100'
 												alt='Image'
 											/>

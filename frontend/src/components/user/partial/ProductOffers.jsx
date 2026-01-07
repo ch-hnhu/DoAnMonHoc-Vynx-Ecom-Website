@@ -16,7 +16,7 @@ export default function ProductOffers() {
 										40% <span className='text-primary fw-normal'>Off</span>
 									</h1>
 								</div>
-								<img src='img/product-1.png' className='img-fluid' alt='' />
+								<img src='/img/product-1.png' className='img-fluid' alt='' />
 							</a>
 						</div>
 						<div className='col-lg-6 wow fadeInRight' data-wow-delay='0.3s'>
@@ -32,7 +32,7 @@ export default function ProductOffers() {
 										20% <span className='text-primary fw-normal'>Off</span>
 									</h1>
 								</div>
-								<img src='img/product-2.png' className='img-fluid' alt='' />
+								<img src='/img/product-2.png' className='img-fluid' alt='' />
 							</a>
 						</div>
 					</div>
