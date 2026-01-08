@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
-import NotFoundContent from "../../components/user/NotFound/NotFoundContent";
-import PageHeader from "../../components/user/Partial/PageHeader";
+import NotFoundContent from "../components/NotFound/NotFoundContent";
+import PageHeader from "../components/Partial/PageHeader";
 
 export default function NotFound() {
 	return (

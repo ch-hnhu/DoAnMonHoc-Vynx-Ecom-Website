@@ -1,5 +1,4 @@
-// File: src/components/Navbar.jsx
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 
 export default function Navbar() {
 	useEffect(() => {
