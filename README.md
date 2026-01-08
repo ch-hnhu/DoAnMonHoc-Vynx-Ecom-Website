@@ -6,11 +6,10 @@ Dự án website thương mại điện tử với kiến trúc tách biệt Bac
 
 Website bán hàng trực tuyến hiện đại với đầy đủ các tính năng:
 
--   Quản lý sản phẩm, danh mục
--   Giỏ hàng và thanh toán
--   Quản lý đơn hàng
+-   **User App**: Website khách hàng với giỏ hàng, thanh toán, quản lý đơn hàng
+-   **Admin App**: Dashboard quản trị sản phẩm, danh mục, đơn hàng
 -   Xác thực người dùng (Authentication)
--   Admin dashboard
+-   RESTful API với Laravel Sanctum
 
 ## 🛠️ Công nghệ sử dụng
 
@@ -75,9 +74,13 @@ php artisan migrate
 
 ```bash
 # Mở terminal mới, di chuyển vào thư mục frontend
-cd frontend
 
-# Cài đặt dependencies
+# Cài đặt cho User App
+cd frontend/user
+npm install
+
+# Cài đặt cho Admin App
+cd ../admin
 npm install
 ```
 
@@ -92,16 +95,29 @@ php artisan serve
 
 Server sẽ chạy tại: **http://localhost:8000**
 
-### Frontend - React App
+### Frontend - React Apps
+
+#### User App (Customer Website)
 
 Mở terminal mới:
 
 ```bash
-cd frontend
+cd frontend/user
 npm run dev
 ```
 
 App sẽ chạy tại: **http://localhost:5173**
+
+#### Admin App (Dashboard)
+
+Mở terminal mới:
+
+```bash
+cd frontend/admin
+npm run dev
+```
+
+App sẽ chạy tại: **http://localhost:5174**
 
 ## 📁 Cấu trúc thư mục
 
@@ -122,17 +138,20 @@ DoAnMonHoc-Vynx-Ecom-Website/
 │   │   └── web.php
 │   └── .env               # Environment config
 │
-├── frontend/              # React App
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── services/      # API services
-│   │   │   └── api.js     # Axios instance
-│   │   ├── config/        # Configuration
-│   │   │   └── api.js     # API URL config
-│   │   ├── App.jsx        # Main component
-│   │   └── main.jsx       # Entry point
-│   ├── public/
-│   └── package.json
+├── frontend/              # React Apps
+│   ├── user/              # Customer Website (port 5173)
+│   │   ├── src/
+│   │   │   ├── components/    # React components
+│   │   │   ├── services/      # API services
+│   │   │   ├── config/        # Configuration
+│   │   │   ├── App.jsx        # Main component
+│   │   │   └── main.jsx       # Entry point
+│   │   ├── public/
+│   │   └── package.json
+│   └── admin/             # Admin Dashboard (port 5174)
+│       ├── src/
+│       ├── package.json
+│       └── vite.config.js
 │
 └── README.md
 ```
@@ -214,8 +233,8 @@ git push origin dev/<ten>
 
 1. PHP và Node.js đã cài đúng version
 2. Database đã tạo và cấu hình đúng trong .env
-3. Đã chạy `composer install` và `npm install`
-4. Backend và Frontend đang chạy trên đúng port
+3. Đã chạy `composer install` và `npm install` (cho cả user và admin)
+4. Backend và Frontend đang chạy trên đúng port (Backend: 8000, User: 5173, Admin: 5174)
 5. CORS đã được cấu hình đúng
 
 Nếu vẫn gặp vấn đề, hãy báo vào group chung!
