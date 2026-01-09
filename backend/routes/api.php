@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +17,8 @@ Route::get('/test', function () {
         'message' => 'hehe tako nek!'
     ]);
 });
+
+Route::get('/products', [ProductController::class, 'index']);
 
 // Protected routes - Require authentication
 Route::middleware('auth:sanctum')->group(function () {
