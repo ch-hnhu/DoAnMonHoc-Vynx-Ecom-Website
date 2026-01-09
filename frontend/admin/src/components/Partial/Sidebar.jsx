@@ -31,13 +31,13 @@ export default function Sidebar() {
 							</a>
 							<ul className='nav nav-treeview'>
 								<li className='nav-item'>
-									<a href='./index.html' className='nav-link active'>
+									<a href='/' className='nav-link active'>
 										<i className='nav-icon bi bi-circle'></i>
 										<p>Dashboard v1</p>
 									</a>
 								</li>
 								<li className='nav-item'>
-									<a href='./index2.html' className='nav-link'>
+									<a href='/table' className='nav-link'>
 										<i className='nav-icon bi bi-circle'></i>
 										<p>Dashboard v2</p>
 									</a>
