@@ -52,7 +52,7 @@ export default function Sidebar() {
 						</li>
 
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/products' className='nav-link'>
 								<i className='nav-icon bi bi-box-seam' />
 								<p>Products</p>
 							</a>
