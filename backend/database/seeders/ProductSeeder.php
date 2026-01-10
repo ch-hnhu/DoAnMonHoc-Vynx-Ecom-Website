@@ -20,9 +20,9 @@ class ProductSeeder extends Seeder
                 'description' => 'Laptop gaming mỏng nhẹ với card đồ họa NVIDIA GeForce GTX 1650, màn hình 15.6 inch Full HD 120Hz',
                 'price' => 19990000,
                 'image_url' => json_encode([
-                    'https://example.com/products/msi-gf63-1.jpg',
-                    'https://example.com/products/msi-gf63-2.jpg',
-                    'https://example.com/products/msi-gf63-3.jpg'
+                    'http://localhost:8000/storage/products/laptops/1-251027012518.png',
+                    'http://localhost:8000/storage/products/laptops/1-251027014616.png',
+                    'http://localhost:8000/storage/products/laptops/1-251027015412.png'
                 ]),
                 'category_id' => 2, // Laptop
                 'brand_id' => 5, // MSI
@@ -37,8 +37,8 @@ class ProductSeeder extends Seeder
                 'description' => 'Laptop văn phòng với hiệu năng ổn định, màn hình 15.6 inch Full HD',
                 'price' => 15990000,
                 'image_url' => json_encode([
-                    'https://example.com/products/acer-aspire-5-1.jpg',
-                    'https://example.com/products/acer-aspire-5-2.jpg'
+                    'http://localhost:8000/storage/products/laptops/25p2312-250205033859.png',
+                    'http://localhost:8000/storage/products/laptops/80gg93-250205032448.png'
                 ]),
                 'category_id' => 2, // Laptop
                 'brand_id' => 2, // Acer
@@ -53,10 +53,10 @@ class ProductSeeder extends Seeder
                 'description' => 'Laptop cao cấp cho dân văn phòng và sáng tạo nội dung, màn hình 4K OLED, Intel Core i7 thế hệ 13',
                 'price' => 45990000,
                 'image_url' => json_encode([
-                    'https://example.com/products/dell-xps-1.jpg',
-                    'https://example.com/products/dell-xps-2.jpg',
-                    'https://example.com/products/dell-xps-3.jpg',
-                    'https://example.com/products/dell-xps-4.jpg'
+                    'http://localhost:8000/storage/products/laptops/laptop-dell-15-dc15250-71071928-intel-core-i5-1334-251021085652.png',
+                    'http://localhost:8000/storage/products/laptops/laptop-dell-15-dc15250-71073959-intel-core-i7-1355-251021100434.png',
+                    'http://localhost:8000/storage/products/laptops/laptop-dell-15-dc15250-71084746-i5-1334u-16gb-512gb-ssd-15-6-inch-fhd-120hz-win-11-office-silver-260108112747.jpg',
+                    'http://localhost:8000/storage/products/laptops/laptop-dell-15-dc15250-dc5i5357w1-intel-core-i5-13-251021084544.png'
                 ]),
                 'category_id' => 2, // Laptop
                 'brand_id' => 4, // Dell
@@ -71,8 +71,8 @@ class ProductSeeder extends Seeder
                 'description' => 'Tai nghe chống ồn tốt nhất thế giới, âm thanh Hi-Res, pin 30 giờ, kết nối đa điểm',
                 'price' => 8990000,
                 'image_url' => json_encode([
-                    'https://example.com/products/sony-headphone-1.jpg',
-                    'https://example.com/products/sony-headphone-2.jpg'
+                    'http://localhost:8000/storage/products/headphones/tai-nghe-chup-tai 06.39.01.png',
+                    'http://localhost:8000/storage/products/headphones/tai-nghe-khong-day 06.39.01.png'
                 ]),
                 'category_id' => 4, // Tai nghe
                 'brand_id' => 3, // Sony
@@ -82,16 +82,16 @@ class ProductSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'name' => 'Corsair Vengeance LPX 16GB (2x8GB) DDR4 3200MHz',
-                'slug' => 'corsair-vengeance-lpx-16gb-ddr4-3200mhz',
-                'description' => 'Bộ nhớ RAM Corsair Vengeance LPX 16GB (2x8GB) DDR4 3200MHz, hiệu năng cao cho máy tính chơi game và làm việc đa nhiệm',
+                'name' => 'RAM Kingston NV1 1TB M.2 NVMe SSD',
+                'slug' => 'ram-kingston-nv1-1tb-m2-nvme-ssd',
+                'description' => 'Kingston Fury Beast Black có khả năng tự động ép xung với tần số lên đến 3200 MHz và độ trễ thấp, CL16-18-18. Theo đó khả năng hoạt động tương thích  bộ vi xử lý Intel XMP sẽ tăng lên đáng kể, mang đến sự mượt mà cho những tác vụ nặng trên thiết bị.',
                 'price' => 2490000,
                 'image_url' => json_encode([
-                    'https://example.com/products/corsair-ram-1.jpg',
-                    'https://example.com/products/corsair-ram-2.jpg'
+                    'http://localhost:8000/storage/products/ram/group_265_4_.webp',
+                    'http://localhost:8000/storage/products/ram/ram-kingston-ddr5-5600mhz-16gb-kvr56s46bs8-16wp_1_.webp'
                 ]),
                 'category_id' => 8, // Ram
-                'brand_id' => 1, // Corsair
+                'brand_id' => 1, // Kingston
                 'promotion_id' => null,
                 'stock_quantity' => 75,
                 'created_at' => now(),

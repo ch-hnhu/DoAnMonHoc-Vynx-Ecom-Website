@@ -15,7 +15,7 @@ class ProductController extends Controller
     {
         return response()->json([
             'message' => 'Gọi đến api product thành công',
-            'data' => Product::with(['category', 'brand'])->get()
+            'data' => Product::with(['category', 'brand', 'promotion'])->get()
         ]);
     }
 

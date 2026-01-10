@@ -1,4 +1,35 @@
+import { useState, useEffect } from "react";
+import Pagination from "../Partial/Pagination";
+import ProductCardLarge from "../Partial/ProductCardLarge";
+import ProductCardMedium from "../Partial/ProductCardMedium";
+import Spinner from "../Partial/Spinner";
+import api from "../../services/api";
+
 export default function ShopPage() {
+	const [products, setProducts] = useState([]);
+	const [loading, setLoading] = useState(true);
+
+	useEffect(() => {
+		api.get("/products")
+			.then((response) => {
+				setProducts(response.data.data || []);
+			})
+			.catch((error) => {
+				console.error("Error fetching products: ", error);
+			})
+			.finally(() => {
+				setLoading(false);
+			});
+	}, []);
+
+	const handleAddToCart = (product) => {
+		console.log("Add to cart:", product);
+	};
+
+	const handleViewDetails = (product) => {
+		console.log("View details:", product);
+	};
+
 	return (
 		<div className='container-fluid shop py-5'>
 			<div className='container py-5'>
@@ -278,31 +309,28 @@ export default function ShopPage() {
 						</div>
 
 						{/* Banner side */}
-						<a href='#'>
-							<div className='position-relative'>
-								<img
-									src='/img/product-banner-2.jpg'
-									className='img-fluid w-100 rounded'
-									alt='Image'
-								/>
-								<div
-									className='text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4'
-									style={{
-										width: "100%",
-										height: "100%",
-										top: 0,
-										right: 0,
-										background: "rgba(242, 139, 0, 0.3)",
-									}}>
-									<h5 className='display-6 text-primary'>SALE</h5>
-									<h4 className='text-secondary'>Get UP To 50% Off</h4>
-									<a href='#' className='btn btn-primary rounded-pill px-4'>
-										Shop Now
-									</a>
-								</div>
+						<div className='position-relative'>
+							<img
+								src='/img/product-banner-2.jpg'
+								className='img-fluid w-100 rounded'
+								alt='Image'
+							/>
+							<div
+								className='text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4'
+								style={{
+									width: "100%",
+									height: "100%",
+									top: 0,
+									right: 0,
+									background: "rgba(242, 139, 0, 0.3)",
+								}}>
+								<h5 className='display-6 text-primary'>SALE</h5>
+								<h4 className='text-secondary'>Get UP To 50% Off</h4>
+								<a href='#' className='btn btn-primary rounded-pill px-4'>
+									Shop Now
+								</a>
 							</div>
-						</a>
-
+						</div>
 						{/* Tags */}
 						<div className='product-tags py-4'>
 							<h4 className='mb-3'>PRODUCT TAGS</h4>
@@ -421,106 +449,25 @@ export default function ShopPage() {
 							{/* Grid */}
 							<div id='tab-5' className='tab-pane fade show p-0 active'>
 								<div className='row g-4 product'>
-									{/* Bạn có thể tách thành component ProductCard sau cho gọn */}
-									<div className='col-lg-4'>
-										<div
-											className='product-item rounded wow fadeInUp'
-											data-wow-delay='0.1s'>
-											<div className='product-item-inner border rounded'>
-												<div className='product-item-inner-item'>
-													<img
-														src='/img/product-3.png'
-														className='img-fluid w-100 rounded-top'
-														alt=''
-													/>
-													<div className='product-new'>New</div>
-													<div className='product-details'>
-														<a href='#'>
-															<i className='fa fa-eye fa-1x'></i>
-														</a>
-													</div>
-												</div>
-												<div className='text-center rounded-bottom p-4'>
-													<a href='#' className='d-block mb-2'>
-														SmartPhone
-													</a>
-													<a href='#' className='d-block h4'>
-														Apple iPad Mini <br /> G2356
-													</a>
-													<del className='me-2 fs-5'>$1,250.00</del>
-													<span className='text-primary fs-5'>
-														$1,050.00
-													</span>
-												</div>
-											</div>
-											<div className='product-item-add border border-top-0 rounded-bottom text-center p-4 pt-0'>
-												<a
-													href='#'
-													className='btn btn-primary border-secondary rounded-pill py-2 px-4 mb-4'>
-													<i className='fas fa-shopping-cart me-2'></i>{" "}
-													Add To Cart
-												</a>
-
-												<div className='d-flex justify-content-between align-items-center'>
-													<div className='d-flex'>
-														<i className='fas fa-star text-primary'></i>
-														<i className='fas fa-star text-primary'></i>
-														<i className='fas fa-star text-primary'></i>
-														<i className='fas fa-star text-primary'></i>
-														<i className='fas fa-star'></i>
-													</div>
-													<div className='d-flex'>
-														<a
-															href='#'
-															className='text-primary d-flex align-items-center justify-content-center me-3'>
-															<span className='rounded-circle btn-sm-square border'>
-																<i className='fas fa-random'></i>
-															</span>
-														</a>
-														<a
-															href='#'
-															className='text-primary d-flex align-items-center justify-content-center me-0'>
-															<span className='rounded-circle btn-sm-square border'>
-																<i className='fas fa-heart'></i>
-															</span>
-														</a>
-													</div>
-												</div>
-											</div>
+									{loading ? (
+										<Spinner />
+									) : products.length > 0 ? (
+										products.map((product) => (
+											<ProductCardLarge
+												key={product.id}
+												product={product}
+												onAddToCart={handleAddToCart}
+												onViewDetails={handleViewDetails}
+											/>
+										))
+									) : (
+										<div className='col-12 text-center py-5'>
+											<p>Không có sản phẩm nào</p>
 										</div>
-									</div>
+									)}
 
-									{/* Các card còn lại: giữ y chang, chỉ đổi class->className (như trên) */}
-									{/* ... */}
 									{/* Pagination */}
-									<div className='col-12 wow fadeInUp' data-wow-delay='0.1s'>
-										<div className='pagination d-flex justify-content-center mt-5'>
-											<a href='#' className='rounded'>
-												&laquo;
-											</a>
-											<a href='#' className='active rounded'>
-												1
-											</a>
-											<a href='#' className='rounded'>
-												2
-											</a>
-											<a href='#' className='rounded'>
-												3
-											</a>
-											<a href='#' className='rounded'>
-												4
-											</a>
-											<a href='#' className='rounded'>
-												5
-											</a>
-											<a href='#' className='rounded'>
-												6
-											</a>
-											<a href='#' className='rounded'>
-												&raquo;
-											</a>
-										</div>
-									</div>
+									<Pagination />
 								</div>
 							</div>
 
@@ -528,97 +475,25 @@ export default function ShopPage() {
 							<div id='tab-6' className='products tab-pane fade show p-0'>
 								<div className='row g-4 products-mini'>
 									{/* Mini item 1 */}
-									<div className='col-lg-6'>
-										<div className='products-mini-item border'>
-											<div className='row g-0'>
-												<div className='col-5'>
-													<div className='products-mini-img border-end h-100'>
-														<img
-															src='/img/product-3.png'
-															className='img-fluid w-100 h-100'
-															alt='Image'
-														/>
-														<div className='products-mini-icon rounded-circle bg-primary'>
-															<a href='#'>
-																<i className='fa fa-eye fa-1x text-white'></i>
-															</a>
-														</div>
-													</div>
-												</div>
-												<div className='col-7'>
-													<div className='products-mini-content p-3'>
-														<a href='#' className='d-block mb-2'>
-															SmartPhone
-														</a>
-														<a href='#' className='d-block h4'>
-															Apple iPad Mini <br /> G2356
-														</a>
-														<del className='me-2 fs-5'>$1,250.00</del>
-														<span className='text-primary fs-5'>
-															$1,050.00
-														</span>
-													</div>
-												</div>
-											</div>
-
-											<div className='products-mini-add border p-3'>
-												<a
-													href='#'
-													className='btn btn-primary border-secondary rounded-pill py-2 px-4'>
-													<i className='fas fa-shopping-cart me-2'></i>{" "}
-													Add To Cart
-												</a>
-												<div className='d-flex'>
-													<a
-														href='#'
-														className='text-primary d-flex align-items-center justify-content-center me-3'>
-														<span className='rounded-circle btn-sm-square border'>
-															<i className='fas fa-random'></i>
-														</span>
-													</a>
-													<a
-														href='#'
-														className='text-primary d-flex align-items-center justify-content-center me-0'>
-														<span className='rounded-circle btn-sm-square border'>
-															<i className='fas fa-heart'></i>
-														</span>
-													</a>
-												</div>
-											</div>
+									{loading ? (
+										<Spinner />
+									) : products.length > 0 ? (
+										products.map((product) => (
+											<ProductCardMedium
+												key={product.id}
+												product={product}
+												onAddToCart={handleAddToCart}
+												onViewDetails={handleViewDetails}
+											/>
+										))
+									) : (
+										<div className='col-12 text-center py-5'>
+											<p>Không có sản phẩm nào</p>
 										</div>
-									</div>
+									)}
 
-									{/* Các mini item còn lại tương tự */}
-									{/* ... */}
-
-									<div className='col-12 wow fadeInUp' data-wow-delay='0.1s'>
-										<div className='pagination d-flex justify-content-center mt-5'>
-											<a href='#' className='rounded'>
-												&laquo;
-											</a>
-											<a href='#' className='active rounded'>
-												1
-											</a>
-											<a href='#' className='rounded'>
-												2
-											</a>
-											<a href='#' className='rounded'>
-												3
-											</a>
-											<a href='#' className='rounded'>
-												4
-											</a>
-											<a href='#' className='rounded'>
-												5
-											</a>
-											<a href='#' className='rounded'>
-												6
-											</a>
-											<a href='#' className='rounded'>
-												&raquo;
-											</a>
-										</div>
-									</div>
+									{/* Pagination */}
+									<Pagination />
 								</div>
 							</div>
 						</div>
