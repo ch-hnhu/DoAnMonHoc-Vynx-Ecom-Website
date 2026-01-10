@@ -84,7 +84,7 @@ export default function Header() {
 										</small>
 									</a>
 									<div className='dropdown-menu rounded'>
-										<a href='#' className='dropdown-item'>
+										<a href='/login' className='dropdown-item'>
 											Login
 										</a>
 										<a href='#' className='dropdown-item'>

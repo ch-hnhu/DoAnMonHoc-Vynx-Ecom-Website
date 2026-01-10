@@ -7,12 +7,16 @@ import Cart from "./pages/Cart.jsx";
 import Support from "./pages/Support.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import NotFound from "./pages/NotFound.jsx";
+import Login from "./pages/Login.jsx";
+import Signup from "./pages/Signup.jsx";
 import { HelmetProvider } from "react-helmet-async";
 
 export default function App() {
 	return (
 		<HelmetProvider>
 			<Routes>
+				<Route path='login' element={<Login />} />
+				<Route path='signup' element={<Signup />} />
 				<Route path='/' element={<MainLayout />}>
 					<Route index element={<Home />} />
 
