@@ -13,7 +13,6 @@ export default function Shop() {
 			</Helmet>
 			<PageHeader />
 			<ServicesBar />
-			<ProductOffers />
 			<ShopPage />
 			<ProductBanner />
 		</>

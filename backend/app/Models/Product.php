@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Product
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string|null $description
@@ -26,7 +26,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * 
+ *
  * @property Brand $brand
  * @property Category $category
  * @property Promotion|null $promotion
@@ -39,62 +39,63 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends Model
 {
-	use SoftDeletes;
-	protected $table = 'products';
+    use SoftDeletes;
+    protected $table = 'products';
 
-	protected $casts = [
-		'price' => 'float',
-		'category_id' => 'int',
-		'brand_id' => 'int',
-		'promotion_id' => 'int',
-		'stock_quantity' => 'int'
-	];
+    protected $casts = [
+        'price' => 'float',
+        'category_id' => 'int',
+        'brand_id' => 'int',
+        'promotion_id' => 'int',
+        'stock_quantity' => 'int'
+    ];
 
-	protected $fillable = [
-		'name',
-		'description',
-		'price',
-		'image_url',
-		'category_id',
-		'brand_id',
-		'promotion_id',
-		'stock_quantity'
-	];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'price',
+        'image_url',
+        'category_id',
+        'brand_id',
+        'promotion_id',
+        'stock_quantity'
+    ];
 
-	public function brand()
-	{
-		return $this->belongsTo(Brand::class);
-	}
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
 
-	public function category()
-	{
-		return $this->belongsTo(Category::class);
-	}
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 
-	public function promotion()
-	{
-		return $this->belongsTo(Promotion::class);
-	}
+    public function promotion()
+    {
+        return $this->belongsTo(Promotion::class);
+    }
 
-	public function cart_items()
-	{
-		return $this->hasMany(CartItem::class);
-	}
+    public function cart_items()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 
-	public function order_items()
-	{
-		return $this->hasMany(OrderItem::class);
-	}
+    public function order_items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 
-	public function attributes()
-	{
-		return $this->belongsToMany(Attribute::class, 'product_attribute_values')
-					->withPivot('value', 'deleted_at')
-					->withTimestamps();
-	}
+    public function attributes()
+    {
+        return $this->belongsToMany(Attribute::class, 'product_attribute_values')
+            ->withPivot('value', 'deleted_at')
+            ->withTimestamps();
+    }
 
-	public function product_reviews()
-	{
-		return $this->hasMany(ProductReview::class);
-	}
+    public function product_reviews()
+    {
+        return $this->hasMany(ProductReview::class);
+    }
 }
