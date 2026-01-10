@@ -144,6 +144,15 @@ export default function ProductPage() {
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
 				checkboxSelection={true}
+				actions={
+					<Button
+						variant='contained'
+						color='primary'
+						startIcon={<AddIcon />}
+						onClick={handleAdd}>
+						Thêm sản phẩm
+					</Button>
+				}
 			/>
 		</>
 	);

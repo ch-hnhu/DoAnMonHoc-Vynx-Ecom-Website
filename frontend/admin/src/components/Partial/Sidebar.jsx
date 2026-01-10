@@ -58,49 +58,49 @@ export default function Sidebar() {
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/orders' className='nav-link'>
 								<i className='nav-icon bi bi-receipt' />
 								<p>Orders</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/users' className='nav-link'>
 								<i className='nav-icon bi bi-people' />
 								<p>Users</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/categories' className='nav-link'>
 								<i className='nav-icon bi bi-grid' />
 								<p>Categories</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/brands' className='nav-link'>
 								<i className='nav-icon bi bi-tags' />
 								<p>Brands</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/attributes' className='nav-link'>
 								<i className='nav-icon bi bi-sliders' />
 								<p>Attributes</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/reviews' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Reviews</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/promotions' className='nav-link'>
 								<i className='nav-icon bi bi-ticket-perforated' />
 								<p>Coupons</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link'>
+							<a href='/configurations' className='nav-link'>
 								<i className='nav-icon bi bi-gear' />
 								<p>Settings</p>
 							</a>

@@ -22,6 +22,7 @@ export default function DataTable({
 	loading = false,
 	title,
 	breadcrumbs,
+	actions,
 	pageSize = 25,
 	pageSizeOptions = [10, 25, 50, 100],
 	checkboxSelection = true,
@@ -65,6 +66,7 @@ export default function DataTable({
 			{title && <PageHeader title={title} breadcrumbs={breadcrumbs} />}
 			<div className='app-content'>
 				<div className='container-fluid'>
+					{actions && <div className='d-flex align-items-center mb-3'>{actions}</div>}
 					<div style={{ height, width: "100%" }}>
 						<DataGrid
 							columns={columns}
