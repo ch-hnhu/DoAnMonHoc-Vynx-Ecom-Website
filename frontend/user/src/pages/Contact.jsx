@@ -29,7 +29,7 @@ export default function Contact() {
 					<div className='row g-4'>
 						<div className='col-lg-7'>
 							<div className='bg-light rounded p-4 p-lg-5'>
-								<h2 className='mb-3'>Gửi yêu cầu hỗ trợ</h2>
+								<h2 className='mb-3'>Gửi liên hệ</h2>
 								<p className='text-muted mb-4'>
 									Chúng tôi phản hồi trong giờ làm việc. Vui lòng mô tả rõ vấn
 									đề để được hỗ trợ nhanh nhất.
