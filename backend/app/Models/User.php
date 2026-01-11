@@ -8,12 +8,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class User
- * 
+ *
  * @property int $id
  * @property string $username
  * @property string $password
@@ -27,7 +28,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * 
+ *
  * @property Collection|Order[] $orders
  * @property Collection|ProductReview[] $product_reviews
  * @property Collection|ShoppingCart[] $shopping_carts
@@ -38,7 +39,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class User extends Model
 {
-	use SoftDeletes;
+	use HasFactory, SoftDeletes;
 	protected $table = 'users';
 
 	protected $casts = [

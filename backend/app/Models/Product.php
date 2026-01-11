@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -39,63 +40,63 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends Model
 {
-    use SoftDeletes;
-    protected $table = 'products';
+	use HasFactory, SoftDeletes;
+	protected $table = 'products';
 
-    protected $casts = [
-        'price' => 'float',
-        'category_id' => 'int',
-        'brand_id' => 'int',
-        'promotion_id' => 'int',
-        'stock_quantity' => 'int'
-    ];
+	protected $casts = [
+		'price' => 'float',
+		'category_id' => 'int',
+		'brand_id' => 'int',
+		'promotion_id' => 'int',
+		'stock_quantity' => 'int'
+	];
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'price',
-        'image_url',
-        'category_id',
-        'brand_id',
-        'promotion_id',
-        'stock_quantity'
-    ];
+	protected $fillable = [
+		'name',
+		'slug',
+		'description',
+		'price',
+		'image_url',
+		'category_id',
+		'brand_id',
+		'promotion_id',
+		'stock_quantity'
+	];
 
-    public function brand()
-    {
-        return $this->belongsTo(Brand::class);
-    }
+	public function brand()
+	{
+		return $this->belongsTo(Brand::class);
+	}
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
+	public function category()
+	{
+		return $this->belongsTo(Category::class);
+	}
 
-    public function promotion()
-    {
-        return $this->belongsTo(Promotion::class);
-    }
+	public function promotion()
+	{
+		return $this->belongsTo(Promotion::class);
+	}
 
-    public function cart_items()
-    {
-        return $this->hasMany(CartItem::class);
-    }
+	public function cart_items()
+	{
+		return $this->hasMany(CartItem::class);
+	}
 
-    public function order_items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
+	public function order_items()
+	{
+		return $this->hasMany(OrderItem::class);
+	}
 
-    public function attributes()
-    {
-        return $this->belongsToMany(Attribute::class, 'product_attribute_values')
-            ->withPivot('value', 'deleted_at')
-            ->withTimestamps();
-    }
+	public function attributes()
+	{
+		return $this->belongsToMany(Attribute::class, 'product_attribute_values')
+			->withPivot('value', 'deleted_at')
+			->withTimestamps();
+	}
 
-    public function product_reviews()
-    {
-        return $this->hasMany(ProductReview::class);
-    }
+	public function product_reviews()
+	{
+		return $this->hasMany(ProductReview::class);
+	}
 }

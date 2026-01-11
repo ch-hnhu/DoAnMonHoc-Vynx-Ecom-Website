@@ -6,16 +6,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class OrderItem
- * 
+ *
  * @property int $order_id
  * @property int $product_id
  * @property int $quantity
  * @property float $price
- * 
+ *
  * @property Order $order
  * @property Product $product
  *
@@ -23,6 +24,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class OrderItem extends Model
 {
+	use HasFactory;
 	protected $table = 'order_items';
 	public $incrementing = false;
 	public $timestamps = false;

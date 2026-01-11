@@ -7,12 +7,13 @@
 namespace App\Models;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class ProductReview
- * 
+ *
  * @property int $id
  * @property int $product_id
  * @property int $user_id
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * 
+ *
  * @property Order $order
  * @property Product $product
  * @property User $user
@@ -33,7 +34,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class ProductReview extends Model
 {
-	use SoftDeletes;
+	use HasFactory, SoftDeletes;
 	protected $table = 'product_reviews';
 
 	protected $casts = [

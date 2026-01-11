@@ -8,12 +8,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Category
- * 
+ *
  * @property int $id
  * @property string $name
  * @property string $slug
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property string|null $deleted_at
- * 
+ *
  * @property Category|null $category
  * @property Collection|Category[] $categories
  * @property Collection|Attribute[] $attributes
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Category extends Model
 {
-	use SoftDeletes;
+	use HasFactory, SoftDeletes;
 	protected $table = 'categories';
 
 	protected $casts = [
@@ -59,8 +60,8 @@ class Category extends Model
 	public function attributes()
 	{
 		return $this->belongsToMany(Attribute::class, 'category_attributes')
-					->withPivot('used_for_variant', 'deleted_at')
-					->withTimestamps();
+			->withPivot('used_for_variant', 'deleted_at')
+			->withTimestamps();
 	}
 
 	public function products()
