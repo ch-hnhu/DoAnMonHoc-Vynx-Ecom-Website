@@ -70,7 +70,7 @@ export default function ProductCardLarge({ product, onAddToCart, onViewDetails }
 					</a>
 
 					<div className='d-flex justify-content-between align-items-center'>
-						<div className='d-flex'>{renderRating(product.rating || 0)}</div>
+						<div className='d-flex'>{renderRating(product.rating_average || 0)}</div>
 						<div className='d-flex'>
 							<a
 								href='#'

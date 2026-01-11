@@ -13,9 +13,43 @@ class ProductController extends Controller
      */
     public function index()
     {
+        $products = Product::with(['category', 'brand', 'promotion'])
+            ->withAvg('product_reviews as rating_average', 'rating')
+            ->withCount('product_reviews as rating_count')
+            ->get();
+
         return response()->json([
-            'message' => 'Gọi đến api product thành công',
-            'data' => Product::with(['category', 'brand', 'promotion'])->get()
+            'success' => true,
+            'message' => 'Lấy danh sách sản phẩm thành công',
+            'data' => $products
+        ]);
+    }
+
+    /**
+     * Display a paginated listing of the resource.
+     */
+    public function paginated(Request $request)
+    {
+        $perPage = $request->input('per_page', 9);
+        $products = Product::with(['category', 'brand', 'promotion'])
+            ->withAvg('product_reviews as rating_average', 'rating')
+            ->withCount('product_reviews as rating_count')
+            ->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lấy danh sách sản phẩm thành công',
+            'data' => $products->items(),
+            'error' => null,
+            'pagination' => [
+                'total' => $products->total(),
+                'per_page' => $products->perPage(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+                'from' => $products->firstItem(),
+                'to' => $products->lastItem(),
+            ],
+            'timestamp' => now(),
         ]);
     }
 

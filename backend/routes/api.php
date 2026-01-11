@@ -27,6 +27,7 @@ Route::get('/test', function () {
 });
 
 Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/paginated', [ProductController::class, 'paginated']);
 Route::get('/orders', [OrderController::class, 'index']);
 Route::delete('/orders/{order}', [OrderController::class, 'destroy']);
 Route::get('/users', [UserController::class, 'index']);
