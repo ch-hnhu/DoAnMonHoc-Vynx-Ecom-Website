@@ -5,8 +5,7 @@ import { Button, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import Headers from "../components/Partial/Header";
-import PageHeader from "../components/Dashboard/PageHeader";
+import { formatDate } from "@shared/utils/formatHelper.jsx";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
@@ -89,7 +88,7 @@ export default function ProductPage() {
 			headerName: "Ngày tạo",
 			width: 180,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{

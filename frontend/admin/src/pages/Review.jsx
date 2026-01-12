@@ -6,6 +6,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
+import { formatDate } from "@shared/utils/formatHelper.jsx";
 
 const renderStars = (rating) => {
 	const stars = [];
@@ -99,7 +100,7 @@ export default function ReviewPage() {
 			headerName: "Ngay tạo",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{

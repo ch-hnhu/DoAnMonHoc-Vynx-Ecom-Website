@@ -3,7 +3,7 @@ import { Button, Snackbar, Alert } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
-import { formatPrice, formatDate } from "@shared/utils/formatHelper.jsx";
+import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 
@@ -99,7 +99,7 @@ export default function OrderPage() {
 			headerName: "Tổng tiền",
 			width: 160,
 			type: "number",
-			valueFormatter: (params) => formatPrice(params),
+			valueFormatter: (params) => formatCurrency(params),
 		},
 		{
 			field: "payment_method",

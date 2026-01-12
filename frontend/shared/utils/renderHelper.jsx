@@ -19,7 +19,7 @@ export const renderRating = (rating) => {
  * @param {Object} colorMap - Bản đồ màu cho các trạng thái
  * @returns {JSX.Element} - JSX element của Chip
  */
-export const renderStatusChip = (value, colorMap) => {
+export const renderChip = (value, colorMap = {}) => {
 	const color = colorMap[value] || "default";
 	return <Chip label={value} color={color} size='small' variant='outlined' />;
 };

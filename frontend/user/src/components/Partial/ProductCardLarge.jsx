@@ -1,11 +1,6 @@
-import {
-	formatPrice,
-	renderRating,
-	getProductImage,
-	getDiscountPercentage,
-	getFinalPrice,
-	hasDiscount,
-} from "@shared/utils/productHelpers.jsx";
+import { getProductImage, getFinalPrice, hasDiscount } from "@shared/utils/productHelpers.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
+import { renderRating } from "@shared/utils/renderHelper.jsx";
 
 export default function ProductCardLarge({ product, onAddToCart, onViewDetails }) {
 	const handleAddToCart = (e) => {
@@ -51,13 +46,15 @@ export default function ProductCardLarge({ product, onAddToCart, onViewDetails }
 						</a>
 						{hasDiscount(product) ? (
 							<>
-								<del className='me-2 fs-5'>{formatPrice(product.price)}</del>
+								<del className='me-2 fs-5'>{formatCurrency(product.price)}</del>
 								<span className='text-primary fs-5'>
-									{formatPrice(getFinalPrice(product))}
+									{formatCurrency(getFinalPrice(product))}
 								</span>
 							</>
 						) : (
-							<span className='text-primary fs-5'>{formatPrice(product.price)}</span>
+							<span className='text-primary fs-5'>
+								{formatCurrency(product.price)}
+							</span>
 						)}
 					</div>
 				</div>

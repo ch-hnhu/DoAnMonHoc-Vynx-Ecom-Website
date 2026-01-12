@@ -3,7 +3,7 @@
  * @param {number} price - Giá cần format
  * @returns {string} - Giá đã format
  */
-export const formatPrice = (price) => {
+export const formatCurrency = (price) => {
 	return new Intl.NumberFormat("vi-VN", {
 		style: "currency",
 		currency: "VND",
