@@ -1,19 +1,10 @@
 import { useEffect, useState } from "react";
-import { Button, Box, Chip, Snackbar, Alert } from "@mui/material";
+import { Button, Snackbar, Alert } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
-
-const formatCurrency = (value) =>
-	new Intl.NumberFormat("vi-VN", {
-		style: "currency",
-		currency: "VND",
-	}).format(value);
-
-const renderStatusChip = (value, colorMap) => {
-	const color = colorMap[value] || "default";
-	return <Chip label={value} color={color} size='small' variant='outlined' />;
-};
+import { formatPrice, formatDate } from "@shared/utils/formatHelper.jsx";
+import { renderStatusChip } from "@shared/utils/renderHelper.jsx";
 
 export default function OrderPage() {
 	const [orders, setOrders] = useState([]);
@@ -115,7 +106,7 @@ export default function OrderPage() {
 		},
 		{
 			field: "items_count",
-			headerName: "Số SP",
+			headerName: "Số lượng SP",
 			width: 110,
 			type: "number",
 			valueGetter: (params, row) => row.order_items?.length || 0,
@@ -125,7 +116,7 @@ export default function OrderPage() {
 			headerName: "Tổng tiền",
 			width: 160,
 			type: "number",
-			valueFormatter: (params) => formatCurrency(params),
+			valueFormatter: (params) => formatPrice(params),
 		},
 		{
 			field: "payment_method",
@@ -164,7 +155,7 @@ export default function OrderPage() {
 			headerName: "Ngày tạo",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{
