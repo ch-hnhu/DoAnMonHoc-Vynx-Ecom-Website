@@ -1,29 +1,4 @@
 /**
- * Format giá tiền theo định dạng VND
- * @param {number} price - Giá cần format
- * @returns {string} - Giá đã format
- */
-export const formatPrice = (price) => {
-	return new Intl.NumberFormat("vi-VN", {
-		style: "currency",
-		currency: "VND",
-	}).format(price);
-};
-
-/**
- * Render rating stars
- * @param {number} rating - Số sao (0-5)
- * @returns {Array} - Mảng JSX elements các sao
- */
-export const renderRating = (rating) => {
-	const stars = [];
-	for (let i = 1; i <= 5; i++) {
-		stars.push(<i key={i} className={`fas fa-star ${i <= rating ? "text-primary" : ""}`} />);
-	}
-	return stars;
-};
-
-/**
  * Lấy ảnh sản phẩm đầu tiên từ image_url
  * @param {string|Array} imageUrl - URL ảnh hoặc array các URL
  * @returns {string} - URL ảnh đầu tiên hoặc ảnh mặc định
@@ -117,17 +92,4 @@ export const getSavingAmount = (product) => {
 	const originalPrice = product.price;
 	const finalPrice = getFinalPrice(product);
 	return originalPrice - finalPrice;
-};
-
-/**
- * Format slug thành tên dễ đọc
- * @param {string} slug - Slug cần format
- * @returns {string} - Tên đã format
- */
-export const formatSlugToName = (slug) => {
-	if (!slug) return "";
-	return slug
-		.split("-")
-		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-		.join(" ");
 };

@@ -4,6 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
+import { formatDate } from "@shared/utils/formatHelper.jsx";
 
 export default function BrandPage() {
 	const [brands, setBrands] = useState([]);
@@ -51,14 +52,13 @@ export default function BrandPage() {
 	const columns = [
 		{ field: "id", headerName: "ID", width: 90 },
 		{ field: "name", headerName: "Tên thương hiệu", width: 240 },
-		{ field: "logo_url", headerName: "Logo URL", width: 260 },
-		{ field: "description", headerName: "Mô tả", width: 280 },
+		{ field: "description", headerName: "Mô tả", width: 400 },
 		{
 			field: "created_at",
 			headerName: "Ngày tạo",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{

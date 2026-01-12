@@ -1,4 +1,5 @@
-import { formatPrice, getProductImage, getFinalPrice } from "@shared/utils/productHelpers.jsx";
+import { getProductImage, getFinalPrice } from "@shared/utils/productHelpers.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function ProductCardMedium({ product, onAddToCart, onViewDetails }) {
 	const handleAddToCart = (e) => {
@@ -43,9 +44,9 @@ export default function ProductCardMedium({ product, onAddToCart, onViewDetails 
 							<a href='#' className='d-block h4'>
 								{product.name}
 							</a>
-							<del className='me-2 fs-5'>{formatPrice(product.price)}</del>
+							<del className='me-2 fs-5'>{formatCurrency(product.price)}</del>
 							<span className='text-primary fs-5'>
-								{formatPrice(getFinalPrice(product))}
+								{formatCurrency(getFinalPrice(product))}
 							</span>
 						</div>
 					</div>

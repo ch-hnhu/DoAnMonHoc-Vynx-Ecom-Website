@@ -4,6 +4,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
+import { formatDate } from "@shared/utils/formatHelper.jsx";
 
 const renderFilterChip = (isFilterable) => {
 	if (isFilterable) {
@@ -73,7 +74,7 @@ export default function AttributePage() {
 			headerName: "Ngày tạo",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{

@@ -4,22 +4,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
-
-const renderDiscountType = (value) => {
-	const label = value === "percent" ? "Percent" : "Fixed";
-	const color = value === "percent" ? "info" : "success";
-	return <Chip label={label} color={color} size='small' variant='outlined' />;
-};
-
-const formatCurrency = (value) =>
-	new Intl.NumberFormat("vi-VN", {
-		style: "currency",
-		currency: "VND",
-	}).format(value);
+import { formatDate } from "@shared/utils/formatHelper.jsx";
+import { renderChip } from "@shared/utils/renderHelper.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function PromotionPage() {
 	const [promotions, setPromotions] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const discountTypeColor = {
+		percent: "info",
+		fixed: "success",
+	};
 
 	useEffect(() => {
 		setLoading(true);
@@ -68,7 +63,7 @@ export default function PromotionPage() {
 			field: "discount_type",
 			headerName: "Loại giảm",
 			width: 140,
-			renderCell: (params) => renderDiscountType(params.value),
+			renderCell: (params) => renderChip(params.value, discountTypeColor),
 		},
 		{
 			field: "discount_value",
@@ -89,7 +84,7 @@ export default function PromotionPage() {
 			headerName: "Bắt đầu",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{
@@ -97,7 +92,7 @@ export default function PromotionPage() {
 			headerName: "Kết thúc",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{ field: "description", headerName: "Mô tả", width: 240 },
