@@ -20,7 +20,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Lấy danh sách sản phẩm thành công',
+            'message' => 'Lay danh sach san pham thanh cong',
             'data' => $products
         ]);
     }
@@ -38,7 +38,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Lấy danh sách sản phẩm thành công',
+            'message' => 'Lay danh sach san pham thanh cong',
             'data' => $products->items(),
             'error' => null,
             'pagination' => [

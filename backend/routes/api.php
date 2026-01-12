@@ -26,24 +26,21 @@ Route::get('/test', function () {
     ]);
 });
 
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/paginated', [ProductController::class, 'paginated']);
-Route::get('/orders', [OrderController::class, 'index']);
-Route::delete('/orders/{order}', [OrderController::class, 'destroy']);
-Route::get('/users', [UserController::class, 'index']);
-Route::delete('/users/{user}', [UserController::class, 'destroy']);
-Route::get('/brands', [BrandController::class, 'index']);
-Route::delete('/brands/{brand}', [BrandController::class, 'destroy']);
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
-Route::get('/attributes', [AttributeController::class, 'index']);
-Route::delete('/attributes/{attribute}', [AttributeController::class, 'destroy']);
-Route::get('/promotions', [PromotionController::class, 'index']);
-Route::delete('/promotions/{promotion}', [PromotionController::class, 'destroy']);
-Route::get('/configurations', [ConfigurationController::class, 'index']);
-Route::delete('/configurations/{configuration}', [ConfigurationController::class, 'destroy']);
-Route::get('/reviews', [ReviewController::class, 'index']);
-Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
+// Product routes
+Route::prefix('products')->group(function () {
+    Route::get('/', [ProductController::class, 'index']);
+    Route::get('/paginated', [ProductController::class, 'paginated']);
+});
+
+// Resource routes
+Route::apiResource('orders', OrderController::class)->only(['index', 'update', 'destroy']);
+Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
+Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
+Route::apiResource('categories', CategoryController::class)->only(['index', 'destroy']);
+Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
+Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
+Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'destroy']);
+Route::apiResource('reviews', ReviewController::class)->only(['index', 'destroy']);
 
 // Protected routes - Require authentication
 Route::middleware('auth:sanctum')->group(function () {

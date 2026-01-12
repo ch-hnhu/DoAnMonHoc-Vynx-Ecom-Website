@@ -2,25 +2,29 @@ import { useEffect, useState } from "react";
 import { Button, Box, Chip } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 
-const renderRating = (rating) => {
-	const colorMap = {
-		5: "success",
-		4: "info",
-		3: "warning",
-		2: "error",
-		1: "error",
-	};
-
+const renderStars = (rating) => {
+	const stars = [];
+	for (let i = 1; i <= 5; i++) {
+		stars.push(
+			i <= rating ? (
+				<StarIcon key={i} sx={{ fontSize: 24, color: "#FAAF00" }} />
+			) : (
+				<StarBorderIcon key={i} sx={{ fontSize: 24, color: "#B6B6B6" }} />
+			)
+		);
+	}
 	return (
-		<Chip
-			label={`${rating} sao`}
-			color={colorMap[rating] || "default"}
-			size='small'
-			variant='outlined'
-		/>
+		<Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+			{stars}
+			<Box component='span' sx={{ ml: 1, fontSize: 14, color: "text.secondary" }}>
+				({rating})
+			</Box>
+		</Box>
 	);
 };
 
@@ -85,8 +89,8 @@ export default function ReviewPage() {
 		{
 			field: "rating",
 			headerName: "Số sao",
-			width: 120,
-			renderCell: (params) => renderRating(params.value),
+			width: 180,
+			renderCell: (params) => renderStars(params.value),
 		},
 		{ field: "content", headerName: "Nội dung", width: 260 },
 		{ field: "review_reply", headerName: "Phản hồi", width: 220 },
