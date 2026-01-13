@@ -38,7 +38,7 @@ Route::prefix('products')->group(function () {
 Route::apiResource('orders', OrderController::class)->only(['index', 'update', 'destroy']);
 Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
-Route::apiResource('categories', CategoryController::class)->only(['index', 'destroy']);
+Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'destroy']);
 Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
 Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'destroy']);

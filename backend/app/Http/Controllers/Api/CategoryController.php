@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
@@ -19,14 +20,50 @@ class CategoryController extends Controller
     }
 
     /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'slug' => 'required|string|max:255|unique:categories,slug',
+            'description' => 'nullable|string|max:1000',
+            'parent_id' => 'nullable|integer|exists:categories,id',
+        ]);
+
+        $category = Category::create($validated);
+        $category->load('category');
+
+        return response()->json([
+            'message' => 'Tao danh muc thanh cong',
+            'data' => $category,
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Category $category)
     {
+        //Lấy số lượng danh mục con và sản phẩm liên quan
+        $childCount = $category->categories()->count();
+        $productCount = $category->products()->count();
+        //Kiểm tra nếu có danh mục con hoặc sản phẩm liên quan thì không cho xóa
+        if ($childCount > 0 || $productCount > 0) {
+            return response()->json([
+                'message' => 'Khong the xoa danh muc vi van con danh muc con hoac san pham',
+                'errors' => [
+                    'child_categories' => $childCount,
+                    'products' => $productCount,
+                ],
+            ], 409);
+        }
+
         $category->delete();
 
         return response()->json([
             'message' => 'Xoa danh muc thanh cong',
         ]);
     }
+
 }

@@ -13,7 +13,7 @@ export default function CategoryPage() {
 	const [loading, setLoading] = useState(true);
 	const [openDialog, setOpenDialog] = useState(false);
 
-	useEffect(() => {
+	const fetchCategories = () => {
 		setLoading(true);
 		api.get("/categories")
 			.then((response) => {
@@ -25,6 +25,15 @@ export default function CategoryPage() {
 			.finally(() => {
 				setLoading(false);
 			});
+	};
+
+	const handleCreated = () => {
+		fetchCategories();
+		setOpenDialog(false);
+	};
+
+	useEffect(() => {
+		fetchCategories();
 	}, []);
 
 	const handleOpenDialog = () => {
@@ -38,6 +47,7 @@ export default function CategoryPage() {
 
 	const handleEdit = (id) => {
 		console.log("Edit category:", id);
+		fetchCategories();
 		alert(`Cập nhật danh mục ID: ${id}`);
 	};
 
@@ -47,11 +57,12 @@ export default function CategoryPage() {
 			api.delete(`/categories/${id}`)
 				.then(() => {
 					alert("Xóa thành công!");
-					setCategories(categories.filter((category) => category.id !== id));
+					fetchCategories();
 				})
 				.catch((error) => {
 					console.error("Error deleting category:", error);
-					alert("Xóa thất bại!");
+					const message = error?.response?.data?.message || "Xoa that bai!";
+					alert(message);
 				});
 		}
 	};
@@ -137,6 +148,7 @@ export default function CategoryPage() {
 				open={openDialog}
 				onClose={() => setOpenDialog(false)}
 				categories={categories}
+				onCreated={handleCreated}
 			/>
 		</>
 	);
