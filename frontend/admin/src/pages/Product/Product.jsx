@@ -8,6 +8,7 @@ import AddIcon from "@mui/icons-material/Add";
 import { formatDate, formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddProduct from "./AddProduct";
 import { getProductImage } from "../../../../shared/utils/productHelpers";
+import { API_BASE_URL } from "../../config/api";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
@@ -50,14 +51,17 @@ export default function ProductPage() {
 		alert(`Chỉnh sửa sản phẩm ID: ${id}`);
 	};
 
-	const handleDelete = (id) => {
-		console.log("Delete product:", id);
-		if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-			api.delete(`/products/${id}`)
+	const handleDelete = (product) => {
+		if (!product) {
+			return;
+		}
+		const name = product.name || "this product";
+		if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+			api.delete(`/products/${product.id}`)
 				.then(() => {
 					alert("Xóa thành công!");
 					// Refresh data
-					setProducts(products.filter((product) => product.id !== id));
+					setProducts(products.filter((item) => item.id !== product.id));
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);
@@ -66,7 +70,6 @@ export default function ProductPage() {
 		}
 	};
 
-	// Định nghĩa các cột cho bảng products (mapping với data từ backend)
 	const columns = [
 		{ field: "id", headerName: "ID", width: 90 },
 		{ field: "name", headerName: "Tên sản phẩm", width: 300 },
@@ -140,7 +143,7 @@ export default function ProductPage() {
 							color='error'
 							size='small'
 							startIcon={<DeleteIcon />}
-							onClick={() => handleDelete(params.row.id)}>
+							onClick={() => handleDelete(params.row)}>
 							Xóa
 						</Button>
 					</Box>

@@ -6,7 +6,7 @@ import Product from "./pages/Product/Product";
 import Order from "./pages/Order";
 import User from "./pages/User";
 import Brand from "./pages/Brand";
-import Category from "./pages/Category";
+import Category from "./pages/Category/Category";
 import Attribute from "./pages/Attribute";
 import Promotion from "./pages/Promotion";
 import Configuration from "./pages/Configuration";

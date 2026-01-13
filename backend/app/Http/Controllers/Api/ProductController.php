@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -71,6 +72,8 @@ class ProductController extends Controller
             'brand_id' => 'required|integer|exists:brands,id',
             'promotion_id' => 'nullable|integer|exists:promotions,id',
             'stock_quantity' => 'required|integer',
+            'hero_image' => 'nullable|image|max:5120',
+            'gallery_images.*' => 'nullable|image|max:5120',
         ]);
 
         // Handle image uploads
@@ -143,7 +146,7 @@ class ProductController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Cap nhat san pham thanh cong',
+            'message' => 'Cập nhật thành công',
             'data' => $product,
             'error' => null,
             'timestamp' => now(),
@@ -155,6 +158,35 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $product = Product::findOrFail($id);
+
+        $imageUrls = $product->image_url;
+        $paths = [];
+
+        if (is_array($imageUrls)) {
+            $paths = $imageUrls;
+        } elseif (is_string($imageUrls)) {
+            $paths = [$imageUrls];
+        }
+
+        foreach ($paths as $url) {
+            if (!is_string($url)) {
+                continue;
+            }
+            if (str_starts_with($url, '/storage/')) {
+                $storagePath = str_replace('/storage/', '', $url);
+                Storage::disk('public')->delete($storagePath);
+            }
+        }
+
+        $product->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Xóa sản phẩm thành công',
+            'data' => null,
+            'error' => null,
+            'timestamp' => now(),
+        ]);
     }
 }

@@ -45,6 +45,7 @@ class Product extends Model
 
 	protected $casts = [
 		'price' => 'float',
+		'image_url' => 'array',
 		'category_id' => 'int',
 		'brand_id' => 'int',
 		'promotion_id' => 'int',
