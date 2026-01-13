@@ -21,7 +21,9 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Lay danh sach san pham thanh cong',
-            'data' => $products
+            'data' => $products,
+            'error' => null,
+            'timestamp' => now(),
         ]);
     }
 
@@ -58,7 +60,26 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255|unique:products,name',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric',
+            'image_url' => 'nullable|string|max:255',
+            'category_id' => 'required|integer|exists:categories,id',
+            'brand_id' => 'required|integer|exists:brands,id',
+            'promotion_id' => 'nullable|integer|exists:promotions,id',
+            'stock_quantity' => 'required|integer',
+        ]);
+
+        $product = Product::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tao san pham thanh cong',
+            'data' => $product,
+            'error' => null,
+            'timestamp' => now(),
+        ]);
     }
 
     /**
@@ -66,7 +87,15 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $product = Product::with(['category', 'brand', 'promotion'])->findOrFail($id);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Lay chi tiet san pham thanh cong',
+            'data' => $product,
+            'error' => null,
+            'timestamp' => now(),
+        ]);
     }
 
     /**
@@ -74,7 +103,28 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255|unique:products,name,' . $id,
+            'description' => 'nullable|string',
+            'price' => 'sometimes|required|numeric',
+            'image_url' => 'nullable|string|max:255',
+            'category_id' => 'sometimes|required|integer|exists:categories,id',
+            'brand_id' => 'sometimes|required|integer|exists:brands,id',
+            'promotion_id' => 'nullable|integer|exists:promotions,id',
+            'stock_quantity' => 'sometimes|required|integer',
+        ]);
+
+        $product = Product::findOrFail($id);
+
+        $product->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Cap nhat san pham thanh cong',
+            'data' => $product,
+            'error' => null,
+            'timestamp' => now(),
+        ]);
     }
 
     /**
