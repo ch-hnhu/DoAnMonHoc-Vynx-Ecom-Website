@@ -20,6 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import Grid from "@mui/material/Grid";
+import api from "../../services/api";
 
 export default function AddProduct({ open, onClose, categories, brands, promotions }) {
     const [formData, setFormData] = useState({
@@ -40,6 +41,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
     const heroImageInputRef = useRef(null);
+    const nameInputRef = useRef(null);
     const galleryImagesInputRef = useRef(null);
 
     // Handle text field changes
@@ -60,6 +62,9 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
         console.log("FILE CHANGE FIRED", e.target.files);
         const file = e.target.files[0];
         if (file && file.type.startsWith("image/")) {
+            if (errors.hero_image) {
+                setErrors((prev) => ({ ...prev, hero_image: "" }));
+            }
             setHeroImage(file);
             const reader = new FileReader();
             reader.onloadend = () => {
@@ -75,6 +80,10 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
     const handleGalleryImagesChange = (e) => {
         const files = Array.from(e.target.files);
         const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+        if (errors.gallery_images) {
+            setErrors((prev) => ({ ...prev, gallery_images: "" }));
+        }
 
         setGalleryImages((prev) => [...prev, ...imageFiles]);
 
@@ -135,7 +144,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
     };
 
     // Handle form submit
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!validate()) {
@@ -144,16 +153,53 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
 
         setSubmitting(true);
 
-        // TODO: API call to submit form data
-        console.log("Form Data:", formData);
-        console.log("Hero Image:", heroImage);
-        console.log("Gallery Images:", galleryImages);
+        try {
+            const payload = new FormData();
+            payload.append("name", formData.name.trim());
+            payload.append("description", formData.description?.trim() || "");
+            payload.append("price", String(formData.price));
+            payload.append("category_id", String(formData.category_id));
+            payload.append("brand_id", String(formData.brand_id));
+            if (formData.promotion_id) {
+                payload.append("promotion_id", String(formData.promotion_id));
+            }
+            payload.append("stock_quantity", String(formData.stock_quantity));
 
-        // Simulate API call
-        setTimeout(() => {
-            setSubmitting(false);
+            if (heroImage) {
+                payload.append("hero_image", heroImage);
+            }
+
+            if (galleryImages.length) {
+                galleryImages.forEach((file) => {
+                    payload.append("gallery_images[]", file);
+                });
+            }
+
+            await api.post("/products", payload, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
             handleClose();
-        }, 1000);
+        } catch (error) {
+            const apiErrors = error?.response?.data?.errors;
+            if (apiErrors) {
+                const nextErrors = {};
+                if (apiErrors.name) nextErrors.name = apiErrors.name[0];
+                if (apiErrors.price) nextErrors.price = apiErrors.price[0];
+                if (apiErrors.stock_quantity) nextErrors.stock_quantity = apiErrors.stock_quantity[0];
+                if (apiErrors.category_id) nextErrors.category_id = apiErrors.category_id[0];
+                if (apiErrors.brand_id) nextErrors.brand_id = apiErrors.brand_id[0];
+                if (apiErrors.promotion_id) nextErrors.promotion_id = apiErrors.promotion_id[0];
+                if (apiErrors.hero_image) nextErrors.hero_image = apiErrors.hero_image[0];
+                if (apiErrors["gallery_images.0"]) nextErrors.gallery_images = apiErrors["gallery_images.0"][0];
+                setErrors(nextErrors);
+            } else {
+                alert("Create product failed. Please try again.");
+            }
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     // Handle dialog close
@@ -178,7 +224,19 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
     };
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <Dialog
+            open={open}
+            onClose={handleClose}
+            maxWidth="md"
+            fullWidth
+            TransitionProps={{
+                onEntered: () => {
+                    if (nameInputRef.current) {
+                        nameInputRef.current.focus();
+                    }
+                },
+            }}
+        >
             <DialogTitle>
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                     <Typography variant="h6" component="div">
@@ -317,6 +375,9 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
                                         </Box>
                                     )}
                                 </Box>
+                                {errors.hero_image && (
+                                    <FormHelperText error>{errors.hero_image}</FormHelperText>
+                                )}
                             </Grid>
 
                             <Grid size={6}>
@@ -377,6 +438,9 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
                                         </Box>
                                     ))}
                                 </Box>
+                                {errors.gallery_images && (
+                                    <FormHelperText error>{errors.gallery_images}</FormHelperText>
+                                )}
                                 <Button
                                     type="button"
                                     onClick={(e) => {
@@ -431,7 +495,9 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
                             <TextField
                                 fullWidth
                                 required
+                                inputRef={nameInputRef}
                                 label="Tên sản phẩm"
+                                autoFocus
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
@@ -446,6 +512,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
                             <TextField
                                 fullWidth
                                 required
+                                inputRef={nameInputRef}
                                 label="Giá sản phẩm"
                                 name="price"
                                 type="number"
@@ -465,6 +532,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
                             <TextField
                                 fullWidth
                                 required
+                                inputRef={nameInputRef}
                                 label="Số lượng tồn kho"
                                 name="stock_quantity"
                                 type="number"

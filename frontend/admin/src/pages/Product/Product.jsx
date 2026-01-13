@@ -6,6 +6,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
+import { API_BASE_URL } from "../../config/api";
 import AddProduct from "./AddProduct";
 
 export default function ProductPage() {
@@ -49,14 +50,17 @@ export default function ProductPage() {
 		alert(`Chỉnh sửa sản phẩm ID: ${id}`);
 	};
 
-	const handleDelete = (id) => {
-		console.log("Delete product:", id);
-		if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
-			api.delete(`/products/${id}`)
+	const handleDelete = (product) => {
+		if (!product) {
+			return;
+		}
+		const name = product.name || "this product";
+		if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+			api.delete(`/products/${product.id}`)
 				.then(() => {
 					alert("Xóa thành công!");
 					// Refresh data
-					setProducts(products.filter((product) => product.id !== id));
+					setProducts(products.filter((item) => item.id !== product.id));
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);
@@ -66,8 +70,75 @@ export default function ProductPage() {
 	};
 
 	// Định nghĩa các cột cho bảng products (mapping với data từ backend)
+	const IMAGE_BASE_URL = API_BASE_URL.replace(/\/api\/?$/, "");
+
+	const resolveImageUrl = (value) => {
+		let url = "";
+		if (!value) return url;
+		if (Array.isArray(value)) {
+			url = value[0] || "";
+		} else if (typeof value === "string") {
+			const trimmed = value.trim();
+			if (!trimmed) return "";
+			try {
+				const parsed = JSON.parse(trimmed);
+				if (Array.isArray(parsed)) url = parsed[0] || "";
+				if (typeof parsed === "string") url = parsed;
+			} catch (error) {
+				url = trimmed;
+			}
+			if (!url) url = trimmed;
+		}
+
+		if (typeof url === "string" && url.startsWith("/storage")) {
+			return `${IMAGE_BASE_URL}${url}`;
+		}
+		return url;
+	};
+
 	const columns = [
 		{ field: "id", headerName: "ID", width: 90 },
+		{
+			field: "image_url",
+			headerName: "Hình ảnh",
+			width: 120,
+			sortable: false,
+			renderCell: (params) => {
+				const url = resolveImageUrl(params.row.image_url);
+				return url ? (
+					<Box
+						component="img"
+						alt={params.row.name || "Product"}
+						src={url}
+						sx={{
+							width: 48,
+							height: 48,
+							objectFit: "cover",
+							borderRadius: 1,
+							border: "1px solid",
+							borderColor: "divider",
+						}}
+					/>
+				) : (
+					<Box
+						sx={{
+							width: 48,
+							height: 48,
+							borderRadius: 1,
+							border: "1px dashed",
+							borderColor: "divider",
+							color: "text.secondary",
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							fontSize: 12,
+						}}
+					>
+						-
+					</Box>
+				);
+			},
+		},
 		{ field: "name", headerName: "Tên sản phẩm", width: 300 },
 		{ field: "slug", headerName: "Slug", width: 300 },
 		{
@@ -124,7 +195,7 @@ export default function ProductPage() {
 							color='error'
 							size='small'
 							startIcon={<DeleteIcon />}
-							onClick={() => handleDelete(params.row.id)}>
+							onClick={() => handleDelete(params.row)}>
 							Xóa
 						</Button>
 					</Box>

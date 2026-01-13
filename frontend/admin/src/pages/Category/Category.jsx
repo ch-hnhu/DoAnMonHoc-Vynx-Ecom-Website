@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { Button, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import DataTable from "../components/Partial/DataTable";
-import api from "../services/api";
+import DataTable from "../../components/Partial/DataTable";
+import api from "../../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
+import AddCategory from "./AddCategory";
 
 export default function CategoryPage() {
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [openDialog, setOpenDialog] = useState(false);
 
 	useEffect(() => {
 		setLoading(true);
@@ -24,6 +26,10 @@ export default function CategoryPage() {
 				setLoading(false);
 			});
 	}, []);
+
+	const handleOpenDialog = () => {
+		setOpenDialog(true);
+	};
 
 	const handleCreate = () => {
 		console.log("Create category");
@@ -105,6 +111,7 @@ export default function CategoryPage() {
 	];
 
 	return (
+		<>
 		<DataTable
 			columns={columns}
 			rows={categories}
@@ -117,7 +124,7 @@ export default function CategoryPage() {
 				<Button
 					variant='contained'
 					startIcon={<AddIcon />}
-					onClick={handleCreate}
+						onClick={handleOpenDialog}
 					sx={{
 						backgroundColor: "#234C6A",
 						"&:hover": { backgroundColor: "#1B3C53" },
@@ -126,5 +133,11 @@ export default function CategoryPage() {
 				</Button>
 			}
 		/>
+			<AddCategory
+				open={openDialog}
+				onClose={() => setOpenDialog(false)}
+				categories={categories}
+			/>
+		</>
 	);
 }
