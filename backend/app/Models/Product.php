@@ -49,7 +49,8 @@ class Product extends Model
 		'category_id' => 'int',
 		'brand_id' => 'int',
 		'promotion_id' => 'int',
-		'stock_quantity' => 'int'
+		'stock_quantity' => 'int',
+		'image_url' => 'array'
 	];
 
 	protected $fillable = [
