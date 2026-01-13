@@ -5,8 +5,9 @@ import { Button, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
-import { formatDate } from "@shared/utils/formatHelper.jsx";
+import { formatDate, formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddProduct from "./AddProduct";
+import { getProductImage } from "../../../../shared/utils/productHelpers";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
@@ -40,7 +41,7 @@ export default function ProductPage() {
 			});
 	}, []);
 
-	const handleAdd = () => {
+	const handleCreate = () => {
 		setOpenDialog(true);
 	};
 
@@ -69,18 +70,33 @@ export default function ProductPage() {
 	const columns = [
 		{ field: "id", headerName: "ID", width: 90 },
 		{ field: "name", headerName: "Tên sản phẩm", width: 300 },
+		{
+			field: "image_url",
+			headerName: "Hình ảnh",
+			width: 150,
+			renderCell: (params) =>
+				getProductImage(params.value) ? (
+					<img
+						src={getProductImage(params.value)}
+						alt={params.row.name}
+						style={{
+							width: "50px",
+							height: "50px",
+							objectFit: "cover",
+							borderRadius: "4px",
+						}}
+					/>
+				) : (
+					<span>Không có ảnh</span>
+				),
+		},
 		{ field: "slug", headerName: "Slug", width: 300 },
 		{
 			field: "price",
 			headerName: "Giá",
 			width: 150,
 			type: "number",
-			valueFormatter: (params) => {
-				return new Intl.NumberFormat("vi-VN", {
-					style: "currency",
-					currency: "VND",
-				}).format(params);
-			},
+			valueFormatter: (params) => formatCurrency(params),
 		},
 		{ field: "stock_quantity", headerName: "Tồn kho", width: 120, type: "number" },
 		{
@@ -152,7 +168,7 @@ export default function ProductPage() {
 					<Button
 						variant='contained'
 						startIcon={<AddIcon />}
-						onClick={handleAdd}
+						onClick={handleCreate}
 						sx={{
 							backgroundColor: "#234C6A",
 							"&:hover": { backgroundColor: "#1B3C53" },

@@ -23,3 +23,23 @@ export const formatDate = (date) => {
 		year: "numeric",
 	});
 };
+
+// format slug
+
+/**
+ * Chuyển chuỗi thành slug
+ * @param {string} text - Chuỗi cần chuyển
+ * @returns {string} - Chuỗi đã chuyển thành slug
+ */
+export const formatSlug = (text) => {
+	return text
+		.toString()
+		.toLowerCase()
+		.normalize("NFD") // tách các ký tự có dấu
+		.replace(/[\u0300-\u036f]/g, "") // xóa dấu
+		.replace(/\s+/g, "-") // thay khoảng trắng bằng dấu gạch ngang
+		.replace(/[^\w\-]+/g, "") // xóa ký tự đặc biệt
+		.replace(/\-\-+/g, "-") // thay nhiều dấu gạch ngang liên tiếp bằng một dấu
+		.replace(/^-+/, "") // xóa dấu gạch ngang ở đầu
+		.replace(/-+$/, ""); // xóa dấu gạch ngang ở cuối
+};

@@ -30,6 +30,7 @@ Route::get('/test', function () {
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('/paginated', [ProductController::class, 'paginated']);
+    Route::post('/store', [ProductController::class, 'store']);
 });
 
 // Resource routes
