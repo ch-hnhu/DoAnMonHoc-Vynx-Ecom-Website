@@ -6,6 +6,7 @@ import api from "../services/api";
 import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function OrderPage() {
 	const [orders, setOrders] = useState([]);
@@ -177,7 +178,14 @@ export default function OrderPage() {
 				checkboxSelection={true}
 				processRowUpdate={processRowUpdate}
 				actions={
-					<Button variant='contained' color='primary' onClick={handleCreate}>
+					<Button
+						variant='contained'
+						startIcon={<AddIcon />}
+						onClick={handleCreate}
+						sx={{
+							backgroundColor: "#234C6A",
+							"&:hover": { backgroundColor: "#1B3C53" },
+						}}>
 						Tạo đơn hàng
 					</Button>
 				}

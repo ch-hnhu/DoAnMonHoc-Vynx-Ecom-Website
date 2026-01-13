@@ -6,6 +6,7 @@ import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function ConfigurationPage() {
 	const [configurations, setConfigurations] = useState([]);
@@ -126,8 +127,15 @@ export default function ConfigurationPage() {
 			pageSize={25}
 			checkboxSelection={true}
 			actions={
-				<Button variant='contained' color='primary' onClick={handleCreate}>
-					Tạo cấu hình mới
+				<Button
+					variant='contained'
+					startIcon={<AddIcon />}
+					onClick={handleCreate}
+					sx={{
+						backgroundColor: "#234C6A",
+						"&:hover": { backgroundColor: "#1B3C53" },
+					}}>
+					Thêm cấu hình
 				</Button>
 			}
 		/>

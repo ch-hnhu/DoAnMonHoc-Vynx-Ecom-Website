@@ -184,17 +184,17 @@ export default function MainLayout() {
 	}, []);
 
 	return (
-		<div className='app-wrapper'>
+		<div className='app-wrapper' style={{ backgroundColor: "#f5f5f5" }}>
 			<Header />
 			<Sidebar />
 
 			{/* AdminLTE: app-main */}
-			<main className='app-main'>
+			<main className='app-main' style={{ backgroundColor: "#f5f5f5" }}>
 				{/* Nơi render các page con */}
 				<Outlet />
 			</main>
 
-			<Footer />
+			{/* <Footer /> */}
 		</div>
 	);
 }

@@ -1,26 +1,39 @@
 import { useState, useEffect } from "react";
-import api from "../services/api";
-import DataTable from "../components/Partial/DataTable";
+import api from "../../services/api";
+import DataTable from "../../components/Partial/DataTable";
 import { Button, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
+import AddProduct from "./AddProduct";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [openDialog, setOpenDialog] = useState(false);
+	const [categories, setCategories] = useState([]);
+	const [brands, setBrands] = useState([]);
+	const [promotions, setPromotions] = useState([]);
 
 	useEffect(() => {
 		setLoading(true);
 
-		api.get("/products")
-			.then((response) => {
-				// Backend trả về {message, data}, nên lấy response.data.data
-				setProducts(response.data.data || []);
+		// Fetch products and related data
+		Promise.all([
+			api.get("/products"),
+			api.get("/categories"),
+			api.get("/brands"),
+			api.get("/promotions"),
+		])
+			.then(([productsRes, categoriesRes, brandsRes, promotionsRes]) => {
+				setProducts(productsRes.data.data || []);
+				setCategories(categoriesRes.data.data || []);
+				setBrands(brandsRes.data.data || []);
+				setPromotions(promotionsRes.data.data || []);
 			})
 			.catch((error) => {
-				console.error("Error fetching products: ", error);
+				console.error("Error fetching data: ", error);
 			})
 			.finally(() => {
 				setLoading(false);
@@ -28,8 +41,7 @@ export default function ProductPage() {
 	}, []);
 
 	const handleAdd = () => {
-		console.log("Add new product");
-		alert("Thêm sản phẩm mới");
+		setOpenDialog(true);
 	};
 
 	const handleEdit = (id) => {
@@ -128,14 +140,6 @@ export default function ProductPage() {
 
 	return (
 		<>
-			{/* <Button
-				sx={{ m: 2, mt: 0 }}
-				variant='contained'
-				color='primary'
-				startIcon={<AddIcon />}
-				onClick={handleAdd}>
-				Thêm sản phẩm
-			</Button> */}
 			<DataTable
 				columns={columns}
 				rows={products}
@@ -147,12 +151,22 @@ export default function ProductPage() {
 				actions={
 					<Button
 						variant='contained'
-						color='primary'
 						startIcon={<AddIcon />}
-						onClick={handleAdd}>
+						onClick={handleAdd}
+						sx={{
+							backgroundColor: "#234C6A",
+							"&:hover": { backgroundColor: "#1B3C53" },
+						}}>
 						Thêm sản phẩm
 					</Button>
 				}
+			/>
+			<AddProduct
+				open={openDialog}
+				onClose={() => setOpenDialog(false)}
+				categories={categories}
+				brands={brands}
+				promotions={promotions}
 			/>
 		</>
 	);

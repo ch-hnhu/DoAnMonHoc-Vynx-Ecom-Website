@@ -5,6 +5,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
+import AddIcon from "@mui/icons-material/Add";
 
 const renderFilterChip = (isFilterable) => {
 	if (isFilterable) {
@@ -122,8 +123,15 @@ export default function AttributePage() {
 			pageSize={25}
 			checkboxSelection={true}
 			actions={
-				<Button variant='contained' color='primary' onClick={handleCreate}>
-					Tạo thuộc tính mới
+				<Button
+					variant='contained'
+					startIcon={<AddIcon />}
+					onClick={handleCreate}
+					sx={{
+						backgroundColor: "#234C6A",
+						"&:hover": { backgroundColor: "#1B3C53" },
+					}}>
+					Thêm thuộc tính
 				</Button>
 			}
 		/>
