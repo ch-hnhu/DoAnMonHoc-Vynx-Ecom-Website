@@ -238,6 +238,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
 				<input
 					ref={heroImageInputRef}
 					type='file'
+					id='hero-image-upload'
 					style={{ display: "none" }}
 					accept='image/*'
 					onChange={handleHeroImageChange}
@@ -245,6 +246,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
 				<input
 					ref={galleryImagesInputRef}
 					type='file'
+					id='gallery-images-upload'
 					style={{ display: "none" }}
 					multiple
 					accept='image/*'
@@ -334,16 +336,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
 											}}>
 											<Button
 												type='button'
-												onClick={(e) => {
-													e.preventDefault();
-													console.log(
-														"Button clicked, ref:",
-														heroImageInputRef.current
-													);
-													if (heroImageInputRef.current) {
-														heroImageInputRef.current.click();
-													}
-												}}
+												onClick={() => heroImageInputRef.current?.click()}
 												variant='contained'
 												sx={{
 													backgroundColor: "#234C6A",
@@ -422,16 +415,7 @@ export default function AddProduct({ open, onClose, categories, brands, promotio
 								</Box>
 								<Button
 									type='button'
-									onClick={(e) => {
-										e.preventDefault();
-										console.log(
-											"Gallery button clicked, ref:",
-											galleryImagesInputRef.current
-										);
-										if (galleryImagesInputRef.current) {
-											galleryImagesInputRef.current.click();
-										}
-									}}
+									onClick={() => galleryImagesInputRef.current?.click()}
 									variant='outlined'
 									sx={{
 										color: "#234C6A",

@@ -92,7 +92,7 @@ class ProductController extends Controller
         }
 
         // Add image URLs to validated data
-        $validated['image_url'] = json_encode($imageUrls);
+        $validated['image_url'] = $imageUrls;
 
         $product = Product::create($validated);
 

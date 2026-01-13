@@ -74,10 +74,12 @@ export default function ProductPage() {
 			field: "image_url",
 			headerName: "Hình ảnh",
 			width: 150,
-			renderCell: (params) =>
-				getProductImage(params.value) ? (
+			renderCell: (params) => {
+				const imageUrl = getProductImage(params.value);
+
+				return imageUrl && imageUrl !== "/img/product-default.png" ? (
 					<img
-						src={getProductImage(params.value)}
+						src={imageUrl}
 						alt={params.row.name}
 						style={{
 							width: "50px",
@@ -85,10 +87,14 @@ export default function ProductPage() {
 							objectFit: "cover",
 							borderRadius: "4px",
 						}}
+						onError={(e) => {
+							e.target.src = "https://placehold.co/600x400";
+						}}
 					/>
 				) : (
 					<span>Không có ảnh</span>
-				),
+				);
+			},
 		},
 		{ field: "slug", headerName: "Slug", width: 300 },
 		{
