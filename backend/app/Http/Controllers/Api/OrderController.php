@@ -15,7 +15,7 @@ class OrderController extends Controller
     {
         return response()->json([
             'message' => 'Goi den api order thanh cong',
-            'data' => Order::with(['user', 'order_items'])->get(),
+            'data' => Order::with(['user', 'user_address', 'order_items.product', 'promotion'])->get(),
         ]);
     }
 
@@ -34,7 +34,7 @@ class OrderController extends Controller
         $order->update($validated);
 
         // Reload relationships
-        $order->load(['user', 'order_items']);
+        $order->load(['user', 'order_items.product', 'promotion']);
 
         return response()->json([
             'success' => true,

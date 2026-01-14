@@ -7,8 +7,10 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { formatDate, formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddProduct from "./AddProduct";
-import { getProductImage } from "../../../../shared/utils/productHelpers";
+import { getProductImage } from "../../../../shared/utils/productHelper";
 import EditProduct from "./EditProduct";
+import { useToast } from "@shared/hooks/useToast";
+import { Snackbar, Alert } from "@mui/material";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
@@ -19,6 +21,7 @@ export default function ProductPage() {
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 	const [promotions, setPromotions] = useState([]);
+	const { toast, showSuccess, showError, closeToast } = useToast();
 
 	// Fetch products function
 	const fetchProducts = () => {
@@ -70,16 +73,16 @@ export default function ProductPage() {
 			return;
 		}
 		const name = product.name || "this product";
-		if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
+		if (window.confirm(`Bạn có chắc chắn muốn xoá sản phẩm: "${name}"?`)) {
 			api.delete(`/products/${product.id}`)
 				.then(() => {
-					alert("Xóa thành công!");
+					showSuccess("Xoá sản phẩm thành công!");
 					// Refetch data
 					fetchProducts();
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);
-					alert("Xóa thất bại!");
+					showError("Xoá sản phẩm thất bại!");
 				});
 		}
 	};
@@ -144,6 +147,7 @@ export default function ProductPage() {
 			headerName: "Thao tác",
 			width: 220,
 			sortable: false,
+			filterable: false,
 			renderCell: (params) => {
 				return (
 					<Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
@@ -214,6 +218,16 @@ export default function ProductPage() {
 				brands={brands}
 				promotions={promotions}
 			/>
+			{/* Toast Notification */}
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={3000}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 }

@@ -3,7 +3,7 @@ import MainLayout from "./layouts/MainLayout";
 import DashboardPage from "./pages/DashboardPage";
 import Table from "./pages/Table";
 import Product from "./pages/Product/Product";
-import Order from "./pages/Order";
+import Order from "../src/pages/Order/Order";
 import User from "./pages/User";
 import Brand from "./pages/Brand";
 import Category from "./pages/Category/Category";
@@ -13,7 +13,7 @@ import Configuration from "./pages/Configuration";
 import Review from "./pages/Review";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import AddProduct from "./pages/Product/AddProduct";
+import AddProduct from "../src/pages/Product/AddProduct";
 
 export default function App() {
 	return (

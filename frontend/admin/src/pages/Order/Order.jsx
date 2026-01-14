@@ -1,19 +1,35 @@
 import { useEffect, useState } from "react";
-import { Button, Snackbar, Alert } from "@mui/material";
+import { Button, Snackbar, Alert, Box } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import DataTable from "../components/Partial/DataTable";
-import api from "../services/api";
+import DataTable from "../../components/Partial/DataTable.jsx";
+import api from "../../services/api.js";
 import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
+import {
+	paymentStatuses,
+	deliveryStatuses,
+	paymentStatusColors,
+	deliveryStatusColors,
+	getPaymentStatusName,
+	getDeliveryStatusName,
+	getPaymentStatusId,
+	getDeliveryStatusId,
+} from "@shared/utils/orderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 import AddIcon from "@mui/icons-material/Add";
+import EditIcon from "@mui/icons-material/Edit";
+import EditOrder from "./EditOrder.jsx";
+import OrderDetails from "./OrderDetails.jsx";
 
 export default function OrderPage() {
 	const [orders, setOrders] = useState([]);
+	const [selectedOrder, setSelectedOrder] = useState(null);
+	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [openViewDialog, setOpenViewDialog] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const { toast, showSuccess, showError, showInfo, closeToast } = useToast();
 
-	useEffect(() => {
+	const fetchOrders = () => {
 		setLoading(true);
 		api.get("/orders")
 			.then((response) => {
@@ -25,11 +41,35 @@ export default function OrderPage() {
 			.finally(() => {
 				setLoading(false);
 			});
+	};
+
+	useEffect(() => {
+		fetchOrders();
 	}, []);
 
 	const handleCreate = () => {
 		console.log("Create order");
 		showInfo("Tạo đơn hàng mới");
+	};
+
+	const handleEdit = (order) => {
+		setSelectedOrder(order);
+		setOpenEditDialog(true);
+	};
+
+	const handleCloseEdit = () => {
+		setOpenEditDialog(false);
+		setSelectedOrder(null);
+	};
+
+	const handleView = (order) => {
+		setSelectedOrder(order);
+		setOpenViewDialog(true);
+	};
+
+	const handleCloseView = () => {
+		setOpenViewDialog(false);
+		setSelectedOrder(null);
 	};
 
 	const processRowUpdate = async (newRow, oldRow) => {
@@ -39,10 +79,10 @@ export default function OrderPage() {
 				return oldRow;
 			}
 
-			// Gọi API để cập nhật
+			// Convert tiếng Việt về tiếng Anh trước khi gửi API
 			const response = await api.put(`/orders/${newRow.id}`, {
-				payment_status: newRow.payment_status,
-				delivery_status: newRow.delivery_status,
+				payment_status: getPaymentStatusId(newRow.payment_status),
+				delivery_status: getDeliveryStatusId(newRow.delivery_status),
 			});
 
 			// Kiểm tra success từ API response
@@ -60,24 +100,6 @@ export default function OrderPage() {
 			showError(error.response?.data?.message || error.message || "Cập nhật thất bại");
 			return oldRow; // Rollback về giá trị cũ
 		}
-	};
-
-	const paymentStatusColors = {
-		paid: "success",
-		pending: "warning",
-		failed: "error",
-		refunded: "info",
-		cancelled: "default",
-	};
-
-	const deliveryStatusColors = {
-		delivered: "success",
-		shipping: "info",
-		confirmed: "primary",
-		pending: "warning",
-		failed: "error",
-		returned: "default",
-		cancelled: "default",
 	};
 
 	const columns = [
@@ -114,7 +136,8 @@ export default function OrderPage() {
 			width: 160,
 			editable: true,
 			type: "singleSelect",
-			valueOptions: ["paid", "pending", "failed", "refunded", "cancelled"],
+			valueOptions: paymentStatuses.map((s) => s.name),
+			valueGetter: (value, row) => getPaymentStatusName(row.payment_status),
 			renderCell: (params) => renderChip(params.value, paymentStatusColors),
 		},
 		{
@@ -123,15 +146,8 @@ export default function OrderPage() {
 			width: 160,
 			editable: true,
 			type: "singleSelect",
-			valueOptions: [
-				"delivered",
-				"shipping",
-				"confirmed",
-				"pending",
-				"failed",
-				"returned",
-				"cancelled",
-			],
+			valueOptions: deliveryStatuses.map((s) => s.name),
+			valueGetter: (value, row) => getDeliveryStatusName(row.delivery_status),
 			renderCell: (params) => renderChip(params.value, deliveryStatusColors),
 		},
 		{
@@ -144,19 +160,29 @@ export default function OrderPage() {
 		},
 		{
 			field: "actions",
-			headerName: "Hành động",
-			width: 120,
+			headerName: "Thao tác",
+			width: 360,
 			sortable: false,
 			filterable: false,
 			renderCell: (params) => (
-				<Button
-					variant='outlined'
-					color='primary'
-					size='small'
-					startIcon={<VisibilityIcon />}
-					href={`/orders/${params.row.id}`}>
-					Xem
-				</Button>
+				<Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
+					<Button
+						variant='outlined'
+						color='primary'
+						size='small'
+						startIcon={<EditIcon />}
+						onClick={() => handleEdit(params.row)}>
+						Cập nhật trạng thái
+					</Button>
+					<Button
+						variant='outlined'
+						color='info'
+						size='small'
+						startIcon={<VisibilityIcon />}
+						onClick={() => handleView(params.row)}>
+						Xem chi tiết
+					</Button>
+				</Box>
 			),
 		},
 	];
@@ -190,6 +216,13 @@ export default function OrderPage() {
 					</Button>
 				}
 			/>
+			<EditOrder
+				open={openEditDialog}
+				onClose={handleCloseEdit}
+				onSuccess={fetchOrders}
+				order={selectedOrder}
+			/>
+			<OrderDetails open={openViewDialog} onClose={handleCloseView} order={selectedOrder} />
 			<Snackbar
 				open={toast.open}
 				autoHideDuration={3000}

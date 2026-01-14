@@ -1,4 +1,4 @@
-import { getProductImage, getFinalPrice } from "@shared/utils/productHelpers.jsx";
+import { getProductImage, getFinalPrice } from "@shared/utils/productHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function ProductCardMedium({ product, onAddToCart, onViewDetails }) {
