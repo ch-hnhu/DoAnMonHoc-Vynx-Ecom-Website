@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\ConfigurationController;
 use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\SupportRequestController;  
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,7 @@ Route::get('/test', function () {
         'message' => 'hehe tako nek!'
     ]);
 });
+Route::post('/support-requests', [SupportRequestController::class, 'store']);
 
 // Product routes
 Route::prefix('products')->group(function () {
@@ -45,6 +47,8 @@ Route::apiResource('attributes', AttributeController::class)->only(['index', 'de
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
 Route::apiResource('configurations', ConfigurationController::class)->only(['index', 'destroy']);
 Route::apiResource('reviews', ReviewController::class)->only(['index', 'destroy']);
+
+Route::post('/support-requests', [SupportRequestController::class, 'store']);
 
 // Protected routes - Require authentication
 Route::middleware('auth:sanctum')->group(function () {

@@ -65,5 +65,4 @@ class CategoryController extends Controller
             'message' => 'Xoa danh muc thanh cong',
         ]);
     }
-
 }
