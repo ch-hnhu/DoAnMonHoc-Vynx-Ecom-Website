@@ -11,9 +11,9 @@ import AddCategory from "./AddCategory";
 export default function CategoryPage() {
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [openDialog, setOpenDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
 
-	useEffect(() => {
+	const fetchCategories = () => {
 		setLoading(true);
 		api.get("/categories")
 			.then((response) => {
@@ -25,10 +25,19 @@ export default function CategoryPage() {
 			.finally(() => {
 				setLoading(false);
 			});
+	};
+
+	const handleCreated = () => {
+		fetchCategories();
+		setOpenAddDialog(false);
+	};
+
+	useEffect(() => {
+		fetchCategories();
 	}, []);
 
 	const handleOpenDialog = () => {
-		setOpenDialog(true);
+		setOpenAddDialog(true);
 	};
 
 	const handleCreate = () => {
@@ -38,6 +47,7 @@ export default function CategoryPage() {
 
 	const handleEdit = (id) => {
 		console.log("Edit category:", id);
+		fetchCategories();
 		alert(`Cập nhật danh mục ID: ${id}`);
 	};
 
@@ -47,11 +57,12 @@ export default function CategoryPage() {
 			api.delete(`/categories/${id}`)
 				.then(() => {
 					alert("Xóa thành công!");
-					setCategories(categories.filter((category) => category.id !== id));
+					fetchCategories();
 				})
 				.catch((error) => {
 					console.error("Error deleting category:", error);
-					alert("Xóa thất bại!");
+					const message = error?.response?.data?.message || "Xoa that bai!";
+					alert(message);
 				});
 		}
 	};
@@ -112,31 +123,32 @@ export default function CategoryPage() {
 
 	return (
 		<>
-		<DataTable
-			columns={columns}
-			rows={categories}
-			loading={loading}
-			title='Quản lý danh mục'
-			breadcrumbs={breadcrumbs}
-			pageSize={25}
-			checkboxSelection={true}
-			actions={
-				<Button
-					variant='contained'
-					startIcon={<AddIcon />}
+			<DataTable
+				columns={columns}
+				rows={categories}
+				loading={loading}
+				title='Quản lý danh mục'
+				breadcrumbs={breadcrumbs}
+				pageSize={25}
+				checkboxSelection={true}
+				actions={
+					<Button
+						variant='contained'
+						startIcon={<AddIcon />}
 						onClick={handleOpenDialog}
-					sx={{
-						backgroundColor: "#234C6A",
-						"&:hover": { backgroundColor: "#1B3C53" },
-					}}>
-					Thêm danh mục
-				</Button>
-			}
-		/>
+						sx={{
+							backgroundColor: "#234C6A",
+							"&:hover": { backgroundColor: "#1B3C53" },
+						}}>
+						Thêm danh mục
+					</Button>
+				}
+			/>
 			<AddCategory
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
+				open={openAddDialog}
+				onClose={() => setOpenAddDialog(false)}
 				categories={categories}
+				onCreated={handleCreated}
 			/>
 		</>
 	);

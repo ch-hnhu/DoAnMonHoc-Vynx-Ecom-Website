@@ -17,8 +17,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
+import api from "../../services/api";
 
-export default function AddCategory({ open, onClose, categories }) {
+export default function AddCategory({ open, onClose, categories, onCreated }) {
 	const [formData, setFormData] = useState({
 		name: "",
 		slug: "",
@@ -62,7 +63,7 @@ export default function AddCategory({ open, onClose, categories }) {
 		return Object.keys(nextErrors).length === 0;
 	};
 
-	const handleSubmit = (e) => {
+	const handleSubmit = async (e) => {
 		e.preventDefault();
 
 		if (!validate()) {
@@ -70,12 +71,37 @@ export default function AddCategory({ open, onClose, categories }) {
 		}
 
 		setSubmitting(true);
-		console.log("Category Form:", formData);
+		const payload = {
+			name: formData.name.trim(),
+			slug: formData.slug.trim(),
+			description: formData.description.trim() || null,
+			parent_id: formData.parent_id ? Number(formData.parent_id) : null,
+		};
 
-		setTimeout(() => {
-			setSubmitting(false);
+		try {
+			const response = await api.post("/categories", payload);
+			const created = response?.data?.data ?? response?.data;
+			if (onCreated && created) {
+				onCreated(created);
+			}
 			handleClose();
-		}, 1000);
+		} catch (error) {
+			if (error?.response?.status === 422) {
+				const serverErrors = error.response.data?.errors || {};
+				const nextErrors = {};
+				Object.keys(serverErrors).forEach((key) => {
+					const messages = serverErrors[key];
+					if (Array.isArray(messages) && messages.length > 0) {
+						nextErrors[key] = messages[0];
+					}
+				});
+				setErrors((prev) => ({ ...prev, ...nextErrors }));
+			} else {
+				console.error("Error creating category:", error);
+			}
+		} finally {
+			setSubmitting(false);
+		}
 	};
 
 	const handleClose = () => {
