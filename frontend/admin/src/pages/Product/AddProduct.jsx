@@ -173,7 +173,7 @@ export default function AddProduct({ open, onClose, onSuccess, categories, brand
 				formDataToSend.append("gallery_images[]", image);
 			});
 
-			api.post("/products/store", formDataToSend, {
+			api.post("/products", formDataToSend, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},

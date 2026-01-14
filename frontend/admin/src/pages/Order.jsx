@@ -195,7 +195,7 @@ export default function OrderPage() {
 				autoHideDuration={3000}
 				onClose={closeToast}
 				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-				<Alert onClose={closeToast} severity={toast.severity} variant='filled'>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>
 			</Snackbar>
