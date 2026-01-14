@@ -8,20 +8,21 @@ import AddIcon from "@mui/icons-material/Add";
 import { formatDate, formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddProduct from "./AddProduct";
 import { getProductImage } from "../../../../shared/utils/productHelpers";
-import { API_BASE_URL } from "../../config/api";
+import EditProduct from "./EditProduct";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [openDialog, setOpenDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
+	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState(null);
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 	const [promotions, setPromotions] = useState([]);
 
-	useEffect(() => {
+	// Fetch products function
+	const fetchProducts = () => {
 		setLoading(true);
-
-		// Fetch products and related data
 		Promise.all([
 			api.get("/products"),
 			api.get("/categories"),
@@ -40,15 +41,28 @@ export default function ProductPage() {
 			.finally(() => {
 				setLoading(false);
 			});
+	};
+
+	useEffect(() => {
+		fetchProducts();
 	}, []);
 
 	const handleCreate = () => {
-		setOpenDialog(true);
+		setOpenAddDialog(true);
 	};
 
-	const handleEdit = (id) => {
-		console.log("Edit product:", id);
-		alert(`Chỉnh sửa sản phẩm ID: ${id}`);
+	const handleCloseCreate = () => {
+		setOpenAddDialog(false);
+	};
+
+	const handleEdit = (product) => {
+		setSelectedProduct(product);
+		setOpenEditDialog(true);
+	};
+
+	const handleCloseEdit = () => {
+		setOpenEditDialog(false);
+		setSelectedProduct(null);
 	};
 
 	const handleDelete = (product) => {
@@ -60,8 +74,8 @@ export default function ProductPage() {
 			api.delete(`/products/${product.id}`)
 				.then(() => {
 					alert("Xóa thành công!");
-					// Refresh data
-					setProducts(products.filter((item) => item.id !== product.id));
+					// Refetch data
+					fetchProducts();
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);
@@ -138,7 +152,7 @@ export default function ProductPage() {
 							color='primary'
 							size='small'
 							startIcon={<EditIcon />}
-							onClick={() => handleEdit(params.row.id)}>
+							onClick={() => handleEdit(params.row)}>
 							Sửa
 						</Button>
 						<Button
@@ -184,8 +198,18 @@ export default function ProductPage() {
 				}
 			/>
 			<AddProduct
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
+				open={openAddDialog}
+				onClose={handleCloseCreate}
+				onSuccess={fetchProducts}
+				categories={categories}
+				brands={brands}
+				promotions={promotions}
+			/>
+			<EditProduct
+				open={openEditDialog}
+				onClose={handleCloseEdit}
+				onSuccess={fetchProducts}
+				product={selectedProduct}
 				categories={categories}
 				brands={brands}
 				promotions={promotions}

@@ -11,7 +11,7 @@ import AddCategory from "./AddCategory";
 export default function CategoryPage() {
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [openDialog, setOpenDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
 
 	const fetchCategories = () => {
 		setLoading(true);
@@ -29,7 +29,7 @@ export default function CategoryPage() {
 
 	const handleCreated = () => {
 		fetchCategories();
-		setOpenDialog(false);
+		setOpenAddDialog(false);
 	};
 
 	useEffect(() => {
@@ -37,7 +37,7 @@ export default function CategoryPage() {
 	}, []);
 
 	const handleOpenDialog = () => {
-		setOpenDialog(true);
+		setOpenAddDialog(true);
 	};
 
 	const handleCreate = () => {
@@ -123,30 +123,30 @@ export default function CategoryPage() {
 
 	return (
 		<>
-		<DataTable
-			columns={columns}
-			rows={categories}
-			loading={loading}
-			title='Quản lý danh mục'
-			breadcrumbs={breadcrumbs}
-			pageSize={25}
-			checkboxSelection={true}
-			actions={
-				<Button
-					variant='contained'
-					startIcon={<AddIcon />}
+			<DataTable
+				columns={columns}
+				rows={categories}
+				loading={loading}
+				title='Quản lý danh mục'
+				breadcrumbs={breadcrumbs}
+				pageSize={25}
+				checkboxSelection={true}
+				actions={
+					<Button
+						variant='contained'
+						startIcon={<AddIcon />}
 						onClick={handleOpenDialog}
-					sx={{
-						backgroundColor: "#234C6A",
-						"&:hover": { backgroundColor: "#1B3C53" },
-					}}>
-					Thêm danh mục
-				</Button>
-			}
-		/>
+						sx={{
+							backgroundColor: "#234C6A",
+							"&:hover": { backgroundColor: "#1B3C53" },
+						}}>
+						Thêm danh mục
+					</Button>
+				}
+			/>
 			<AddCategory
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
+				open={openAddDialog}
+				onClose={() => setOpenAddDialog(false)}
 				categories={categories}
 				onCreated={handleCreated}
 			/>

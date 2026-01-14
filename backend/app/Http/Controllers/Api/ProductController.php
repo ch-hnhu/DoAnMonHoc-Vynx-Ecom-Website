@@ -13,18 +13,28 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::with(['category', 'brand', 'promotion'])
-            ->withAvg('product_reviews as rating_average', 'rating')
-            ->withCount('product_reviews as rating_count')
-            ->get();
+        try {
+            $products = Product::with(['category', 'brand', 'promotion'])
+                ->withAvg('product_reviews as rating_average', 'rating')
+                ->withCount('product_reviews as rating_count')
+                ->get();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lay danh sach san pham thanh cong',
-            'data' => $products,
-            'error' => null,
-            'timestamp' => now(),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach san pham thanh cong',
+                'data' => $products,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay danh sach san pham',
+                'data' => null,
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
     }
 
     /**
@@ -32,27 +42,37 @@ class ProductController extends Controller
      */
     public function paginated(Request $request)
     {
-        $perPage = $request->input('per_page', 9);
-        $products = Product::with(['category', 'brand', 'promotion'])
-            ->withAvg('product_reviews as rating_average', 'rating')
-            ->withCount('product_reviews as rating_count')
-            ->paginate($perPage);
+        try {
+            $perPage = $request->input('per_page', 9);
+            $products = Product::with(['category', 'brand', 'promotion'])
+                ->withAvg('product_reviews as rating_average', 'rating')
+                ->withCount('product_reviews as rating_count')
+                ->paginate($perPage);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lay danh sach san pham thanh cong',
-            'data' => $products->items(),
-            'error' => null,
-            'pagination' => [
-                'total' => $products->total(),
-                'per_page' => $products->perPage(),
-                'current_page' => $products->currentPage(),
-                'last_page' => $products->lastPage(),
-                'from' => $products->firstItem(),
-                'to' => $products->lastItem(),
-            ],
-            'timestamp' => now(),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach san pham thanh cong',
+                'data' => $products->items(),
+                'error' => null,
+                'pagination' => [
+                    'total' => $products->total(),
+                    'per_page' => $products->perPage(),
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'from' => $products->firstItem(),
+                    'to' => $products->lastItem(),
+                ],
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay danh sach san pham',
+                'data' => null,
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
     }
 
     /**
@@ -60,51 +80,59 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:products,name',
-            'slug' => 'required|string|max:255|unique:products,slug',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric',
-            'hero_image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
-            'gallery_images.*' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
-            'category_id' => 'required|integer|exists:categories,id',
-            'brand_id' => 'required|integer|exists:brands,id',
-            'promotion_id' => 'nullable|integer|exists:promotions,id',
-            'stock_quantity' => 'required|integer',
-            'hero_image' => 'nullable|image|max:5120',
-            'gallery_images.*' => 'nullable|image|max:5120',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255|unique:products,name',
+                'slug' => 'required|string|max:255|unique:products,slug',
+                'description' => 'nullable|string',
+                'price' => 'required|numeric',
+                'hero_image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
+                'gallery_images.*' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
+                'category_id' => 'required|integer|exists:categories,id',
+                'brand_id' => 'required|integer|exists:brands,id',
+                'promotion_id' => 'nullable|integer|exists:promotions,id',
+                'stock_quantity' => 'required|integer',
+            ]);
 
-        // Handle image uploads
-        $imageUrls = [];
+            // Handle image uploads
+            $imageUrls = [];
 
-        // Upload hero image first
-        if ($request->hasFile('hero_image')) {
-            $heroImage = $request->file('hero_image');
-            $heroPath = $heroImage->store('products/images', 'public');
-            $imageUrls[] = '/storage/' . $heroPath;
-        }
-
-        // Upload gallery images
-        if ($request->hasFile('gallery_images')) {
-            foreach ($request->file('gallery_images') as $galleryImage) {
-                $galleryPath = $galleryImage->store('products/images', 'public');
-                $imageUrls[] = '/storage/' . $galleryPath;
+            // Upload hero image first
+            if ($request->hasFile('hero_image')) {
+                $heroImage = $request->file('hero_image');
+                $heroPath = $heroImage->store('products/images', 'public');
+                $imageUrls[] = 'http://localhost:8000/storage/' . $heroPath;
             }
+
+            // Upload gallery images
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $galleryImage) {
+                    $galleryPath = $galleryImage->store('products/images', 'public');
+                    $imageUrls[] = 'http://localhost:8000/storage/' . $galleryPath;
+                }
+            }
+
+            // Add image URLs to validated data
+            $validated['image_url'] = $imageUrls;
+
+            $product = Product::create($validated);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Tao san pham thanh cong',
+                'data' => $product,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi tao san pham',
+                'data' => null,
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ]);
         }
-
-        // Add image URLs to validated data
-        $validated['image_url'] = $imageUrls;
-
-        $product = Product::create($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Tao san pham thanh cong',
-            'data' => $product,
-            'error' => null,
-            'timestamp' => now(),
-        ]);
     }
 
     /**
@@ -112,15 +140,25 @@ class ProductController extends Controller
      */
     public function show(string $id)
     {
-        $product = Product::with(['category', 'brand', 'promotion'])->findOrFail($id);
+        try {
+            $product = Product::with(['category', 'brand', 'promotion'])->findOrFail($id);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lay chi tiet san pham thanh cong',
-            'data' => $product,
-            'error' => null,
-            'timestamp' => now(),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay chi tiet san pham thanh cong',
+                'data' => $product,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'San pham khong ton tai',
+                'data' => null,
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ], 404);
+        }
     }
 
     /**
@@ -128,28 +166,86 @@ class ProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255|unique:products,name,' . $id,
-            'description' => 'nullable|string',
-            'price' => 'sometimes|required|numeric',
-            'image_url' => 'nullable|string|max:255',
-            'category_id' => 'sometimes|required|integer|exists:categories,id',
-            'brand_id' => 'sometimes|required|integer|exists:brands,id',
-            'promotion_id' => 'nullable|integer|exists:promotions,id',
-            'stock_quantity' => 'sometimes|required|integer',
-        ]);
+        try {
+            $validated = $request->validate([
+                'name' => 'sometimes|required|string|max:255|unique:products,name,' . $id,
+                'slug' => 'required|string|max:255|unique:products,slug,' . $id,
+                'description' => 'nullable|string',
+                'price' => 'required|numeric',
+                'hero_image' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
+                'gallery_images.*' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:2048',
+                'existing_images' => 'nullable|string',
+                'category_id' => 'required|integer|exists:categories,id',
+                'brand_id' => 'required|integer|exists:brands,id',
+                'promotion_id' => 'nullable|integer|exists:promotions,id',
+                'stock_quantity' => 'required|integer',
+            ]);
 
-        $product = Product::findOrFail($id);
+            $product = Product::findOrFail($id);
 
-        $product->update($validated);
+            // Xử lý ảnh
+            $imageUrls = [];
+            $hasImageChange = false;
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Cập nhật thành công',
-            'data' => $product,
-            'error' => null,
-            'timestamp' => now(),
-        ]);
+            // Lấy ảnh cũ muốn giữ từ frontend
+            if ($request->has('existing_images')) {
+                $existingImages = json_decode($request->input('existing_images'), true);
+                if (is_array($existingImages)) {
+                    $imageUrls = $existingImages;
+                }
+
+                // So sánh với ảnh hiện tại trong DB để phát hiện xóa ảnh
+                $currentImages = is_array($product->image_url) ? $product->image_url : [];
+                if (json_encode($existingImages) !== json_encode($currentImages)) {
+                    $hasImageChange = true; // User đã xóa/sắp xếp lại ảnh
+                }
+            }
+
+            // Upload hero image mới nếu có
+            if ($request->hasFile('hero_image')) {
+                $heroImage = $request->file('hero_image');
+                $heroPath = $heroImage->store('products/images', 'public');
+                $newHeroUrl = 'http://localhost:8000/storage/' . $heroPath;
+
+                // Thêm hero image mới vào đầu array
+                array_unshift($imageUrls, $newHeroUrl);
+                $hasImageChange = true;
+            }
+
+            // Upload gallery images mới nếu có
+            if ($request->hasFile('gallery_images')) {
+                foreach ($request->file('gallery_images') as $galleryImage) {
+                    $galleryPath = $galleryImage->store('products/images', 'public');
+                    $imageUrls[] = 'http://localhost:8000/storage/' . $galleryPath;
+                }
+                $hasImageChange = true;
+            }
+
+            // Chỉ update image_url khi thực sự có thay đổi
+            if ($hasImageChange) {
+                $validated['image_url'] = $imageUrls;
+            }
+
+            $product->update($validated);
+
+            $product->refresh();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cap nhat san pham thanh cong',
+                'data' => $product,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi cap nhat san pham',
+                'data' => null,
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
     }
 
     /**
@@ -157,15 +253,26 @@ class ProductController extends Controller
      */
     public function destroy(string $id)
     {
-        $product = Product::findOrFail($id);
-        $product->delete();
+        try {
+            $product = Product::findOrFail($id);
+            $product->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Xoa san pham thanh cong (soft delete)',
-            'data' => null,
-            'error' => null,
-            'timestamp' => now(),
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Xoa san pham thanh cong (soft delete)',
+                'data' => null,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi xoa san pham',
+                'data' => null,
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
     }
 }
