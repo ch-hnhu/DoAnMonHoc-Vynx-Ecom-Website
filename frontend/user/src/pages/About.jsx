@@ -1,6 +1,49 @@
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import api from "../services/api";
 
 export default function About() {
+	const [companyProfile, setCompanyProfile] = useState(null);
+	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
+
+	useEffect(() => {
+		let isMounted = true;
+		//Gọi api lấy thông tin công ty
+		api.get("/configurations")
+			.then((response) => {
+				const configurations = response?.data?.data ?? [];
+				//Lấy cấu hình công ty đang hoạt động
+				const activeConfig = configurations.find((item) => item.is_active);
+
+				if (isMounted) {
+					setCompanyProfile(activeConfig || null);
+				}
+			})
+			.catch(() => {
+				if (isMounted) {
+					setCompanyProfile(null);
+				}
+			})
+			.finally(() => {
+				if (isMounted) {
+					setIsLoadingCompany(false);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+	//Hiển thị thông tin công ty
+	const companyInfoItems = companyProfile
+		? [
+				{ label: "Tên công ty", value: companyProfile.name },
+				{ label: "Địa chỉ", value: companyProfile.address },
+				{ label: "Hotline", value: companyProfile.phone },
+				{ label: "Email", value: companyProfile.email },
+			]
+		: [];
+
 	return (
 		<>
 			<Helmet>
@@ -29,12 +72,12 @@ export default function About() {
 					<div className='row g-4 align-items-center mb-5'>
 						<div className='col-lg-6'>
 							<div className='bg-light rounded p-4 p-lg-5 h-100'>
-								<p className='text-uppercase text-primary mb-2'>Electro</p>
-								<h2 className='mb-3'>Cửa hàng công nghệ cho người dùng thực tế</h2>
+								<p className='text-uppercase text-primary mb-2'>Electro Store</p>
+								<h2 className='mb-3'>Cửa hàng công nghệ định cho người dùng thực tế</h2>
 								<p className='mb-4'>
-									Chúng tôi xây dựng Electro với mục tiêu đơn giản: giúp bạn
-									mua đúng sản phẩm, đúng nhu cầu, đúng ngân sách. Mọi quy trình
-									đều minh bạch, từ tư vấn đến hậu mãi.
+									Electro được xây dựng với mục tiêu đơn giản: giúp bạn chọn đúng thiết bị, đúng nhu cầu,
+									đúng ngân sách. Chúng tôi minh bạch từ vân đến hậu mãi, ưu tiên trải nghiệm bạn vang
+									thay vì chạy theo xu hướng.
 								</p>
 								<div className='d-flex flex-wrap gap-3'>
 									<div className='bg-white border rounded px-3 py-2'>
@@ -51,16 +94,23 @@ export default function About() {
 						</div>
 						<div className='col-lg-6'>
 							<div className='bg-white rounded p-4 p-lg-5 border h-100'>
-								<h5 className='mb-3'>Cam kết dịch vụ</h5>
-								<ul className='mb-4'>
-									<li>Tư vấn đúng nhu cầu, không chèo kéo.</li>
-									<li>Đổi trả minh bạch, bảo hành rõ ràng.</li>
-									<li>Hỗ trợ kỹ thuật nhanh và có trách nhiệm.</li>
-									<li>Giá cả cạnh tranh, ưu đãi rõ ràng.</li>
-								</ul>
+								<h5 className='mb-3'>Thông tin công ty</h5>
+								{isLoadingCompany ? (
+									<p className='mb-0 text-muted'>Đang tải thông tin...</p>
+								) : companyInfoItems.length > 0 ? (
+									<ul className='mb-4'>
+										{companyInfoItems.map((item) => (
+											<li key={item.label}>
+												<strong>{item.label}:</strong> {item.value}
+											</li>
+										))}
+									</ul>
+								) : (
+									<p className='mb-0 text-muted'>Thông tin đang được cập nhật.</p>
+								)}
 								<div className='d-flex flex-wrap gap-2'>
 									<span className='badge bg-secondary'>Tư vấn 1:1</span>
-									<span className='badge bg-secondary'>Bảo hành tận nơi</span>
+									<span className='badge bg-secondary'>Bảo hành chính hãng</span>
 									<span className='badge bg-secondary'>Kiểm tra miễn phí</span>
 								</div>
 							</div>
@@ -70,10 +120,10 @@ export default function About() {
 					<div className='row g-4 mb-5'>
 						<div className='col-lg-4'>
 							<div className='bg-light rounded p-4 h-100'>
-								<h5 className='mb-3'>Tầm nhìn</h5>
+								<h5 className='mb-3'>Tầm nhận</h5>
 								<p className='mb-0'>
-									Trở thành điểm đến công nghệ đáng tin cậy với trải nghiệm mua
-									sắm hiện đại, thân thiện và nhất quán.
+									Trở thành điểm đến công nghệ đáng tin cậy với trải nghiệm mua sắm hiện đại, thân thiện
+									và nhất quán.
 								</p>
 							</div>
 						</div>
@@ -81,8 +131,7 @@ export default function About() {
 							<div className='bg-light rounded p-4 h-100'>
 								<h5 className='mb-3'>Giá trị cốt lõi</h5>
 								<p className='mb-0'>
-									Chính trực, minh bạch và lấy khách hàng làm trung tâm trong mọi
-									quyết định.
+									Chính trực, minh bạch về lấy khách hàng làm trung tâm trong mọi quyết định.
 								</p>
 							</div>
 						</div>
@@ -90,8 +139,7 @@ export default function About() {
 							<div className='bg-light rounded p-4 h-100'>
 								<h5 className='mb-3'>Đội ngũ</h5>
 								<p className='mb-0'>
-									Đội ngũ tư vấn am hiểu sản phẩm, kỹ thuật phản hồi nhanh và luôn
-									đồng hành sau bán.
+									Đội ngũ tư vấn am hiểu sản phẩm, kỹ thuật phản hồi nhanh và luôn đồng hành sau bạn.
 								</p>
 							</div>
 						</div>
@@ -131,12 +179,12 @@ export default function About() {
 						</div>
 						<div className='col-lg-5'>
 							<div className='bg-light rounded p-4 p-lg-5 h-100'>
-								<h5 className='mb-3'>Vì sao chọn Electro</h5>
+								<h5 className='mb-3'>Chính sách dịch vụ</h5>
 								<ul className='mb-0'>
 									<li>Kiểm tra sản phẩm trước khi giao.</li>
-									<li>Hỗ trợ cài đặt và tối ưu theo nhu cầu.</li>
-									<li>Chính sách đổi trả trong 7 ngày.</li>
-									<li>Ưu đãi định kỳ cho khách hàng thân thiết.</li>
+									<li>Hỗ trợ cài đặt tối ưu theo nhu cầu.</li>
+									<li>Đổi trả trong 7 ngày với sản phẩm lỗi.</li>
+									<li>Bảo hành chính hãng theo tiêu chuẩn nhà sản xuất.</li>
 								</ul>
 							</div>
 						</div>
@@ -145,19 +193,18 @@ export default function About() {
 					<div className='row g-4'>
 						<div className='col-lg-6'>
 							<div className='bg-white rounded p-4 border h-100'>
-								<h5 className='mb-3'>Liên hệ hợp tác</h5>
+								<h5 className='mb-3'>Hợp tác phân phối</h5>
 								<p className='mb-0'>
-									Nếu bạn là nhà phân phối, đại lý hoặc đối tác thương hiệu,
-									hãy liên hệ để cùng phát triển bền vững.
+									Nếu bạn là nhà phân phối, đối tác thương hiệu, hãy liên hệ để cùng phát triển
+									bản vùng.
 								</p>
 							</div>
 						</div>
 						<div className='col-lg-6'>
 							<div className='bg-white rounded p-4 border h-100'>
-								<h5 className='mb-3'>Kết nối với chúng tôi</h5>
+								<h5 className='mb-3'>Kết nối cùng Electro</h5>
 								<p className='mb-0'>
-									Theo dõi Electro để cập nhật sản phẩm mới, ưu đãi và các mẹo
-									sử dụng công nghệ hiệu quả.
+									Theo dõi Electro để cập nhật sản phẩm mới, ưu đãi về mẫu sử dụng công nghệ hiệu quả.
 								</p>
 							</div>
 						</div>

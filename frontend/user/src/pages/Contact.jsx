@@ -1,6 +1,8 @@
 import { Helmet } from "react-helmet-async";
-import { useState} from "react"; 
+import { useState, useEffect } from "react"; 
+import { Snackbar, Alert } from "@mui/material";
 import api from "../services/api";
+import { buildGoogleMapEmbedUrl } from "@shared/utils/mapHelper";
 import { useToast } from "@shared/hooks/useToast";
 
 export default function Contact() {
@@ -13,7 +15,31 @@ export default function Contact() {
 
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
-	const { showSuccess, showError } = useToast();
+	const { toast, showSuccess, showError, closeToast } = useToast();
+
+	//Thông tin liên hệ 
+	const [companyProfile, setCompanyProfile] = useState(null);
+	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
+
+	useEffect(() => {
+		let isMounted = true;
+		api.get("/configurations")
+			.then((response) => {
+				const configurations = response?.data?.data ?? [];
+				const activeConfig = configurations.find((item) => item.is_active);
+				if (isMounted) setCompanyProfile(activeConfig || null);
+			})
+			.catch(() => {
+				if (isMounted) setCompanyProfile(null);
+			})
+			.finally(() => {
+				if (isMounted) setIsLoadingCompany(false);
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
 	
 	// Handle input change
 	const handleChange = (e) => {
@@ -58,7 +84,7 @@ export default function Contact() {
 
 		api.post("/support-requests", formData)
 			.then(() => {
-				showSuccess("Gửi liên hệ thành công!");
+				showSuccess("Gửi liên hệ thành công!", 1500);
 				
 				setFormData({
 					full_name: "",
@@ -69,7 +95,7 @@ export default function Contact() {
 				
 			})
 			.catch(() => {
-				showError("Gửi liên hệ thất bại!");
+				showError("Gửi liên hệ thất bại!", 1500);
 				
 			})
 			.finally(() => {
@@ -172,15 +198,23 @@ export default function Contact() {
 						<div className='col-lg-5'>
 							<div className='bg-white rounded p-4 border mb-4'>
 								<h5 className='mb-3'>Thông tin liên hệ</h5>
-								<p className='mb-2'>Email: </p>
-								<p className='mb-2'>Hotline: </p>
-								<p className='mb-0'>Thời gian: 9:00 - 18:00 (T2 - T7)</p>
+								{isLoadingCompany ? (
+									<p className='mb-0 text-muted'>Đang tải thông tin...</p>
+								) : companyProfile ? (
+									<>
+										<p className='mb-2'><strong>Email:</strong> {companyProfile.email || "-"}</p>
+										<p className='mb-2'><strong>Hotline:</strong> {companyProfile.phone || "-"}</p>
+										<p className='mb-0'><strong>Thời gian:</strong> 9:00 - 18:00 (T2 - T7)</p>
+									</>
+								) : (
+									<p className='mb-0 text-muted'>Thông tin đang được cập nhật.</p>
+								)}
 							</div>
 
 							<div className='bg-white rounded p-4 border mb-4'>
 								<h5 className='mb-3'>Địa chỉ cửa hàng</h5>
 								<p className='mb-0'>
-									123 Đường ABC, Phường XYZ, Quận 1, TP. Hồ Chí Minh
+									{companyProfile?.address || "123 Đường ABC, Phường XYZ, Quận 1, TP. Hồ Chí Minh"}
 								</p>
 							</div>
 
@@ -191,11 +225,11 @@ export default function Contact() {
 									style={{ height: 220, background: "rgba(0, 0, 0, 0.05)" }}>
 									<div className='h-100 d-flex align-items-center justify-content-center text-muted'>
 										<iframe
-									className='rounded w-100'
-									style={{ height: "100%" }}
-									src='https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3919.5138654110992!2d106.69867477506085!3d10.771899359277182!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752f40a3b49e59%3A0xa1bd14e483a602db!2zVHLGsOG7nW5nIENhbyDEkeG6s25nIEvhu7kgdGh14bqtdCBDYW8gVGjhuq9uZw!5e0!3m2!1svi!2s!4v1767708564153!5m2!1svi!2s'
-									loading='lazy'
-									referrerPolicy='no-referrer-when-downgrade'></iframe>
+										className='rounded w-100'
+										style={{ height: "100%" }}
+										src={buildGoogleMapEmbedUrl(companyProfile?.address)}
+										loading='lazy'
+										referrerPolicy='no-referrer-when-downgrade'></iframe>
 									</div>
 								</div>
 							</div>
@@ -233,6 +267,17 @@ export default function Contact() {
 					</div>
 				</div>
 			</div>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={toast.duration || 3000}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} variant='filled'>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
-	);
+		);
 }
+
+
