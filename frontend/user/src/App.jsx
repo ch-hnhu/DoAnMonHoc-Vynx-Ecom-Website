@@ -17,32 +17,50 @@ import Faq from "./pages/Faq.jsx";
 import Warranty from "./pages/Warranty.jsx";
 import Terms from "./pages/Terms.jsx";
 import { HelmetProvider } from "react-helmet-async";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
-	return (
-		<HelmetProvider>
-			<Routes>
-				<Route path='login' element={<Login />} />
-				<Route path='signup' element={<Signup />} />
-				<Route path='/' element={<MainLayout />}>
-					<Route index element={<Home />} />
+  return (
+    <HelmetProvider>
+      <Routes>
+        <Route path="login" element={<Login />} />
+        <Route path="signup" element={<Signup />} />
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Home />} />
 
-					<Route path='shop' element={<Shop />} />
-					<Route path='product' element={<ProductDetails />} />
-					<Route path='cart' element={<Cart />} />
-					<Route path='support' element={<Support />} />
-					<Route path='checkout' element={<Checkout />} />
-					<Route path='privacy-policy' element={<PrivacyPolicy />} />
-					<Route path='contact' element={<Contact />} />
-					<Route path='about' element={<About />} />
-					<Route path='shipping-policy' element={<ShippingPolicy />} />
-					<Route path='faq' element={<Faq />} />
-					<Route path='warranty' element={<Warranty />} />
-					<Route path='terms' element={<Terms />} />
+          <Route path="shop" element={<Shop />} />
+          <Route path="product" element={<ProductDetails />} />
 
-					<Route path='*' element={<NotFound />} />
-				</Route>
-			</Routes>
-		</HelmetProvider>
-	);
+          {/* Protected routes - Cần đăng nhập */}
+          <Route
+            path="cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route path="support" element={<Support />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="about" element={<About />} />
+          <Route path="shipping-policy" element={<ShippingPolicy />} />
+          <Route path="faq" element={<Faq />} />
+          <Route path="warranty" element={<Warranty />} />
+          <Route path="terms" element={<Terms />} />
+
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </HelmetProvider>
+  );
 }
