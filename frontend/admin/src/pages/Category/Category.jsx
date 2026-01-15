@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Box } from "@mui/material";
+import { Button, Box, Snackbar, Alert } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../../components/Partial/DataTable";
@@ -7,11 +7,16 @@ import api from "../../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import AddCategory from "./AddCategory";
+import EditCategory from "./EditCategory";
+import { useToast } from "@shared/hooks/useToast";
 
 export default function CategoryPage() {
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openAddDialog, setOpenAddDialog] = useState(false);
+	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [selectedCategory, setSelectedCategory] = useState(null);
+	const { toast, showSuccess, showError, closeToast } = useToast();
 
 	const fetchCategories = () => {
 		setLoading(true);
@@ -29,7 +34,6 @@ export default function CategoryPage() {
 
 	const handleCreated = () => {
 		fetchCategories();
-		setOpenAddDialog(false);
 	};
 
 	useEffect(() => {
@@ -45,10 +49,9 @@ export default function CategoryPage() {
 		alert("Tạo danh mục mới");
 	};
 
-	const handleEdit = (id) => {
-		console.log("Edit category:", id);
-		fetchCategories();
-		alert(`Cập nhật danh mục ID: ${id}`);
+	const handleEdit = (row) => {
+		setSelectedCategory(row);
+		setOpenEditDialog(true);
 	};
 
 	const handleDelete = (id) => {
@@ -99,7 +102,7 @@ export default function CategoryPage() {
 							color='primary'
 							size='small'
 							startIcon={<EditIcon />}
-							onClick={() => handleEdit(params.row.id)}>
+							onClick={() => handleEdit(params.row)}>
 							Sửa
 						</Button>
 						<Button
@@ -149,7 +152,31 @@ export default function CategoryPage() {
 				onClose={() => setOpenAddDialog(false)}
 				categories={categories}
 				onCreated={handleCreated}
+				showSuccess={showSuccess}
+				showError={showError}
 			/>
+			<EditCategory
+				open={openEditDialog}
+				onClose={() => {
+					setOpenEditDialog(false);
+					setSelectedCategory(null);
+				}}
+				category={selectedCategory}
+				categories={categories}
+				onUpdated={handleCreated}
+				showSuccess={showSuccess}
+				showError={showError}
+			/>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={3000}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}
+			>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 }

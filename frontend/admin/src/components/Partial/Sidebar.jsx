@@ -99,6 +99,12 @@ export default function Sidebar() {
 							</a>
 						</li>
 						<li className='nav-item'>
+							<a href='/support-requests' className='nav-link'>
+								<i className='nav-icon bi bi-headset' />
+								<p>Support</p>
+							</a>
+						</li>
+						<li className='nav-item'>
 							<a href='/promotions' className='nav-link'>
 								<i className='nav-icon bi bi-ticket-perforated' />
 								<p>Coupons</p>
