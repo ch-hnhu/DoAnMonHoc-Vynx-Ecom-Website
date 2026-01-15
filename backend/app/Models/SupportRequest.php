@@ -28,15 +28,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * @package App\Models
  */
+
 class SupportRequest extends Model
 {
 	use SoftDeletes;
-	protected $table = 'support_requests';
 
 	protected $casts = [
 		'supported_by' => 'int'
 	];
-
+	protected $attributes = [
+		'status' => 'pending'
+	];
 	protected $fillable = [
 		'full_name',
 		'email',

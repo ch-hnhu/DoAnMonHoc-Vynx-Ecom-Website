@@ -1,6 +1,49 @@
 import { Helmet } from "react-helmet-async";
-
+import { useState } from "react"; 
 export default function Contact() {
+	const [form, setForm] = useState({
+        full_name: "",
+        email: "",
+        phone: "",
+        content: "",
+    });
+	const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/api/support-requests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify(form),
+    });
+
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("Server error:", text);
+      alert("Gửi liên hệ thất bại");
+      return;
+    }
+
+    const data = await res.json();
+    alert(data.message);
+
+    // reset form
+    setForm({
+      full_name: "",
+      email: "",
+      phone: "",
+      content: "",
+    });
+  } catch (error) {
+    console.error(error);
+    alert("Không kết nối được server");
+  }
+};
+
+
 	return (
 		<>
 			<Helmet>
@@ -15,7 +58,7 @@ export default function Contact() {
 					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
 					data-wow-delay='0.3s'>
 					<li className='breadcrumb-item'>
-						<a href='/'>Trang chủ</a>
+						<a href='/Home'>Trang chủ</a>
 					</li>
 					<li className='breadcrumb-item'>
 						<a href='/'>Trang</a>
@@ -34,13 +77,14 @@ export default function Contact() {
 									Chúng tôi phản hồi trong giờ làm việc. Vui lòng mô tả rõ vấn
 									đề để được hỗ trợ nhanh nhất.
 								</p>
-								<form>
+								<form onSubmit={handleSubmit}>
 									<div className='row g-3'>
 										<div className='col-md-6'>
 											<input
 												type='text'
 												className='form-control'
 												placeholder='Họ và tên'
+												onChange={(e)=>setForm({...form, full_name:e.target.value})}
 											/>
 										</div>
 										<div className='col-md-6'>
@@ -48,20 +92,24 @@ export default function Contact() {
 												type='email'
 												className='form-control'
 												placeholder='Email'
+												onChange={(e)=>setForm({...form, email:e.target.value})}
 											/>
 										</div>
 										<div className='col-12'>
 											<input
 												type='text'
 												className='form-control'
-												placeholder='Tiêu đề'
+												placeholder='Số điện thoại'
+												onChange={(e)=>setForm({...form, phone:e.target.value})}
 											/>
 										</div>
 										<div className='col-12'>
 											<textarea
 												className='form-control'
 												rows='6'
-												placeholder='Nội dung liên hệ'></textarea>
+												placeholder='Nội dung liên hệ'
+												onChange={(e)=>setForm({...form, content:e.target.value})}
+											></textarea>
 										</div>
 										<div className='col-12'>
 											<button

@@ -13,7 +13,8 @@ import Configuration from "./pages/Configuration";
 import Review from "./pages/Review";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import AddProduct from "../src/pages/Product/AddProduct";
+import AddProduct from "./pages/Product/AddProduct";
+import SupportRequest from "./pages/SupportRequest";
 
 export default function App() {
 	return (
@@ -36,6 +37,7 @@ export default function App() {
 				<Route path='promotions' element={<Promotion />} />
 				<Route path='configurations' element={<Configuration />} />
 				<Route path='reviews' element={<Review />} />
+				<Route path='support-requests' element={<SupportRequest />} />
 			</Route>
 		</Routes>
 	);

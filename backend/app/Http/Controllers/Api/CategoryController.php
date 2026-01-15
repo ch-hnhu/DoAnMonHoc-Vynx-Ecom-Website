@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -41,6 +42,42 @@ class CategoryController extends Controller
     }
 
     /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Category $category)
+    {
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('categories', 'name')->ignore($category->id),
+            ],
+            'slug' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('categories', 'slug')->ignore($category->id),
+            ],
+            'description' => 'nullable|string|max:1000',
+            'parent_id' => [
+                'nullable',
+                'integer',
+                'exists:categories,id',
+                Rule::notIn([$category->id]),
+            ],
+        ]);
+
+        $category->update($validated);
+        $category->load('category');
+
+        return response()->json([
+            'message' => 'Cap nhat danh muc thanh cong',
+            'data' => $category,
+        ]);
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Category $category)
@@ -65,5 +102,4 @@ class CategoryController extends Controller
             'message' => 'Xoa danh muc thanh cong',
         ]);
     }
-
 }
