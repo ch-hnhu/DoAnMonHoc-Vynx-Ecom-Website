@@ -4,7 +4,9 @@ export default function PageHeader({ title, breadcrumbs }) {
 			<div className='container-fluid'>
 				<div className='row'>
 					<div className='col-sm-6'>
-						<h3 className='mb-0'>{title}</h3>
+						<h3 className='mb-0' style={{ color: "#1B3C53", fontWeight: "bold" }}>
+							{title}
+						</h3>
 					</div>
 					<div className='col-sm-6'>
 						<ol className='breadcrumb float-sm-end'>
@@ -16,7 +18,9 @@ export default function PageHeader({ title, breadcrumbs }) {
 									{item.active ? (
 										item.label
 									) : (
-										<a href={item.href}>{item.label}</a>
+										<a style={{ color: "#456882" }} href={item.href}>
+											{item.label}
+										</a>
 									)}
 								</li>
 							))}

@@ -1,6 +1,11 @@
 export default function Sidebar() {
 	return (
-		<aside className='app-sidebar bg-body-secondary shadow' data-bs-theme='dark'>
+		<aside
+			className='app-sidebar shadow'
+			data-bs-theme='dark'
+			style={{
+				background: "linear-gradient(180deg, #1B3C53 0%, #234C6A 100%)",
+			}}>
 			<div className='sidebar-brand'>
 				<a href='#' className='brand-link'>
 					<img
@@ -91,6 +96,12 @@ export default function Sidebar() {
 							<a href='/reviews' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Reviews</p>
+							</a>
+						</li>
+						<li className='nav-item'>
+							<a href='/support-requests' className='nav-link'>
+								<i className='nav-icon bi bi-headset' />
+								<p>Support</p>
 							</a>
 						</li>
 						<li className='nav-item'>

@@ -39,7 +39,10 @@ export default function Header() {
   };
 
   return (
-    <nav className="app-header navbar navbar-expand bg-body">
+    <nav
+      className="app-header navbar navbar-expand"
+      style={{ background: "#456882" }}
+    >
       <div className="container-fluid">
         <ul className="navbar-nav">
           <li className="nav-item">
@@ -48,17 +51,18 @@ export default function Header() {
               data-lte-toggle="sidebar"
               href="#"
               role="button"
+              style={{ color: "#f5f5f5" }}
             >
               <i className="bi bi-list"></i>
             </a>
           </li>
           <li className="nav-item d-none d-md-block">
-            <a href="/dashboard" className="nav-link">
+            <a href="/" className="nav-link" style={{ color: "#f5f5f5" }}>
               Home
             </a>
           </li>
           <li className="nav-item d-none d-md-block">
-            <a href="#" className="nav-link">
+            <a href="#" className="nav-link" style={{ color: "#f5f5f5" }}>
               Contact
             </a>
           </li>
@@ -71,13 +75,19 @@ export default function Header() {
               data-widget="navbar-search"
               href="#"
               role="button"
+              style={{ color: "#f5f5f5" }}
             >
               <i className="bi bi-search"></i>
             </a>
           </li>
 
           <li className="nav-item dropdown">
-            <a className="nav-link" data-bs-toggle="dropdown" href="#">
+            <a
+              className="nav-link"
+              data-bs-toggle="dropdown"
+              href="#"
+              style={{ color: "#f5f5f5" }}
+            >
               <i className="bi bi-chat-text"></i>
               <span className="navbar-badge badge text-bg-danger">3</span>
             </a>
@@ -161,7 +171,12 @@ export default function Header() {
           </li>
 
           <li className="nav-item dropdown">
-            <a className="nav-link" data-bs-toggle="dropdown" href="#">
+            <a
+              className="nav-link"
+              data-bs-toggle="dropdown"
+              href="#"
+              style={{ color: "#f5f5f5" }}
+            >
               <i className="bi bi-bell-fill"></i>
               <span className="navbar-badge badge text-bg-warning">15</span>
             </a>
@@ -192,7 +207,12 @@ export default function Header() {
           </li>
 
           <li className="nav-item">
-            <a className="nav-link" href="#" data-lte-toggle="fullscreen">
+            <a
+              className="nav-link"
+              href="#"
+              data-lte-toggle="fullscreen"
+              style={{ color: "#f5f5f5" }}
+            >
               <i
                 data-lte-icon="maximize"
                 className="bi bi-arrows-fullscreen"
@@ -212,6 +232,7 @@ export default function Header() {
                   href="#"
                   className="nav-link dropdown-toggle"
                   data-bs-toggle="dropdown"
+                  style={{ color: "#f5f5f5" }}
                 >
                   <img
                     src={user.image || "/assets/img/user2-160x160.jpg"}
@@ -259,7 +280,11 @@ export default function Header() {
                 </ul>
               </>
             ) : (
-              <a href="/login" className="nav-link">
+              <a
+                href="/login"
+                className="nav-link"
+                style={{ color: "#f5f5f5" }}
+              >
                 <i className="bi bi-box-arrow-in-right me-2"></i>
                 <span className="d-none d-md-inline">Login</span>
               </a>

@@ -8,11 +8,24 @@ import api from "../../services/api";
 export default function ShopPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [pagination, setPagination] = useState({
+		currentPage: 1,
+		lastPage: 1,
+		perPage: 9,
+		total: 0,
+	});
 
 	useEffect(() => {
-		api.get("/products")
-			.then((response) => {
-				setProducts(response.data.data || []);
+		setLoading(true);
+		api.get(`/products/paginated?page=${pagination.currentPage}&per_page=${pagination.perPage}`)
+			.then((res) => {
+				setProducts(res.data.data || []);
+				setPagination((prev) => ({
+					...prev,
+					currentPage: res.data.pagination.current_page,
+					lastPage: res.data.pagination.last_page,
+					total: res.data.pagination.total,
+				}));
 			})
 			.catch((error) => {
 				console.error("Error fetching products: ", error);
@@ -20,7 +33,12 @@ export default function ShopPage() {
 			.finally(() => {
 				setLoading(false);
 			});
-	}, []);
+	}, [pagination.currentPage]);
+
+	const handlePageChange = (page) => {
+		setPagination((prev) => ({ ...prev, currentPage: page }));
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	};
 
 	const handleAddToCart = (product) => {
 		console.log("Add to cart:", product);
@@ -467,7 +485,11 @@ export default function ShopPage() {
 									)}
 
 									{/* Pagination */}
-									<Pagination />
+									<Pagination
+										currentPage={pagination.currentPage}
+										lastPage={pagination.lastPage}
+										onPageChange={handlePageChange}
+									/>
 								</div>
 							</div>
 
@@ -493,7 +515,11 @@ export default function ShopPage() {
 									)}
 
 									{/* Pagination */}
-									<Pagination />
+									<Pagination
+										currentPage={pagination.currentPage}
+										lastPage={pagination.lastPage}
+										onPageChange={handlePageChange}
+									/>
 								</div>
 							</div>
 						</div>

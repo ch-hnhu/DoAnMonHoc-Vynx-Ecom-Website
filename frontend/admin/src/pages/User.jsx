@@ -5,18 +5,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
-
-const renderStatusChip = (isActive) => {
-	if (isActive) {
-		return <Chip label='Active' color='success' size='small' variant='outlined' />;
-	}
-
-	return <Chip label='Inactive' color='default' size='small' variant='outlined' />;
-};
+import { formatDate } from "@shared/utils/formatHelper.jsx";
+import { renderChip } from "@shared/utils/renderHelper.jsx";
+import AddIcon from "@mui/icons-material/Add";
 
 export default function UserPage() {
 	const [users, setUsers] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const statusColor = {
+		Active: "success",
+		Inactive: "default",
+	};
 
 	useEffect(() => {
 		setLoading(true);
@@ -73,14 +72,17 @@ export default function UserPage() {
 			field: "is_active",
 			headerName: "Trạng thái",
 			width: 130,
-			renderCell: (params) => renderStatusChip(params.value),
+			renderCell: (params) =>
+				params.value
+					? renderChip("Active", statusColor)
+					: renderChip("Inactive", statusColor),
 		},
 		{
 			field: "created_at",
 			headerName: "Ngày tạo",
 			width: 150,
 			valueFormatter: (params) => {
-				return params ? new Date(params).toLocaleDateString("vi-VN") : "";
+				return params ? formatDate(params) : "";
 			},
 		},
 		{
@@ -136,8 +138,15 @@ export default function UserPage() {
 			pageSize={25}
 			checkboxSelection={true}
 			actions={
-				<Button variant='contained' color='primary' onClick={handleCreate}>
-					Tạo người dùng mới
+				<Button
+					variant='contained'
+					startIcon={<AddIcon />}
+					onClick={handleCreate}
+					sx={{
+						backgroundColor: "#234C6A",
+						"&:hover": { backgroundColor: "#1B3C53" },
+					}}>
+					Thêm người dùng
 				</Button>
 			}
 		/>
