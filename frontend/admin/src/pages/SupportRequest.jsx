@@ -74,13 +74,13 @@ export default function SupportRequestPage() {
 		setUpdating(true);
 		api.put(`/support-requests/${activeRow.id}`, { status: statusValue })
 			.then(() => {
-				showSuccess("Cap nhat trang thai thanh cong!");
+				showSuccess("Cập nhật trạng thái thành công!");
 				fetchSupportRequests();
 				handleCloseStatusDialog();
 			})
 			.catch((error) => {
 				console.error("Error updating support request:", error);
-				showError("Cap nhat trang thai that bai!");
+				showError("Cập nhật trạng thái thất bại!");
 				setUpdating(false);
 			});
 	};
@@ -101,25 +101,25 @@ export default function SupportRequestPage() {
 
 	const columns = [
 		{ field: "id", headerName: "ID", width: 80 },
-		{ field: "full_name", headerName: "Ho va ten", width: 180 },
+		{ field: "full_name", headerName: "Họ và tên", width: 180 },
 		{ field: "email", headerName: "Email", width: 220 },
-		{ field: "phone", headerName: "So dien thoai", width: 140 },
-		{ field: "content", headerName: "Noi dung", width: 260 },
+		{ field: "phone", headerName: "Số điện thoại", width: 140 },
+		{ field: "content", headerName: "Nội dung", width: 260 },
 		{
 			field: "status",
-			headerName: "Trang thai",
+			headerName: "Trạng thái",
 			width: 140,
 			renderCell: (params) => renderChip(params.value, statusColor),
 		},
 		{
 			field: "supported_by",
-			headerName: "Nhan vien ho tro",
+			headerName: "Nhân viên hỗ trợ",
 			width: 150,
 			valueGetter: (params, row) => row.supported_by ?? "-",
 		},
 		{
 			field: "created_at",
-			headerName: "Ngay tao",
+			headerName: "Ngày tạo",
 			width: 140,
 			valueFormatter: (params) => {
 				return params ? formatDate(params) : "";
@@ -127,7 +127,7 @@ export default function SupportRequestPage() {
 		},
 		{
 			field: "updated_at",
-			headerName: "Ngay cap nhat",
+			headerName: "Ngày cập nhật",
 			width: 140,
 			valueFormatter: (params) => {
 				return params ? formatDate(params) : "";
@@ -135,7 +135,7 @@ export default function SupportRequestPage() {
 		},
 		{
 			field: "actions",
-			headerName: "Thao tac",
+			headerName: "Thao tác",
 			width: 200,
 			sortable: false,
 			renderCell: (params) => {
@@ -157,7 +157,7 @@ export default function SupportRequestPage() {
 								maxWidth: 160,
 							}}>
 							<Box component='span' sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
-								Cap nhat trang thai
+								Cập nhật trạng thái
 							</Box>
 						</Button>
 						<Button
@@ -172,7 +172,7 @@ export default function SupportRequestPage() {
 								fontSize: "0.75rem",
 								whiteSpace: "nowrap",
 							}}>
-							Xoa
+							Xóa
 						</Button>
 					</Box>
 				);
@@ -181,8 +181,8 @@ export default function SupportRequestPage() {
 	];
 
 	const breadcrumbs = [
-		{ label: "Trang chu", href: "/" },
-		{ label: "Ho tro", active: true },
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Hỗ trợ", active: true },
 	];
 
 	return (
@@ -197,10 +197,10 @@ export default function SupportRequestPage() {
 				checkboxSelection={true}
 			/>
 			<Dialog open={statusDialogOpen} onClose={handleCloseStatusDialog} maxWidth='xs' fullWidth>
-				<DialogTitle>Cap nhat trang thai</DialogTitle>
+				<DialogTitle>Cập nhật trạng thái</DialogTitle>
 				<DialogContent dividers>
 					<FormControl fullWidth>
-						<InputLabel>Trang thai</InputLabel>
+						<InputLabel>Trạng thái</InputLabel>
 						<Select
 							value={statusValue}
 							label='Trang thai'
@@ -210,7 +210,7 @@ export default function SupportRequestPage() {
 							<MenuItem value='processing'>Processing</MenuItem>
 							<MenuItem value='resolved'>Resolved</MenuItem>
 						</Select>
-						<FormHelperText>Chon trang thai ho tro moi</FormHelperText>
+						<FormHelperText>Chọn trạng thái hỗ trợ mới</FormHelperText>
 					</FormControl>
 				</DialogContent>
 				<DialogActions>
