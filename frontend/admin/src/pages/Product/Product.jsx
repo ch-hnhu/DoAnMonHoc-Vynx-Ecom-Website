@@ -72,13 +72,15 @@ export default function ProductPage() {
 		if (!product) {
 			return;
 		}
-		const name = product.name || "this product";
-		if (window.confirm(`Bạn có chắc chắn muốn xoá sản phẩm: "${name}"?`)) {
+		if (window.confirm(`Bạn có chắc chắn muốn xoá sản phẩm: "${product.name}"?`)) {
 			api.delete(`/products/${product.id}`)
-				.then(() => {
-					showSuccess("Xoá sản phẩm thành công!");
-					// Refetch data
-					fetchProducts();
+				.then((res) => {
+					if (res.data.success) {
+						showSuccess("Xoá sản phẩm thành công!");
+						fetchProducts();
+					} else {
+						showError("Xoá sản phẩm thất bại!");
+					}
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);

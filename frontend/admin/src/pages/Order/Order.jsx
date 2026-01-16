@@ -18,6 +18,7 @@ import {
 import { useToast } from "@shared/hooks/useToast";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import EditOrder from "./EditOrder.jsx";
 import OrderDetails from "./OrderDetails.jsx";
 
@@ -70,6 +71,27 @@ export default function OrderPage() {
 	const handleCloseView = () => {
 		setOpenViewDialog(false);
 		setSelectedOrder(null);
+	};
+
+	const handleDelete = (order) => {
+		if (!order) {
+			return;
+		}
+		if (window.confirm(`Bạn có chắc chắn muốn xoá đơn hàng: "${order.id}"?`)) {
+			api.delete(`/orders/${order.id}`)
+				.then((res) => {
+					if (res.data.success) {
+						showSuccess("Xoá đơn hàng thành công!");
+						fetchOrders();
+					} else {
+						showError("Xoá đơn hàng thất bại!");
+					}
+				})
+				.catch((error) => {
+					console.error("Error deleting order: ", error);
+					showError("Xoá đơn hàng thất bại!");
+				});
+		}
 	};
 
 	const processRowUpdate = async (newRow, oldRow) => {
@@ -161,7 +183,7 @@ export default function OrderPage() {
 		{
 			field: "actions",
 			headerName: "Thao tác",
-			width: 360,
+			width: 300,
 			sortable: false,
 			filterable: false,
 			renderCell: (params) => (
@@ -172,7 +194,7 @@ export default function OrderPage() {
 						size='small'
 						startIcon={<EditIcon />}
 						onClick={() => handleEdit(params.row)}>
-						Cập nhật trạng thái
+						Cập nhật
 					</Button>
 					<Button
 						variant='outlined'
@@ -180,7 +202,15 @@ export default function OrderPage() {
 						size='small'
 						startIcon={<VisibilityIcon />}
 						onClick={() => handleView(params.row)}>
-						Xem chi tiết
+						Xem
+					</Button>
+					<Button
+						variant='outlined'
+						color='error'
+						size='small'
+						startIcon={<DeleteIcon />}
+						onClick={() => handleDelete(params.row)}>
+						Xóa
 					</Button>
 				</Box>
 			),

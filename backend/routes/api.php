@@ -9,37 +9,42 @@ use App\Http\Controllers\Api\AttributeController;
 use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\ConfigurationController;
 use App\Http\Controllers\Api\ReviewController;
-use App\Http\Controllers\Api\SupportRequestController;  
+use App\Http\Controllers\Api\SupportRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public routes - Test
 Route::get('/', function () {
-    return response()->json([
-        'message' => 'API is working!',
-        'timestamp' => now(),
-    ]);
+	return response()->json([
+		'message' => 'API is working!',
+		'timestamp' => now(),
+	]);
 });
-
 Route::get('/test', function () {
-    return response()->json([
-        'message' => 'hehe tako nek!'
-    ]);
+	return response()->json([
+		'message' => 'hehe tako nek!'
+	]);
 });
 Route::post('/support-requests', [SupportRequestController::class, 'store']);
 
 // Product routes
 Route::prefix('products')->group(function () {
-    Route::get('/', [ProductController::class, 'index']);
-    Route::get('/paginated', [ProductController::class, 'paginated']);
-    Route::get('/{id}', [ProductController::class, 'show']);
-    Route::post('/store', [ProductController::class, 'store']);
-    Route::put('/{id}', [ProductController::class, 'update']);
-    Route::delete('/{id}', [ProductController::class, 'destroy']);
+	Route::get('/', [ProductController::class, 'index']);
+	Route::get('/paginated', [ProductController::class, 'paginated']);
+	Route::get('/{id}', [ProductController::class, 'show']);
+	Route::post('/', [ProductController::class, 'store']);
+	Route::put('/{id}', [ProductController::class, 'update']);
+	Route::delete('/{id}', [ProductController::class, 'destroy']);
+});
+
+Route::prefix('orders')->group(function () {
+	Route::get('/', [OrderController::class, 'index']);
+	Route::get('/{id}', [OrderController::class, 'show']);
+	Route::put('/{id}', [OrderController::class, 'update']);
+	Route::delete('/{id}', [OrderController::class, 'destroy']);
 });
 
 // Resource routes
-Route::apiResource('orders', OrderController::class)->only(['index', 'update', 'destroy']);
 Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -51,7 +56,7 @@ Route::apiResource('support-requests', SupportRequestController::class)->only(['
 
 // Protected routes - Require authentication
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
+	Route::get('/user', function (Request $request) {
+		return $request->user();
+	});
 });
