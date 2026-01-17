@@ -86,15 +86,15 @@ export default function SupportRequestPage() {
 	};
 
 	const handleDelete = (id) => {
-		if (window.confirm("Ban co chac chan muon xoa yeu cau ho tro nay?")) {
+		if (window.confirm("Bạn có chắc chắn muốn xóa yêu cầu hỗ trợ này?")) {
 			api.delete(`/support-requests/${id}`)
 				.then(() => {
-					showSuccess("Xoa yeu cau ho tro thanh cong!");
+					showSuccess("Xóa yêu cầu hỗ trợ thành công!");
 					fetchSupportRequests();
 				})
 				.catch((error) => {
 					console.error("Error deleting support request:", error);
-					showError("Xoa that bai!");
+					showError("Xóa thất bại!");
 				});
 		}
 	};
