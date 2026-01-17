@@ -1,28 +1,19 @@
 import { Helmet } from "react-helmet-async";
+import PageHeader from "../components/Partial/PageHeader";
 
 export default function Terms() {
+	const title = "ĐIỀU KHOẢN VÀ ĐIỀU KIỆN";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Điều khoản và điều kiện", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>Điều khoản và điều kiện - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
 
-			<div className='container-fluid page-header py-5'>
-				<h1 className='text-center text-white display-6 wow fadeInUp' data-wow-delay='0.1s'>
-					Điều khoản và điều kiện
-				</h1>
-				<ol
-					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
-					data-wow-delay='0.3s'>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang chủ</a>
-					</li>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang</a>
-					</li>
-					<li className='breadcrumb-item active text-white'>Điều khoản</li>
-				</ol>
-			</div>
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 
 			<div className='container-fluid py-5'>
 				<div className='container py-5'>
@@ -33,29 +24,37 @@ export default function Terms() {
 								<h2 className='mb-3'>Chấp nhận điều khoản</h2>
 								<p className='mb-4'>
 									Khi truy cập và mua sắm tại Electro, bạn đồng ý tuân thủ các
-									điều khoản và điều kiện dưới đây. Nếu bạn không đồng ý, vui
-									lòng ngừng sử dụng dịch vụ.
+									điều khoản và điều kiện dưới đây. Nếu bạn không đồng ý, vui lòng
+									ngừng sử dụng dịch vụ.
 								</p>
 
 								<h4 className='mb-3'>Tài khoản và bảo mật</h4>
 								<ul className='mb-4'>
 									<li>Thông tin tài khoản phải chính xác và cập nhật.</li>
 									<li>Bạn chịu trách nhiệm bảo mật mật khẩu của mình.</li>
-									<li>Chúng tôi có quyền khóa tài khoản nếu phát hiện gian lận.</li>
+									<li>
+										Chúng tôi có quyền khóa tài khoản nếu phát hiện gian lận.
+									</li>
 								</ul>
 
 								<h4 className='mb-3'>Giá cả và thanh toán</h4>
 								<ul className='mb-4'>
-									<li>Giá hiển thị có thể thay đổi tùy chương trình khuyến mãi.</li>
-									<li>Đơn hàng chỉ được xác nhận sau khi thanh toán thành công.</li>
-									<li>Chúng tôi có thể hủy đơn khi phát hiện sai lệch thông tin.</li>
+									<li>
+										Giá hiển thị có thể thay đổi tùy chương trình khuyến mãi.
+									</li>
+									<li>
+										Đơn hàng chỉ được xác nhận sau khi thanh toán thành công.
+									</li>
+									<li>
+										Chúng tôi có thể hủy đơn khi phát hiện sai lệch thông tin.
+									</li>
 								</ul>
 
 								<h4 className='mb-3'>Giao hàng và đổi trả</h4>
 								<p className='mb-4'>
 									Thời gian và chi phí giao hàng được thông báo khi đặt hàng.
-									Chính sách đổi trả áp dụng theo quy định hiện hành và tình
-									trạng sản phẩm.
+									Chính sách đổi trả áp dụng theo quy định hiện hành và tình trạng
+									sản phẩm.
 								</p>
 
 								<h4 className='mb-3'>Sở hữu trí tuệ</h4>
@@ -66,9 +65,9 @@ export default function Terms() {
 
 								<h4 className='mb-3'>Giới hạn trách nhiệm</h4>
 								<p className='mb-0'>
-									Chúng tôi không chịu trách nhiệm đối với các thiệt hại gián
-									tiếp hoặc phát sinh do việc sử dụng website hoặc dịch vụ ngoài
-									phạm vi kiểm soát của Electro.
+									Chúng tôi không chịu trách nhiệm đối với các thiệt hại gián tiếp
+									hoặc phát sinh do việc sử dụng website hoặc dịch vụ ngoài phạm
+									vi kiểm soát của Electro.
 								</p>
 							</div>
 						</div>
@@ -90,8 +89,7 @@ export default function Terms() {
 							<div className='bg-white rounded p-4 border'>
 								<h5 className='mb-3'>Lưu ý</h5>
 								<p className='mb-0'>
-									Vui lòng đọc kỹ trước khi mua hàng để đảm bảo quyền lợi của
-									bạn.
+									Vui lòng đọc kỹ trước khi mua hàng để đảm bảo quyền lợi của bạn.
 								</p>
 							</div>
 						</div>

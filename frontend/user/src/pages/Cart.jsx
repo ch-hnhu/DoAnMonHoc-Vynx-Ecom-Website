@@ -3,12 +3,17 @@ import PageHeader from "../components/Partial/PageHeader";
 import CartContent from "../components/Cart/CartContent";
 
 export default function Cart() {
+	const title = "GIỎ HÀNG";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Giỏ hàng", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>Cart Page - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
-			<PageHeader />
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 			<CartContent />
 		</>
 	);

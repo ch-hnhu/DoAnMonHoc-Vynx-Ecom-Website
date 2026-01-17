@@ -87,7 +87,7 @@ export default function Signup() {
 		setTimeout(() => {
 			setLoading(false);
 			alert(`Đăng ký thành công với email: ${email}. Xem console log để xem dữ liệu.`);
-			navigate("/login");
+			navigate("/dang-nhap");
 		}, 1500);
 	};
 
@@ -178,7 +178,7 @@ export default function Signup() {
 
 						<Box sx={{ textAlign: "center", pt: 1 }}>
 							<Button
-								onClick={() => navigate("/login")}
+								onClick={() => navigate("/dang-nhap")}
 								size='small'
 								color='primary'
 								sx={{ textTransform: "none" }}>

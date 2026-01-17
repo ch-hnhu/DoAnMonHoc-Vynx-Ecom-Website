@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import api from "../services/api";
+import PageHeader from "../components/Partial/PageHeader";
 
 export default function About() {
 	const [companyProfile, setCompanyProfile] = useState(null);
@@ -9,7 +10,7 @@ export default function About() {
 	useEffect(() => {
 		let isMounted = true;
 		//Gọi api lấy thông tin công ty
-		api.get("/configurations")
+		api.get("/configuration")
 			.then((response) => {
 				const configurations = response?.data?.data ?? [];
 				//Lấy cấu hình công ty đang hoạt động
@@ -34,38 +35,27 @@ export default function About() {
 			isMounted = false;
 		};
 	}, []);
-	//Hiển thị thông tin công ty
+
 	const companyInfoItems = companyProfile
 		? [
 				{ label: "Tên công ty", value: companyProfile.name },
 				{ label: "Địa chỉ", value: companyProfile.address },
 				{ label: "Hotline", value: companyProfile.phone },
 				{ label: "Email", value: companyProfile.email },
-			]
+		  ]
 		: [];
 
+	const title = "VỀ CHÚNG TÔI";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Về chúng tôi", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>Về chúng tôi - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
-
-			<div className='container-fluid page-header py-5'>
-				<h1 className='text-center text-white display-6 wow fadeInUp' data-wow-delay='0.1s'>
-					Về chúng tôi
-				</h1>
-				<ol
-					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
-					data-wow-delay='0.3s'>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang chủ</a>
-					</li>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang</a>
-					</li>
-					<li className='breadcrumb-item active text-white'>Về chúng tôi</li>
-				</ol>
-			</div>
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 
 			<div className='container-fluid py-5'>
 				<div className='container py-5'>
@@ -73,11 +63,14 @@ export default function About() {
 						<div className='col-lg-6'>
 							<div className='bg-light rounded p-4 p-lg-5 h-100'>
 								<p className='text-uppercase text-primary mb-2'>Electro Store</p>
-								<h2 className='mb-3'>Cửa hàng công nghệ định cho người dùng thực tế</h2>
+								<h2 className='mb-3'>
+									Cửa hàng công nghệ định cho người dùng thực tế
+								</h2>
 								<p className='mb-4'>
-									Electro được xây dựng với mục tiêu đơn giản: giúp bạn chọn đúng thiết bị, đúng nhu cầu,
-									đúng ngân sách. Chúng tôi minh bạch từ vân đến hậu mãi, ưu tiên trải nghiệm bạn vang
-									thay vì chạy theo xu hướng.
+									Electro được xây dựng với mục tiêu đơn giản: giúp bạn chọn đúng
+									thiết bị, đúng nhu cầu, đúng ngân sách. Chúng tôi minh bạch từ
+									vân đến hậu mãi, ưu tiên trải nghiệm bạn vang thay vì chạy theo
+									xu hướng.
 								</p>
 								<div className='d-flex flex-wrap gap-3'>
 									<div className='bg-white border rounded px-3 py-2'>
@@ -122,8 +115,8 @@ export default function About() {
 							<div className='bg-light rounded p-4 h-100'>
 								<h5 className='mb-3'>Tầm nhận</h5>
 								<p className='mb-0'>
-									Trở thành điểm đến công nghệ đáng tin cậy với trải nghiệm mua sắm hiện đại, thân thiện
-									và nhất quán.
+									Trở thành điểm đến công nghệ đáng tin cậy với trải nghiệm mua
+									sắm hiện đại, thân thiện và nhất quán.
 								</p>
 							</div>
 						</div>
@@ -131,7 +124,8 @@ export default function About() {
 							<div className='bg-light rounded p-4 h-100'>
 								<h5 className='mb-3'>Giá trị cốt lõi</h5>
 								<p className='mb-0'>
-									Chính trực, minh bạch về lấy khách hàng làm trung tâm trong mọi quyết định.
+									Chính trực, minh bạch về lấy khách hàng làm trung tâm trong mọi
+									quyết định.
 								</p>
 							</div>
 						</div>
@@ -139,7 +133,8 @@ export default function About() {
 							<div className='bg-light rounded p-4 h-100'>
 								<h5 className='mb-3'>Đội ngũ</h5>
 								<p className='mb-0'>
-									Đội ngũ tư vấn am hiểu sản phẩm, kỹ thuật phản hồi nhanh và luôn đồng hành sau bạn.
+									Đội ngũ tư vấn am hiểu sản phẩm, kỹ thuật phản hồi nhanh và luôn
+									đồng hành sau bạn.
 								</p>
 							</div>
 						</div>
@@ -153,25 +148,33 @@ export default function About() {
 									<div className='col-md-6'>
 										<div className='bg-light rounded p-3 h-100'>
 											<p className='text-primary mb-1'>2022</p>
-											<p className='mb-0'>Ra mắt cửa hàng đầu tiên tại TP.HCM.</p>
+											<p className='mb-0'>
+												Ra mắt cửa hàng đầu tiên tại TP.HCM.
+											</p>
 										</div>
 									</div>
 									<div className='col-md-6'>
 										<div className='bg-light rounded p-3 h-100'>
 											<p className='text-primary mb-1'>2023</p>
-											<p className='mb-0'>Mở rộng danh mục laptop và gaming gear.</p>
+											<p className='mb-0'>
+												Mở rộng danh mục laptop và gaming gear.
+											</p>
 										</div>
 									</div>
 									<div className='col-md-6'>
 										<div className='bg-light rounded p-3 h-100'>
 											<p className='text-primary mb-1'>2024</p>
-											<p className='mb-0'>Triển khai giao hàng nhanh trong 48h.</p>
+											<p className='mb-0'>
+												Triển khai giao hàng nhanh trong 48h.
+											</p>
 										</div>
 									</div>
 									<div className='col-md-6'>
 										<div className='bg-light rounded p-3 h-100'>
 											<p className='text-primary mb-1'>2025</p>
-											<p className='mb-0'>Hệ thống chăm sóc khách hàng 1:1.</p>
+											<p className='mb-0'>
+												Hệ thống chăm sóc khách hàng 1:1.
+											</p>
 										</div>
 									</div>
 								</div>
@@ -195,8 +198,8 @@ export default function About() {
 							<div className='bg-white rounded p-4 border h-100'>
 								<h5 className='mb-3'>Hợp tác phân phối</h5>
 								<p className='mb-0'>
-									Nếu bạn là nhà phân phối, đối tác thương hiệu, hãy liên hệ để cùng phát triển
-									bản vùng.
+									Nếu bạn là nhà phân phối, đối tác thương hiệu, hãy liên hệ để
+									cùng phát triển bản vùng.
 								</p>
 							</div>
 						</div>
@@ -204,7 +207,8 @@ export default function About() {
 							<div className='bg-white rounded p-4 border h-100'>
 								<h5 className='mb-3'>Kết nối cùng Electro</h5>
 								<p className='mb-0'>
-									Theo dõi Electro để cập nhật sản phẩm mới, ưu đãi về mẫu sử dụng công nghệ hiệu quả.
+									Theo dõi Electro để cập nhật sản phẩm mới, ưu đãi về mẫu sử dụng
+									công nghệ hiệu quả.
 								</p>
 							</div>
 						</div>
