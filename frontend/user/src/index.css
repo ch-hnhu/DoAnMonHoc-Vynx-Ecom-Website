@@ -1,0 +1,154 @@
+/* Custom Color Scheme Override */
+:root {
+	/* New Color Palette */
+	--bs-primary: #1b3c53 !important;
+	--bs-secondary: #234c6a !important;
+	--bs-accent: #456882 !important;
+	--bs-light-accent: #e3e3e3 !important;
+
+	/* Override Bootstrap primary and secondary colors */
+	--primary-color: #1b3c53;
+	--secondary-color: #234c6a;
+	--accent-color: #456882;
+	--light-accent: #e3e3e3;
+}
+
+/* Apply to common Bootstrap classes */
+.bg-primary {
+	background-color: #1b3c53 !important;
+	color: #e3e3e3 !important; /* Light text on dark background */
+}
+
+.bg-secondary {
+	background-color: #234c6a !important;
+	color: #e3e3e3 !important; /* Light text on dark background */
+}
+
+.text-primary {
+	color: #1b3c53 !important;
+}
+
+.text-secondary {
+	color: #234c6a !important;
+}
+
+.btn-primary {
+	background-color: #1b3c53 !important;
+	border-color: #1b3c53 !important;
+	color: #e3e3e3 !important; /* Light text on dark button */
+}
+
+.btn-primary:hover {
+	background-color: #234c6a !important;
+	border-color: #234c6a !important;
+	color: #e3e3e3 !important;
+}
+
+.btn-secondary {
+	background-color: #234c6a !important;
+	border-color: #234c6a !important;
+	color: #e3e3e3 !important; /* Light text on dark button */
+}
+
+.btn-secondary:hover {
+	background-color: #456882 !important;
+	border-color: #456882 !important;
+	color: #e3e3e3 !important;
+}
+
+.border-primary {
+	border-color: #1b3c53 !important;
+}
+
+.border-secondary {
+	border-color: #234c6a !important;
+}
+
+/* Link colors */
+a.text-primary:hover,
+a.text-primary:focus {
+	color: #234c6a !important;
+}
+
+/* Badge colors */
+.badge-primary {
+	background-color: #1b3c53 !important;
+	color: #e3e3e3 !important;
+}
+
+.badge-secondary {
+	background-color: #234c6a !important;
+	color: #e3e3e3 !important;
+}
+
+/* Alert colors */
+.alert-primary {
+	background-color: #e3e3e3 !important;
+	border-color: #456882 !important;
+	color: #1b3c53 !important;
+}
+
+/* Ensure text is visible on dark backgrounds */
+.bg-primary *:not(.btn):not(a),
+.bg-secondary *:not(.btn):not(a),
+.btn-primary,
+.btn-secondary {
+	color: #e3e3e3 !important;
+}
+
+/* Navbar with dark background should have light text */
+.navbar.bg-primary,
+.navbar.bg-secondary {
+	color: #e3e3e3 !important;
+}
+
+.navbar.bg-primary .navbar-brand,
+.navbar.bg-secondary .navbar-brand,
+.navbar.bg-primary .nav-link,
+.navbar.bg-secondary .nav-link {
+	color: #e3e3e3 !important;
+}
+
+.navbar.bg-primary .nav-link:hover,
+.navbar.bg-secondary .nav-link:hover {
+	color: #456882 !important;
+}
+
+/* Footer specific styles - ensure high contrast */
+.footer,
+.footer .footer-item {
+	background-color: #1b3c53 !important;
+}
+
+.footer .footer-item a,
+.footer .footer-item p,
+.footer p {
+	color: #e3e3e3 !important;
+}
+
+.footer .footer-item a:hover {
+	color: #456882 !important;
+}
+
+.footer h4 {
+	color: #e3e3e3 !important;
+}
+
+/* Copyright section */
+.copyright {
+	background-color: #234c6a !important;
+}
+
+.copyright,
+.copyright * {
+	color: #e3e3e3 !important;
+}
+
+.copyright a {
+	color: #e3e3e3 !important;
+	text-decoration: underline;
+}
+
+.copyright a:hover {
+	color: #456882 !important;
+}
