@@ -4,7 +4,6 @@ import Home from "./pages/Home.jsx";
 import Shop from "./pages/Shop.jsx";
 import ProductDetails from "./pages/ProductDetails.jsx";
 import Cart from "./pages/Cart.jsx";
-import Support from "./pages/Support.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Login from "./pages/Login.jsx";
@@ -22,24 +21,24 @@ export default function App() {
 	return (
 		<HelmetProvider>
 			<Routes>
-				<Route path='login' element={<Login />} />
-				<Route path='signup' element={<Signup />} />
+				<Route path='dang-nhap' element={<Login />} />
+				<Route path='dang-ky' element={<Signup />} />
 				<Route path='/' element={<MainLayout />}>
 					<Route index element={<Home />} />
 
-					<Route path='shop' element={<Shop />} />
-					<Route path='product' element={<ProductDetails />} />
-					<Route path='cart' element={<Cart />} />
-					<Route path='support' element={<Support />} />
-					<Route path='checkout' element={<Checkout />} />
-					<Route path='privacy-policy' element={<PrivacyPolicy />} />
-					<Route path='contact' element={<Contact />} />
-					<Route path='about' element={<About />} />
-					<Route path='shipping-policy' element={<ShippingPolicy />} />
-					<Route path='faq' element={<Faq />} />
-					<Route path='warranty' element={<Warranty />} />
-					<Route path='terms' element={<Terms />} />
+					<Route path='san-pham' element={<Shop />} />
+					<Route path='gio-hang' element={<Cart />} />
+					<Route path='thanh-toan' element={<Checkout />} />
+					<Route path='chinh-sach-bao-mat' element={<PrivacyPolicy />} />
+					<Route path='lien-he' element={<Contact />} />
+					<Route path='ve-chung-toi' element={<About />} />
+					<Route path='chinh-sach-van-chuyen' element={<ShippingPolicy />} />
+					<Route path='cau-hoi-thuong-gap' element={<Faq />} />
+					<Route path='chinh-sach-bao-hanh' element={<Warranty />} />
+					<Route path='dieu-khoan' element={<Terms />} />
+					<Route path='404' element={<NotFound />} />
 
+					<Route path=':slug' element={<ProductDetails />} />
 					<Route path='*' element={<NotFound />} />
 				</Route>
 			</Routes>

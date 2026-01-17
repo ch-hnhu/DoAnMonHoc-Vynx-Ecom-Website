@@ -1,6 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import api from "../../services/api";
 
 export default function Navbar() {
+	const [configuration, setConfiguration] = useState({});
+
+	useEffect(() => {
+		api.get("/configuration").then((res) => {
+			setConfiguration(res.data.data[0]);
+		});
+	}, []);
+
 	useEffect(() => {
 		const navBar = document.querySelector(".nav-bar");
 		if (!navBar) return;
@@ -38,7 +47,7 @@ export default function Navbar() {
 										data-bs-toggle='collapse'
 										data-bs-target='#allCat'>
 										<h4 className='m-0'>
-											<i className='fa fa-bars me-2'></i>All Categories
+											<i className='fa fa-bars me-2'></i>Danh mục
 										</h4>
 									</button>
 
@@ -86,54 +95,47 @@ export default function Navbar() {
 							{/* Right: main navbar */}
 							<div className='col-12 col-lg-9'>
 								<nav className='navbar navbar-expand-lg navbar-light bg-primary'>
-									<a href='/' className='navbar-brand d-block d-lg-none'>
+									{/* <a href='/' className='navbar-brand d-block d-lg-none'>
 										<h1 className='display-5 text-secondary m-0'>
 											<i className='fas fa-shopping-bag text-white me-2'></i>
 											Electro
 										</h1>
-									</a>
+									</a> */}
 
-									<button
+									{/* <button
 										className='navbar-toggler ms-auto'
 										type='button'
 										data-bs-toggle='collapse'
 										data-bs-target='#navbarCollapse'>
 										<span className='fa fa-bars fa-1x'></span>
-									</button>
+									</button> */}
 
 									<div className='collapse navbar-collapse' id='navbarCollapse'>
 										<div className='navbar-nav ms-auto py-0'>
 											<a href='/' className='nav-item nav-link'>
-												Home
+												Trang chủ
 											</a>
-											<a href='/shop' className='nav-item nav-link'>
-												Shop
+											<a href='/san-pham' className='nav-item nav-link'>
+												Sản phẩm
 											</a>
-											<a href='/product' className='nav-item nav-link'>
-												Single Page
+											<a href='/laptop' className='nav-item nav-link'>
+												Laptop
 											</a>
 
 											<div className='nav-item dropdown'>
 												<a
-													href='#'
+													href='/phu-kien'
 													className='nav-link'
 													data-bs-toggle='dropdown'>
-													<span className='dropdown-toggle'>Pages</span>
+													<span className='dropdown-toggle'>
+														Phụ kiện
+													</span>
 												</a>
 												<div className='dropdown-menu m-0'>
 													<a
 														href='bestseller.html'
 														className='dropdown-item'>
-														Bestseller
-													</a>
-													<a href='/cart' className='dropdown-item'>
-														Cart Page
-													</a>
-													<a href='/checkout' className='dropdown-item'>
-														Cheackout
-													</a>
-													<a href='*' className='dropdown-item'>
-														404 Page
+														Tai nghe
 													</a>
 												</div>
 											</div>
@@ -196,7 +198,8 @@ export default function Navbar() {
 										<a
 											href='#'
 											className='btn btn-secondary rounded-pill py-2 px-4 px-lg-3 mb-3 mb-md-3 mb-lg-0'>
-											<i className='fa fa-mobile-alt me-2'></i> +0123 456 7890
+											<i className='fa fa-mobile-alt me-2'></i>{" "}
+											{configuration?.phone}
 										</a>
 									</div>
 								</nav>

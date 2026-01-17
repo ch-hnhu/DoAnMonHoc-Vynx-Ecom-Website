@@ -4,12 +4,18 @@ import PageHeader from "../components/Partial/PageHeader";
 import BillingDetails from "../components/Checkout/BillingDetails";
 
 export default function Checkout() {
+	const title = "THANH TOÁN";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Giỏ hàng", href: "/gio-hang" },
+		{ label: "Thanh toán", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>Checkout Page - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
-			<PageHeader />
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 			<ServicesBar />
 			<BillingDetails />
 		</>

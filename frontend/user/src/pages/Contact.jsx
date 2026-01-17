@@ -1,71 +1,62 @@
 import { Helmet } from "react-helmet-async";
-import { useState } from "react"; 
+import { useState } from "react";
+import PageHeader from "../components/Partial/PageHeader";
 export default function Contact() {
 	const [form, setForm] = useState({
-        full_name: "",
-        email: "",
-        phone: "",
-        content: "",
-    });
+		full_name: "",
+		email: "",
+		phone: "",
+		content: "",
+	});
 	const handleSubmit = async (e) => {
-  e.preventDefault();
+		e.preventDefault();
 
-  try {
-    const res = await fetch("http://127.0.0.1:8000/api/support-requests", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(form),
-    });
+		try {
+			const res = await fetch("http://127.0.0.1:8000/api/support-requests", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Accept: "application/json",
+				},
+				body: JSON.stringify(form),
+			});
 
-    if (!res.ok) {
-      const text = await res.text();
-      console.error("Server error:", text);
-      alert("Gửi liên hệ thất bại");
-      return;
-    }
+			if (!res.ok) {
+				const text = await res.text();
+				console.error("Server error:", text);
+				alert("Gửi liên hệ thất bại");
+				return;
+			}
 
-    const data = await res.json();
-    alert(data.message);
+			const data = await res.json();
+			alert(data.message);
 
-    // reset form
-    setForm({
-      full_name: "",
-      email: "",
-      phone: "",
-      content: "",
-    });
-  } catch (error) {
-    console.error(error);
-    alert("Không kết nối được server");
-  }
-};
+			// reset form
+			setForm({
+				full_name: "",
+				email: "",
+				phone: "",
+				content: "",
+			});
+		} catch (error) {
+			console.error(error);
+			alert("Không kết nối được server");
+		}
+	};
 
+	const title = "LIÊN HỆ";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Liên hệ", active: true },
+	];
 
 	return (
 		<>
 			<Helmet>
-				<title>Liên hệ chúng tôi - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
 
-			<div className='container-fluid page-header py-5'>
-				<h1 className='text-center text-white display-6 wow fadeInUp' data-wow-delay='0.1s'>
-					Liên hệ chúng tôi
-				</h1>
-				<ol
-					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
-					data-wow-delay='0.3s'>
-					<li className='breadcrumb-item'>
-						<a href='/Home'>Trang chủ</a>
-					</li>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang</a>
-					</li>
-					<li className='breadcrumb-item active text-white'>Liên hệ</li>
-				</ol>
-			</div>
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 
 			<div className='container-fluid py-5'>
 				<div className='container py-5'>
@@ -74,8 +65,8 @@ export default function Contact() {
 							<div className='bg-light rounded p-4 p-lg-5'>
 								<h2 className='mb-3'>Gửi liên hệ</h2>
 								<p className='text-muted mb-4'>
-									Chúng tôi phản hồi trong giờ làm việc. Vui lòng mô tả rõ vấn
-									đề để được hỗ trợ nhanh nhất.
+									Chúng tôi phản hồi trong giờ làm việc. Vui lòng mô tả rõ vấn đề
+									để được hỗ trợ nhanh nhất.
 								</p>
 								<form onSubmit={handleSubmit}>
 									<div className='row g-3'>
@@ -84,7 +75,9 @@ export default function Contact() {
 												type='text'
 												className='form-control'
 												placeholder='Họ và tên'
-												onChange={(e)=>setForm({...form, full_name:e.target.value})}
+												onChange={(e) =>
+													setForm({ ...form, full_name: e.target.value })
+												}
 											/>
 										</div>
 										<div className='col-md-6'>
@@ -92,7 +85,9 @@ export default function Contact() {
 												type='email'
 												className='form-control'
 												placeholder='Email'
-												onChange={(e)=>setForm({...form, email:e.target.value})}
+												onChange={(e) =>
+													setForm({ ...form, email: e.target.value })
+												}
 											/>
 										</div>
 										<div className='col-12'>
@@ -100,7 +95,9 @@ export default function Contact() {
 												type='text'
 												className='form-control'
 												placeholder='Số điện thoại'
-												onChange={(e)=>setForm({...form, phone:e.target.value})}
+												onChange={(e) =>
+													setForm({ ...form, phone: e.target.value })
+												}
 											/>
 										</div>
 										<div className='col-12'>
@@ -108,8 +105,9 @@ export default function Contact() {
 												className='form-control'
 												rows='6'
 												placeholder='Nội dung liên hệ'
-												onChange={(e)=>setForm({...form, content:e.target.value})}
-											></textarea>
+												onChange={(e) =>
+													setForm({ ...form, content: e.target.value })
+												}></textarea>
 										</div>
 										<div className='col-12'>
 											<button
@@ -174,8 +172,8 @@ export default function Contact() {
 							<div className='bg-light rounded p-4 h-100'>
 								<h5 className='mb-3'>Hợp tác &amp; báo giá</h5>
 								<p className='mb-0'>
-									Gửi thông tin doanh nghiệp để nhận chính sách giá và ưu đãi
-									hợp tác.
+									Gửi thông tin doanh nghiệp để nhận chính sách giá và ưu đãi hợp
+									tác.
 								</p>
 							</div>
 						</div>

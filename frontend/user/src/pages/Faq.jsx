@@ -1,28 +1,19 @@
 import { Helmet } from "react-helmet-async";
+import PageHeader from "../components/Partial/PageHeader";
 
 export default function Faq() {
+	const title = "CÂU HỎI THƯỜNG GẶP";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Câu hỏi thường gặp", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>FAQ - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
 
-			<div className='container-fluid page-header py-5'>
-				<h1 className='text-center text-white display-6 wow fadeInUp' data-wow-delay='0.1s'>
-					Câu hỏi thường gặp
-				</h1>
-				<ol
-					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
-					data-wow-delay='0.3s'>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang chủ</a>
-					</li>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang</a>
-					</li>
-					<li className='breadcrumb-item active text-white'>FAQ</li>
-				</ol>
-			</div>
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 
 			<div className='container-fluid py-5'>
 				<div className='container py-5'>
@@ -51,9 +42,9 @@ export default function Faq() {
 											aria-labelledby='faqHeadingOne'
 											data-bs-parent='#faqAccordion'>
 											<div className='accordion-body'>
-												Bạn sẽ nhận mã vận đơn qua email hoặc SMS. Sử dụng mã này
-												trên trang theo dõi của đơn vị vận chuyển hoặc liên hệ
-												hotline để được hỗ trợ.
+												Bạn sẽ nhận mã vận đơn qua email hoặc SMS. Sử dụng
+												mã này trên trang theo dõi của đơn vị vận chuyển
+												hoặc liên hệ hotline để được hỗ trợ.
 											</div>
 										</div>
 									</div>
@@ -76,9 +67,9 @@ export default function Faq() {
 											aria-labelledby='faqHeadingTwo'
 											data-bs-parent='#faqAccordion'>
 											<div className='accordion-body'>
-												Bạn có thể đổi trả trong vòng 7 ngày với sản phẩm còn nguyên
-												vẹn và có đầy đủ hóa đơn. Vui lòng liên hệ bộ phận hỗ trợ
-												để được hướng dẫn chi tiết.
+												Bạn có thể đổi trả trong vòng 7 ngày với sản phẩm
+												còn nguyên vẹn và có đầy đủ hóa đơn. Vui lòng liên
+												hệ bộ phận hỗ trợ để được hướng dẫn chi tiết.
 											</div>
 										</div>
 									</div>
@@ -101,8 +92,8 @@ export default function Faq() {
 											aria-labelledby='faqHeadingThree'
 											data-bs-parent='#faqAccordion'>
 											<div className='accordion-body'>
-												Chúng tôi hỗ trợ thanh toán COD, chuyển khoản ngân hàng và
-												các cổng thanh toán trực tuyến phổ biến.
+												Chúng tôi hỗ trợ thanh toán COD, chuyển khoản ngân
+												hàng và các cổng thanh toán trực tuyến phổ biến.
 											</div>
 										</div>
 									</div>
@@ -125,9 +116,9 @@ export default function Faq() {
 											aria-labelledby='faqHeadingFour'
 											data-bs-parent='#faqAccordion'>
 											<div className='accordion-body'>
-												Tùy từng sản phẩm, thời gian bảo hành từ 6-24 tháng. Vui
-												lòng xem thông tin bảo hành trong chi tiết sản phẩm hoặc
-												liên hệ hỗ trợ.
+												Tùy từng sản phẩm, thời gian bảo hành từ 6-24 tháng.
+												Vui lòng xem thông tin bảo hành trong chi tiết sản
+												phẩm hoặc liên hệ hỗ trợ.
 											</div>
 										</div>
 									</div>

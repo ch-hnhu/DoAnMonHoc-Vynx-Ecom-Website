@@ -5,12 +5,17 @@ import ProductBanner from "../components/Partial/ProductBanner";
 import ShopPage from "../components/Shop/ShopPage";
 
 export default function Shop() {
+	const title = "SẢN PHẨM";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Sản phẩm", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>Shop Page - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
-			<PageHeader />
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 			<ServicesBar />
 			<ShopPage />
 			<ProductBanner />

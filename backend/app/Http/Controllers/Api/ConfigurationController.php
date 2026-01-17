@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Configuration;
+use Exception;
 
 class ConfigurationController extends Controller
 {
@@ -12,10 +13,24 @@ class ConfigurationController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'message' => 'Goi den api configuration thanh cong',
-            'data' => Configuration::query()->get(),
-        ]);
+        try {
+            $configuration = Configuration::where('is_active', true)->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay chi tiet cau hinh thanh cong',
+                'data' => $configuration,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay chi tiet cau hinh',
+                'data' => null,
+                'error' => $ex->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
     }
 
     /**

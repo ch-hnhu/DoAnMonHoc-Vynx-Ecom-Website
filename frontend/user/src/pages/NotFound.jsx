@@ -3,12 +3,13 @@ import NotFoundContent from "../components/NotFound/NotFoundContent";
 import PageHeader from "../components/Partial/PageHeader";
 
 export default function NotFound() {
+	const title = "KHÔNG TÌM THẤY TRANG";
+
 	return (
 		<>
 			<Helmet>
-				<title>Page Not Found - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
-			<PageHeader />
 			<NotFoundContent />
 		</>
 	);
