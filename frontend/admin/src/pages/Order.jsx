@@ -9,8 +9,8 @@ import { useToast } from "@shared/hooks/useToast";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import EditOrder from "./EditOrder.jsx";
-import OrderDetails from "./OrderDetails.jsx";
+//import EditOrder from "./EditOrder.jsx";
+//import OrderDetails from "./OrderDetails.jsx";
 
 export default function OrderPage() {
 	const [orders, setOrders] = useState([]);
