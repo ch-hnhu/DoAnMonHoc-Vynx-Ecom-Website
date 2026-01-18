@@ -11,31 +11,58 @@ export default function ProductDetails() {
 	const { slug } = useParams();
 	const navigate = useNavigate();
 	const [product, setProduct] = useState(null);
+	const [relatedProducts, setRelatedProducts] = useState([]);
 	const [notFound, setNotFound] = useState(false);
+	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		api.get(`products/${slug}`)
-			.then((res) => {
-				if (res.data && res.data.data) {
-					setProduct(res.data.data);
+		let isActive = true;
+		setLoading(true);
+		setNotFound(false);
+
+		Promise.all([api.get(`products/${slug}`), api.get("/products")])
+			.then(([productRes, productsRes]) => {
+				if (!isActive) return;
+				if (productRes.data && productRes.data.data) {
+					const currentProduct = productRes.data.data;
+					const allProducts = productsRes.data?.data || [];
+					const filteredRelated = allProducts
+						.filter((item) => item.id !== currentProduct.id)
+						.filter((item) =>
+							currentProduct.category_id
+								? item.category_id === currentProduct.category_id
+								: true
+						)
+						.slice(0, 8);
+
+					setProduct(currentProduct);
+					setRelatedProducts(filteredRelated);
 				} else {
 					setNotFound(true);
 					navigate("/404", { replace: true });
 				}
 			})
 			.catch((error) => {
+				if (!isActive) return;
 				console.error("Error fetching product:", error);
 				setNotFound(true);
 				navigate("/404", { replace: true });
+			})
+			.finally(() => {
+				if (isActive) setLoading(false);
 			});
+
+		return () => {
+			isActive = false;
+		};
 	}, [slug, navigate]);
 
 	if (notFound) {
 		return null;
 	}
 
-	if (!product) {
-		return <Spinner />; // Hoặc có thể return loading spinner
+	if (loading || !product) {
+		return <Spinner />;
 	}
 
 	const breadcrumbs = [
@@ -51,7 +78,7 @@ export default function ProductDetails() {
 			</Helmet>
 			<PageHeader title={product.name} breadcrumbs={breadcrumbs} />
 			<SingleProduct product={product} />
-			<RelatedProducts />
+			<RelatedProducts products={relatedProducts} />
 		</>
 	);
 }

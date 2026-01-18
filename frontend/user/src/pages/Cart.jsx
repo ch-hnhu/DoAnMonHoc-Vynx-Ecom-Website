@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import PageHeader from "../components/Partial/PageHeader";
-import CartContent from "../components/Cart/CartContent";
+import CartContent from "../components/Cart/CartContent.jsx";
 
 export default function Cart() {
 	const title = "GIỎ HÀNG";

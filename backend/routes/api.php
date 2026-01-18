@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\PromotionController;
 use App\Http\Controllers\Api\ConfigurationController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SupportRequestController;
+use App\Http\Controllers\Api\SlideshowController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,7 @@ Route::apiResource('categories', CategoryController::class)->only(['index', 'sto
 Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
 Route::apiResource('reviews', ReviewController::class)->only(['index', 'destroy']);
+Route::apiResource('slideshows', SlideshowController::class)->only(['index']);
 
 // Protected routes - Require authentication
 Route::middleware('auth:sanctum')->group(function () {

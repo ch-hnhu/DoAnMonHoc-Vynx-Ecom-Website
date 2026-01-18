@@ -134,6 +134,15 @@ a.text-primary:focus {
 	color: #e3e3e3 !important;
 }
 
+.footer-logo {
+	max-width: 180px;
+	height: auto;
+	display: block;
+	background-color: #ffffff;
+	padding: 8px 12px;
+	border-radius: 6px;
+}
+
 /* Copyright section */
 .copyright {
 	background-color: #234c6a !important;
@@ -151,4 +160,124 @@ a.text-primary:focus {
 
 .copyright a:hover {
 	color: #456882 !important;
+}
+
+/* Chat widget */
+.chat-widget {
+	position: fixed;
+	right: 24px;
+	bottom: 90px;
+	z-index: 999;
+}
+
+.chat-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 14px;
+	border: 0;
+	border-radius: 999px;
+	background: #1b3c53;
+	color: #ffffff;
+	box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.chat-toggle-label {
+	font-weight: 600;
+}
+
+.chat-panel {
+	position: absolute;
+	right: 0;
+	bottom: 56px;
+	width: 320px;
+	background: #ffffff;
+	border-radius: 16px;
+	box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+	overflow: hidden;
+	opacity: 0;
+	transform: translateY(12px);
+	pointer-events: none;
+	transition: 0.2s ease;
+}
+
+.chat-widget.is-open .chat-panel {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.chat-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 16px;
+	background: #f5f7f9;
+	border-bottom: 1px solid #e4e7ec;
+}
+
+.chat-close {
+	border: 0;
+	background: transparent;
+	color: #1b3c53;
+}
+
+.chat-messages {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	max-height: 260px;
+	overflow-y: auto;
+}
+
+.chat-message {
+	max-width: 85%;
+	padding: 10px 12px;
+	border-radius: 12px;
+	font-size: 0.95rem;
+	line-height: 1.4;
+}
+
+.chat-message.support {
+	background: #e9eef3;
+	color: #1b3c53;
+	align-self: flex-start;
+}
+
+.chat-message.user {
+	background: #1b3c53;
+	color: #ffffff;
+	align-self: flex-end;
+}
+
+.chat-input {
+	display: flex;
+	gap: 8px;
+	padding: 12px 16px 16px;
+	border-top: 1px solid #e4e7ec;
+}
+
+.chat-input input {
+	flex: 1;
+	border-radius: 999px;
+	border: 1px solid #d5d9dd;
+	padding: 8px 14px;
+	outline: none;
+}
+
+.chat-input .btn {
+	border-radius: 999px;
+	padding: 8px 16px;
+}
+
+@media (max-width: 576px) {
+	.chat-widget {
+		right: 16px;
+		bottom: 80px;
+	}
+
+	.chat-panel {
+		width: 280px;
+	}
 }

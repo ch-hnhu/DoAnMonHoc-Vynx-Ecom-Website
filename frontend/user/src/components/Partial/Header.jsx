@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import { useCart } from "../Cart/CartContext.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function Header() {
 	const [configuration, setConfiguration] = useState({});
+	const { itemCount, subtotal } = useCart();
 
 	useEffect(() => {
 		api.get("/configuration").then((res) => {
@@ -129,10 +132,18 @@ export default function Header() {
 								<a
 									href='gio-hang'
 									className='text-muted d-flex align-items-center justify-content-center'>
-									<span className='rounded-circle btn-md-square border'>
+									<span className='rounded-circle btn-md-square border position-relative'>
 										<i className='fas fa-shopping-cart'></i>
+										{itemCount > 0 && (
+											<span
+												className='position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'>
+												{itemCount}
+											</span>
+										)}
 									</span>
-									<span className='text-dark ms-2'>$0.00</span>
+									<span className='text-dark ms-2'>
+										{formatCurrency(subtotal)}
+									</span>
 								</a>
 							</div>
 						</div>
