@@ -1,12 +1,46 @@
-import React, { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Snackbar } from "@mui/material";
+import {
+	getAllProductImages,
+	getFinalPrice,
+	hasDiscount,
+	isInStock,
+} from "@shared/utils/productHelper.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
+import { renderRating } from "@shared/utils/renderHelper.jsx";
+import { useCart } from "../Cart/CartContext.jsx";
+import { useToast } from "@shared/hooks/useToast.js";
 
 export default function SingleProduct({ product }) {
+	const { addToCart } = useCart();
+	const { toast, showSuccess, closeToast } = useToast();
+	const [quantity, setQuantity] = useState(1);
+	const images = useMemo(
+		() => getAllProductImages(product?.image_url),
+		[product?.image_url]
+	);
+
 	useEffect(() => {
-		// Call the carousel init function from main.js
 		if (window.initCarousels?.single) {
 			window.initCarousels.single();
 		}
-	}, []);
+	}, [images.length]);
+
+	const handleDecrease = () => {
+		setQuantity((prev) => Math.max(1, prev - 1));
+	};
+
+	const handleIncrease = () => {
+		setQuantity((prev) => prev + 1);
+	};
+
+	const handleAddToCart = (e) => {
+		e.preventDefault();
+		if (isInStock(product)) {
+			addToCart(product, quantity);
+			showSuccess("Đã thêm vào giỏ hàng");
+		}
+	};
 
 	return (
 		<>
@@ -18,7 +52,7 @@ export default function SingleProduct({ product }) {
 								<input
 									type='search'
 									className='form-control p-3'
-									placeholder='keywords'
+									placeholder='Từ khóa'
 									aria-describedby='search-icon-1'
 								/>
 								<span id='search-icon-1' className='input-group-text p-3'>
@@ -26,13 +60,13 @@ export default function SingleProduct({ product }) {
 								</span>
 							</div>
 							<div className='product-categories mb-4'>
-								<h4>Products Categories</h4>
+								<h4>Danh mục sản phẩm</h4>
 								<ul className='list-unstyled'>
 									<li>
 										<div className='categories-item'>
 											<a href='#' className='text-dark'>
 												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Accessories
+												Phụ kiện
 											</a>
 											<span>(3)</span>
 										</div>
@@ -41,7 +75,7 @@ export default function SingleProduct({ product }) {
 										<div className='categories-item'>
 											<a href='#' className='text-dark'>
 												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Electronics & Computer
+												Đồ điện tử 
 											</a>
 											<span>(5)</span>
 										</div>
@@ -50,7 +84,7 @@ export default function SingleProduct({ product }) {
 										<div className='categories-item'>
 											<a href='#' className='text-dark'>
 												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Laptops & Desktops
+												Laptop & Máy tính để bàn
 											</a>
 											<span>(2)</span>
 										</div>
@@ -59,7 +93,7 @@ export default function SingleProduct({ product }) {
 										<div className='categories-item'>
 											<a href='#' className='text-dark'>
 												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Mobiles & Tablets
+												Điện thoại & Máy tính bảng
 											</a>
 											<span>(8)</span>
 										</div>
@@ -68,7 +102,7 @@ export default function SingleProduct({ product }) {
 										<div className='categories-item'>
 											<a href='#' className='text-dark'>
 												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												SmartPhone & Smart TV
+												Smart TV
 											</a>
 											<span>(5)</span>
 										</div>
@@ -76,7 +110,7 @@ export default function SingleProduct({ product }) {
 								</ul>
 							</div>
 							<div className='additional-product mb-4'>
-								<h4>Select By Color</h4>
+								<h4>Lọc theo màu</h4>
 								<div className='additional-product-item'>
 									<input
 										type='radio'
@@ -87,7 +121,7 @@ export default function SingleProduct({ product }) {
 									/>
 									<label htmlFor='Categories-1' className='text-dark'>
 										{" "}
-										Gold
+										Vàng
 									</label>
 								</div>
 								<div className='additional-product-item'>
@@ -100,7 +134,7 @@ export default function SingleProduct({ product }) {
 									/>
 									<label htmlFor='Categories-2' className='text-dark'>
 										{" "}
-										Green
+										Xanh lá
 									</label>
 								</div>
 								<div className='additional-product-item'>
@@ -113,12 +147,12 @@ export default function SingleProduct({ product }) {
 									/>
 									<label htmlFor='Categories-3' className='text-dark'>
 										{" "}
-										White
+										Trắng
 									</label>
 								</div>
 							</div>
 							<div className='featured-product mb-4'>
-								<h4 className='mb-3'>Featured products</h4>
+								<h4 className='mb-3'>Sản phẩm nổi bật</h4>
 								<div className='featured-product-item'>
 									<div
 										className='rounded me-4'
@@ -285,7 +319,7 @@ export default function SingleProduct({ product }) {
 									<a
 										href='#'
 										className='btn btn-primary px-4 py-3 rounded-pill w-100'>
-										Vew More
+										Xem thêm
 									</a>
 								</div>
 							</div>
@@ -304,15 +338,15 @@ export default function SingleProduct({ product }) {
 										right: 0,
 										background: "rgba(242, 139, 0, 0.3)",
 									}}>
-									<h5 className='display-6 text-primary'>SALE</h5>
-									<h4 className='text-secondary'>Get UP To 50% Off</h4>
+									<h5 className='display-6 text-primary'>Giảm giá</h5>
+									<h4 className='text-secondary'>Giảm đến 50%</h4>
 									<a href='#' className='btn btn-primary rounded-pill px-4'>
-										Shop Now
+										Mua ngay
 									</a>
 								</div>
 							</div>
 							<div className='product-tags my-4'>
-								<h4 className='mb-3'>PRODUCT TAGS</h4>
+								<h4 className='mb-3'>Từ khóa sản phẩm</h4>
 								<div className='product-tags-items bg-light rounded p-3'>
 									<a href='#' className='border rounded py-1 px-2 mb-2'>
 										New
@@ -351,124 +385,101 @@ export default function SingleProduct({ product }) {
 							<div className='row g-4 single-product'>
 								<div className='col-xl-6'>
 									<div className='single-carousel owl-carousel'>
-										<div
-											className='single-item'
-											data-dot="<img className='img-fluid' src='/img/product-4.png' alt='' />">
-											<div className='single-inner bg-light rounded'>
-												<img
-													src='/img/product-4.png'
-													className='img-fluid rounded'
-													alt='Image'
-												/>
+										{images.map((image, index) => (
+											<div
+												key={image}
+												className='single-item'
+												data-dot={`<img class='img-fluid' src='${image}' alt='' />`}>
+												<div className='single-inner bg-light rounded'>
+													<img
+														src={image}
+														className='img-fluid rounded'
+														alt={`${product.name} ${index + 1}`}
+														onError={(e) => {
+															e.target.src = "https://placehold.co/600x400";
+														}}
+													/>
+												</div>
 											</div>
-										</div>
-										<div
-											className='single-item'
-											data-dot="<img className='img-fluid' src='/img/product-5.png' alt='' />">
-											<div className='single-inner bg-light rounded'>
-												<img
-													src='/img/product-5.png'
-													className='img-fluid rounded'
-													alt='Image'
-												/>
-											</div>
-										</div>
-										<div
-											className='single-item'
-											data-dot="<img className='img-fluid' src='/img/product-6.png' alt='' />">
-											<div className='single-inner bg-light rounded'>
-												<img
-													src='/img/product-6.png'
-													className='img-fluid rounded'
-													alt='Image'
-												/>
-											</div>
-										</div>
-										<div
-											className='single-item'
-											data-dot="<img className='img-fluid' src='/img/product-7.png' alt='' />">
-											<div className='single-inner bg-light rounded'>
-												<img
-													src='/img/product-7.png'
-													className='img-fluid rounded'
-													alt='Image'
-												/>
-											</div>
-										</div>
-										<div
-											className='single-item'
-											data-dot="<img className='img-fluid' src='/img/product-3.png' alt='' />">
-											<div className='single-inner bg-light rounded'>
-												<img
-													src='/img/product-3.png'
-													className='img-fluid rounded'
-													alt='Image'
-												/>
-											</div>
-										</div>
+										))}
 									</div>
 								</div>
 								<div className='col-xl-6'>
-									<h4 className='fw-bold mb-3'>Smart Camera</h4>
-									<p className='mb-3'>Category: Electronics</p>
-									<h5 className='fw-bold mb-3'>3,35 $</h5>
+									<h4 className='fw-bold mb-3'>{product.name}</h4>
+									<p className='mb-3'>
+										Danh mục: {product.category?.name || "Chưa phân loại"}
+									</p>
+									<h5 className='fw-bold mb-3'>
+										{hasDiscount(product) ? (
+											<>
+												<del className='me-2'>
+													{formatCurrency(product.price)}
+												</del>
+												{formatCurrency(getFinalPrice(product))}
+											</>
+										) : (
+											formatCurrency(product.price)
+										)}
+									</h5>
 									<div className='d-flex mb-4'>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star'></i>
+										{renderRating(product.rating_average || 0)}
 									</div>
 									<div className='mb-3'>
 										<div className='btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2'>
-											<i className='fab fa-facebook-f me-1'></i> Share
+											<i className='fab fa-facebook-f me-1'></i> Chia sẻ
 										</div>
 										<div className='btn btn-secondary d-inline-block rounded text-white py-1 px-4 ms-2'>
-											<i className='fab fa-twitter ms-1'></i> Share
+											<i className='fab fa-twitter ms-1'></i> Chia sẻ
 										</div>
 									</div>
 									<div className='d-flex flex-column mb-3'>
-										<small>Product SKU: N/A</small>
+										<small>Thương hiệu: {product.brand?.name || "Chưa rõ"}</small>
 										<small>
-											Available:{" "}
+											Tình trạng:{" "}
 											<strong className='text-primary'>
-												20 items in stock
+												{isInStock(product)
+													? `Còn hàng`
+													: "Hết hàng"}
 											</strong>
 										</small>
 									</div>
 									<p className='mb-4'>
-										The generated Lorem Ipsum is therefore always free from
-										repetition injected humour, or non-characteristic words etc.
-									</p>
-									<p className='mb-4'>
-										Susp endisse ultricies nisi vel quam suscipit. Sabertooth
-										peacock flounder; chain pickerel hatchetfish, pencilfish
-										snailfish
+										{product.short_description ||
+											product.description ||
+											"Chưa có mô tả ngắn."}
 									</p>
 									<div
 										className='input-group quantity mb-5'
 										style={{ width: "100px" }}>
 										<div className='input-group-btn'>
-											<button className='btn btn-sm btn-minus rounded-circle bg-light border'>
+											<button
+												className='btn btn-sm btn-minus rounded-circle bg-light border'
+												type='button'
+												onClick={handleDecrease}>
 												<i className='fa fa-minus'></i>
 											</button>
 										</div>
 										<input
 											type='text'
 											className='form-control form-control-sm text-center border-0'
-											defaultValue='1'
+											value={quantity}
+											readOnly
 										/>
 										<div className='input-group-btn'>
-											<button className='btn btn-sm btn-plus rounded-circle bg-light border'>
+											<button
+												className='btn btn-sm btn-plus rounded-circle bg-light border'
+												type='button'
+												onClick={handleIncrease}>
 												<i className='fa fa-plus'></i>
 											</button>
 										</div>
 									</div>
 									<a
 										href='#'
+										onClick={handleAddToCart}
 										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary'>
-										<i className='fa fa-shopping-bag me-2 text-white'></i> Add
-										to cart
+										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm
+										vào giỏ hàng
 									</a>
 								</div>
 								<div className='col-lg-12'>
@@ -483,7 +494,7 @@ export default function SingleProduct({ product }) {
 												data-bs-target='#nav-about'
 												aria-controls='nav-about'
 												aria-selected='true'>
-												Description
+												Thông số kỹ thuật
 											</button>
 											<button
 												className='nav-link border-white border-bottom-0'
@@ -494,7 +505,7 @@ export default function SingleProduct({ product }) {
 												data-bs-target='#nav-mission'
 												aria-controls='nav-mission'
 												aria-selected='false'>
-												Reviews
+												Đánh giá
 											</button>
 										</div>
 									</nav>
@@ -504,47 +515,30 @@ export default function SingleProduct({ product }) {
 											id='nav-about'
 											role='tabpanel'
 											aria-labelledby='nav-about-tab'>
-											<p>
-												Our new{" "}
-												<b className='fw-bold'>HPB12 / A12 battery</b> is
-												rated at 2000mAh and designed to power up Black and
-												Decker / FireStorm line of 12V tools allowing users
-												to run multiple devices off the same battery pack.
-												The HPB12 is compatible with the following Black and
-												Decker power tool models:
-											</p>
-											<b className='fw-bold'>
-												Black & Decker Drills and Drivers:
-											</b>
-											<p className='small'>
-												BD12PSK, BDG1200K, BDGL12K, BDID1202, CD1200SK,
-												CD12SFK, CDC1200K, CDC120AK, CDC120ASB, CP122K,
-												CP122KB, CP12K, CP12KB, EPC12, EPC126, EPC126BK,
-												EPC12CA, EPC12CABK, HP122K, HP122KD, HP126F2B,
-												HP126F2K, HP126F3B, HP126F3K, HP126FBH, HP126FSC,
-												HP126FSH, HP126K, HP128F3B, HP12K, HP12KD, HPD1200,
-												HPD1202, HPD1202KF, HPD12K-2, PS122K, PS122KB,
-												PS12HAK, SS12, SX3000, SX3500, XD1200, XD1200K,
-												XTC121
-											</p>
-											<b className='fw-bold'>
-												lack & Decker Impact Wrenches:
-											</b>
-											<p className='small'>SX5000, XTC12IK, XTC12IKH</p>
-											<b className='fw-bold'>Black & Decker Multi-Tools:</b>
-											<p className='small'>KC2000FK</p>
-											<b className='fw-bold'>Black & Decker Nailers:</b>
-											<p className='small'>BDBN1202</p>
-											<b className='fw-bold'>Black & Decker Screwdrivers:</b>
-											<p className='small'>HP9019K</p>
-											<b className='fw-bold mb-0'>
-												Best replacement for the following Black and Decker
-												OEM battery part numbers:
-											</b>
-											<p className='small'>
-												HPB12, A12, A12EX, A12-XJ, A1712, B-8315, BD1204L,
-												BD-1204L, BPT1047, FS120B, FS120BX, FSB12.
-											</p>
+											<ul className='list-unstyled mb-0'>
+												<li>
+													<strong>Thương hiệu:</strong>{" "}
+													{product.brand?.name || "Chưa rõ"}
+												</li>
+												<li>
+													<strong>Danh mục:</strong>{" "}
+													{product.category?.name || "Chưa phân loại"}
+												</li>
+												<li>
+													<strong>Giá:</strong>{" "}
+													{formatCurrency(getFinalPrice(product))}
+												</li>
+												<li>
+													<strong>Tồn kho:</strong>{" "}
+													{product.stock_quantity ?? 0}
+												</li>
+												<li>
+													<strong>Đánh giá:</strong>{" "}
+													{product.rating_average
+														? `${product.rating_average}/5`
+														: "Chưa có"}
+												</li>
+											</ul>
 										</div>
 										<div
 											className='tab-pane'
@@ -575,10 +569,10 @@ export default function SingleProduct({ product }) {
 														</div>
 													</div>
 													<p>
-														The generated Lorem Ipsum is therefore
-														always free from repetition injected humour,
-														or non-characteristic words etc. Susp
-														endisse ultricies nisi vel quam suscipit{" "}
+														The generated Lorem Ipsum is therefore always free
+														from repetition injected humour, or non-characteristic
+														words etc. Susp endisse ultricies nisi vel quam
+														suscipit{" "}
 													</p>
 												</div>
 											</div>
@@ -606,36 +600,35 @@ export default function SingleProduct({ product }) {
 														</div>
 													</div>
 													<p className='text-dark'>
-														The generated Lorem Ipsum is therefore
-														always free from repetition injected humour,
-														or non-characteristic words etc. Susp
-														endisse ultricies nisi vel quam suscipit{" "}
+														The generated Lorem Ipsum is therefore always free
+														from repetition injected humour, or non-characteristic
+														words etc. Susp endisse ultricies nisi vel quam
+														suscipit{" "}
 													</p>
 												</div>
 											</div>
 										</div>
 										<div className='tab-pane' id='nav-vision' role='tabpanel'>
 											<p className='text-dark'>
-												Tempor erat elitr rebum at clita. Diam dolor diam
-												ipsum et tempor sit. Aliqu diam amet diam et eos
-												labore. 3
+												Tempor erat elitr rebum at clita. Diam dolor diam ipsum
+												et tempor sit. Aliqu diam amet diam et eos labore. 3
 											</p>
 											<p className='mb-0'>
-												Diam dolor diam ipsum et tempor sit. Aliqu diam amet
-												diam et eos labore. Clita erat ipsum et lorem et sit
+												Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam
+												et eos labore. Clita erat ipsum et lorem et sit
 											</p>
 										</div>
 									</div>
 								</div>
 								<form action='#'>
-									<h4 className='mb-5 fw-bold'>Leave a Reply</h4>
+									<h4 className='mb-5 fw-bold'>Để lại đánh giá</h4>
 									<div className='row g-4'>
 										<div className='col-lg-6'>
 											<div className='border-bottom rounded'>
 												<input
 													type='text'
 													className='form-control border-0 me-4'
-													placeholder='Yur Name *'
+													placeholder='Họ và tên *'
 												/>
 											</div>
 										</div>
@@ -644,7 +637,7 @@ export default function SingleProduct({ product }) {
 												<input
 													type='email'
 													className='form-control border-0'
-													placeholder='Your Email *'
+													placeholder='Email *'
 												/>
 											</div>
 										</div>
@@ -656,14 +649,14 @@ export default function SingleProduct({ product }) {
 													className='form-control border-0'
 													cols='30'
 													rows='8'
-													placeholder='Your Review *'
+													placeholder='Nội dung đánh giá *'
 													spellCheck={false}></textarea>
 											</div>
 										</div>
 										<div className='col-lg-12'>
 											<div className='d-flex justify-content-between py-3 mb-5'>
 												<div className='d-flex align-items-center'>
-													<p className='mb-0 me-3'>Please rate:</p>
+													<p className='mb-0 me-3'>Đánh giá:</p>
 													<div
 														className='d-flex align-items-center'
 														style={{ fontSize: "12px" }}>
@@ -677,7 +670,7 @@ export default function SingleProduct({ product }) {
 												<a
 													href='#'
 													className='btn btn-primary border border-secondary text-primary rounded-pill px-4 py-3'>
-													Post Comment
+													Gửi đánh giá
 												</a>
 											</div>
 										</div>
@@ -688,6 +681,15 @@ export default function SingleProduct({ product }) {
 					</div>
 				</div>
 			</div>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={2500}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 }

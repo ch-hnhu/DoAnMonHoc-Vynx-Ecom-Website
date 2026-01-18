@@ -1,13 +1,20 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Alert, Snackbar } from "@mui/material";
 import Pagination from "../Partial/Pagination";
 import ProductCardLarge from "../Partial/ProductCardLarge";
 import ProductCardMedium from "../Partial/ProductCardMedium";
 import Spinner from "../Partial/Spinner";
 import api from "../../services/api";
+import { useCart } from "../Cart/CartContext.jsx";
+import { useToast } from "@shared/hooks/useToast.js";
 
 export default function ShopPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const { addToCart } = useCart();
+	const { toast, showSuccess, closeToast } = useToast();
+	const navigate = useNavigate();
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		lastPage: 1,
@@ -41,11 +48,14 @@ export default function ShopPage() {
 	};
 
 	const handleAddToCart = (product) => {
-		console.log("Add to cart:", product);
+		addToCart(product, 1);
+		showSuccess("Đã thêm vào giỏ hàng");
 	};
 
 	const handleViewDetails = (product) => {
-		console.log("View details:", product);
+		if (product?.slug) {
+			navigate(`/${product.slug}`);
+		}
 	};
 
 	return (
@@ -55,13 +65,13 @@ export default function ShopPage() {
 					{/* Sidebar */}
 					<div className='col-lg-3 wow fadeInUp' data-wow-delay='0.1s'>
 						<div className='product-categories mb-4'>
-							<h4>Products Categories</h4>
+							<h4>Danh mục sản phẩm</h4>
 							<ul className='list-unstyled'>
 								<li>
 									<div className='categories-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Accessories
+											Phụ kiện
 										</a>
 										<span>(3)</span>
 									</div>
@@ -70,7 +80,7 @@ export default function ShopPage() {
 									<div className='categories-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Electronics &amp; Computer
+											Điện tử &amp; Máy tính
 										</a>
 										<span>(5)</span>
 									</div>
@@ -79,7 +89,7 @@ export default function ShopPage() {
 									<div className='categories-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>
-											Laptops &amp; Desktops
+											Laptop &amp; Máy tính để bàn
 										</a>
 										<span>(2)</span>
 									</div>
@@ -88,7 +98,7 @@ export default function ShopPage() {
 									<div className='categories-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Mobiles &amp; Tablets
+											Điện thoại &amp; Máy tính bảng
 										</a>
 										<span>(8)</span>
 									</div>
@@ -97,7 +107,7 @@ export default function ShopPage() {
 									<div className='categories-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											SmartPhone &amp; Smart TV
+											Điện thoại &amp; TV th?ng minh
 										</a>
 										<span>(5)</span>
 									</div>
@@ -105,9 +115,9 @@ export default function ShopPage() {
 							</ul>
 						</div>
 
-						{/* Price */}
+						{/* Gi? */}
 						<div className='price mb-4'>
-							<h4 className='mb-2'>Price</h4>
+							<h4 className='mb-2'>Giá</h4>
 							<input
 								type='range'
 								className='form-range w-100'
@@ -128,13 +138,13 @@ export default function ShopPage() {
 
 						{/* Product Color */}
 						<div className='product-color mb-3'>
-							<h4>Select By Color</h4>
+							<h4>Chọn theo màu</h4>
 							<ul className='list-unstyled'>
 								<li>
 									<div className='product-color-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Gold
+											Vàng
 										</a>
 										<span>(1)</span>
 									</div>
@@ -143,7 +153,7 @@ export default function ShopPage() {
 									<div className='product-color-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Green
+											Xanh lá
 										</a>
 										<span>(1)</span>
 									</div>
@@ -152,7 +162,7 @@ export default function ShopPage() {
 									<div className='product-color-item'>
 										<a href='#' className='text-dark'>
 											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											White
+											Trắng
 										</a>
 										<span>(1)</span>
 									</div>
@@ -160,9 +170,9 @@ export default function ShopPage() {
 							</ul>
 						</div>
 
-						{/* Additional Products */}
+						{/* Chọn theo danh mục */}
 						<div className='additional-product mb-4'>
-							<h4>Additional Products</h4>
+							<h4>Chọn theo danh mục</h4>
 
 							<div className='additional-product-item'>
 								<input
@@ -170,11 +180,11 @@ export default function ShopPage() {
 									className='me-2'
 									id='Categories-1'
 									name='Categories'
-									value='Accessories'
+									value='Phụ kiện'
 								/>
 								<label htmlFor='Categories-1' className='text-dark'>
 									{" "}
-									Accessories
+									Phụ kiện
 								</label>
 							</div>
 
@@ -188,7 +198,7 @@ export default function ShopPage() {
 								/>
 								<label htmlFor='Categories-2' className='text-dark'>
 									{" "}
-									Electronics &amp; Computer
+									Điện tử &amp; Máy tính
 								</label>
 							</div>
 
@@ -202,7 +212,7 @@ export default function ShopPage() {
 								/>
 								<label htmlFor='Categories-3' className='text-dark'>
 									{" "}
-									Laptops &amp; Desktops
+									Laptop &amp; Máy tính để bàn
 								</label>
 							</div>
 
@@ -216,7 +226,7 @@ export default function ShopPage() {
 								/>
 								<label htmlFor='Categories-4' className='text-dark'>
 									{" "}
-									Mobiles &amp; Tablets
+									Điện thoại &amp; Máy tính bảng
 								</label>
 							</div>
 
@@ -226,18 +236,18 @@ export default function ShopPage() {
 									className='me-2'
 									id='Categories-5'
 									name='Categories'
-									value='SmartPhone & Smart TV'
+									value='Điện thoại & TV th?ng minh'
 								/>
 								<label htmlFor='Categories-5' className='text-dark'>
 									{" "}
-									SmartPhone &amp; Smart TV
+									Điện thoại &amp; TV th?ng minh
 								</label>
 							</div>
 						</div>
 
 						{/* Featured Product */}
 						<div className='featured-product mb-4'>
-							<h4 className='mb-3'>Featured products</h4>
+							<h4 className='mb-3'>Sản phẩm nổi bật</h4>
 
 							<div className='featured-product-item'>
 								<div className='rounded me-4' style={{ width: 100, height: 100 }}>
@@ -248,7 +258,7 @@ export default function ShopPage() {
 									/>
 								</div>
 								<div>
-									<h6 className='mb-2'>SmartPhone</h6>
+									<h6 className='mb-2'>Điện thoại</h6>
 									<div className='d-flex mb-2'>
 										<i className='fa fa-star text-secondary'></i>
 										<i className='fa fa-star text-secondary'></i>
@@ -274,7 +284,7 @@ export default function ShopPage() {
 									/>
 								</div>
 								<div>
-									<h6 className='mb-2'>Smart Camera</h6>
+									<h6 className='mb-2'>Camera thông minh</h6>
 									<div className='d-flex mb-2'>
 										<i className='fa fa-star text-secondary'></i>
 										<i className='fa fa-star text-secondary'></i>
@@ -300,7 +310,7 @@ export default function ShopPage() {
 									/>
 								</div>
 								<div>
-									<h6 className='mb-2'>Camera Leance</h6>
+									<h6 className='mb-2'>Ống kính camera</h6>
 									<div className='d-flex mb-2'>
 										<i className='fa fa-star text-secondary'></i>
 										<i className='fa fa-star text-secondary'></i>
@@ -321,7 +331,7 @@ export default function ShopPage() {
 								<a
 									href='#'
 									className='btn btn-primary px-4 py-3 rounded-pill w-100'>
-									Vew More
+									Xem thêm
 								</a>
 							</div>
 						</div>
@@ -342,34 +352,34 @@ export default function ShopPage() {
 									right: 0,
 									background: "rgba(242, 139, 0, 0.3)",
 								}}>
-								<h5 className='display-6 text-primary'>SALE</h5>
-								<h4 className='text-secondary'>Get UP To 50% Off</h4>
+								<h5 className='display-6 text-primary'>GIẢM GIÁ</h5>
+								<h4 className='text-secondary'>Giảm đến 50%</h4>
 								<a href='#' className='btn btn-primary rounded-pill px-4'>
-									Shop Now
+									Mua ngay
 								</a>
 							</div>
 						</div>
 						{/* Tags */}
 						<div className='product-tags py-4'>
-							<h4 className='mb-3'>PRODUCT TAGS</h4>
+							<h4 className='mb-3'>TỪ KHÓA</h4>
 							<div className='product-tags-items bg-light rounded p-3'>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									New
+									Mới
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									brand
+									thương hiệu
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									black
+									đen
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									white
+									trắng
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									tablats
+									máy tính bảng
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									phone
+									Điện thoại
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
 									camera
@@ -378,10 +388,10 @@ export default function ShopPage() {
 									drone
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									talevision
+									tivi
 								</a>
 								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									slaes
+									giảm giá
 								</a>
 							</div>
 						</div>
@@ -405,10 +415,10 @@ export default function ShopPage() {
 									left: 0,
 									background: "rgba(242, 139, 0, 0.3)",
 								}}>
-								<h4 className='display-5 text-primary'>SALE</h4>
-								<h3 className='display-4 text-white mb-4'>Get UP To 50% Off</h3>
+								<h4 className='display-5 text-primary'>GIẢM GIÁ</h4>
+								<h3 className='display-4 text-white mb-4'>Giảm đến 50%</h3>
 								<a href='#' className='btn btn-primary rounded-pill'>
-									Shop Now
+									Mua ngay
 								</a>
 							</div>
 						</div>
@@ -419,7 +429,7 @@ export default function ShopPage() {
 									<input
 										type='search'
 										className='form-control p-3'
-										placeholder='keywords'
+										placeholder='Từ khóa'
 										aria-describedby='search-icon-1'
 									/>
 									<span id='search-icon-1' className='input-group-text p-3'>
@@ -430,18 +440,18 @@ export default function ShopPage() {
 
 							<div className='col-xl-3 text-end'>
 								<div className='bg-light ps-3 py-3 rounded d-flex justify-content-between'>
-									<label htmlFor='electronics'>Sort By:</label>
+									<label htmlFor='electronics'>Sắp xếp:</label>
 									<select
 										id='electronics'
 										name='electronicslist'
 										className='border-0 form-select-sm bg-light me-3'>
-										<option value='default'>Default Sorting</option>
-										<option value='nothing'>Nothing</option>
-										<option value='popularity'>Popularity</option>
-										<option value='newness'>Newness</option>
-										<option value='rating'>Average Rating</option>
-										<option value='lowtohigh'>Low to high</option>
-										<option value='hightolow'>High to low</option>
+										<option value='default'>Mặc định</option>
+										<option value='nothing'>Không sắp xếp</option>
+										<option value='popularity'>Phổ biến</option>
+										<option value='newness'>Mới nh?t</option>
+										<option value='rating'>Đánh giá</option>
+										<option value='lowtohigh'>Giá tăng dần</option>
+										<option value='hightolow'>Giá giảm dần</option>
 									</select>
 								</div>
 							</div>
@@ -527,6 +537,15 @@ export default function ShopPage() {
 					</div>
 				</div>
 			</div>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={2500}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</div>
 	);
 }
