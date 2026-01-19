@@ -18,7 +18,6 @@ export default function ProductPage() {
 	const [openAddDialog, setOpenAddDialog] = useState(false);
 	const [openEditDialog, setOpenEditDialog] = useState(false);
 	const [selectedProduct, setSelectedProduct] = useState(null);
-	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 	const [promotions, setPromotions] = useState([]);
 	const { toast, showSuccess, showError, closeToast } = useToast();
@@ -28,13 +27,11 @@ export default function ProductPage() {
 		setLoading(true);
 		Promise.all([
 			api.get("/products"),
-			api.get("/categories"),
 			api.get("/brands"),
 			api.get("/promotions"),
 		])
-			.then(([productsRes, categoriesRes, brandsRes, promotionsRes]) => {
+			.then(([productsRes, brandsRes, promotionsRes]) => {
 				setProducts(productsRes.data.data || []);
-				setCategories(categoriesRes.data.data || []);
 				setBrands(brandsRes.data.data || []);
 				setPromotions(promotionsRes.data.data || []);
 			})
@@ -207,7 +204,6 @@ export default function ProductPage() {
 				open={openAddDialog}
 				onClose={handleCloseCreate}
 				onSuccess={fetchProducts}
-				categories={categories}
 				brands={brands}
 				promotions={promotions}
 			/>
@@ -216,7 +212,6 @@ export default function ProductPage() {
 				onClose={handleCloseEdit}
 				onSuccess={fetchProducts}
 				product={selectedProduct}
-				categories={categories}
 				brands={brands}
 				promotions={promotions}
 			/>

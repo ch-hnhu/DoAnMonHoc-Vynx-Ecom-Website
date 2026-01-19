@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -26,7 +26,7 @@ import api from "../../services/api";
 import { useToast } from "@shared/hooks/useToast";
 import { formatSlug } from "../../../../shared/utils/formatHelper";
 
-export default function AddProduct({ open, onClose, onSuccess, categories, brands, promotions }) {
+export default function AddProduct({ open, onClose, onSuccess, brands, promotions }) {
 	const [formData, setFormData] = useState({
 		name: "",
 		price: "",
@@ -46,7 +46,21 @@ export default function AddProduct({ open, onClose, onSuccess, categories, brand
 	const [submitting, setSubmitting] = useState(false);
 	const heroImageInputRef = useRef(null);
 	const galleryImagesInputRef = useRef(null);
+	const [categories, setCategories] = useState([]);
 
+	const fetchCategories = async () => {
+		const res = await api.get("/categories", { params: { flat: 1, per_page: 10000 } });
+		if(res.data.success) {
+			setCategories(res.data.data || []);
+		}
+		else {
+			console.log("Error fetching categories: ", res.data.error);
+		}
+	};
+
+	useEffect(() => {
+		fetchCategories();
+	}, []);
 	// Handle text field changes
 	const handleChange = (e) => {
 		const { name, value } = e.target;

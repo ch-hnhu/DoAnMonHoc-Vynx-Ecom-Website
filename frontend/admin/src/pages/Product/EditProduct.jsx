@@ -31,7 +31,6 @@ export default function EditProduct({
 	onClose,
 	onSuccess,
 	product,
-	categories,
 	brands,
 	promotions,
 }) {
@@ -54,6 +53,21 @@ export default function EditProduct({
 	const [submitting, setSubmitting] = useState(false);
 	const heroImageInputRef = useRef(null);
 	const galleryImagesInputRef = useRef(null);
+	const [categories, setCategories] = useState([]);
+
+	const fetchCategories = async () => {
+		const res = await api.get("/categories", { params: { flat: 1, per_page: 10000 } });
+		if(res.data.success) {
+			setCategories(res.data.data || []);
+		}
+		else {
+			console.log("Error fetching categories: ", res.data.error);
+		}
+	};
+
+	useEffect(() => {
+		fetchCategories();
+	}, []);
 
 	// Update form khi product thay đổi
 	useEffect(() => {
