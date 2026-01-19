@@ -24,7 +24,7 @@ export default function ShopPage() {
 
 	useEffect(() => {
 		setLoading(true);
-		api.get(`/products/paginated?page=${pagination.currentPage}&per_page=${pagination.perPage}`)
+		api.get(`/products?page=${pagination.currentPage}&per_page=${pagination.perPage}`)
 			.then((res) => {
 				setProducts(res.data.data || []);
 				setPagination((prev) => ({

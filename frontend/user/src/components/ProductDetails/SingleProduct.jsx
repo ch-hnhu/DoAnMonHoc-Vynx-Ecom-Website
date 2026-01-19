@@ -479,8 +479,7 @@ export default function SingleProduct({ product }) {
 										href='#'
 										onClick={handleAddToCart}
 										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary'>
-										<i className='fa fa-shopping-bag me-2 text-white'></i> Th?m
-										v?o gi? h?ng
+										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm vào giỏ hàng
 									</a>
 								</div>
 								<div className='col-lg-12'>
@@ -495,7 +494,7 @@ export default function SingleProduct({ product }) {
 												data-bs-target='#nav-about'
 												aria-controls='nav-about'
 												aria-selected='true'>
-												Th?ng s? k? thu?t
+												Thông số kỹ thuật
 											</button>
 										</div>
 									</nav>

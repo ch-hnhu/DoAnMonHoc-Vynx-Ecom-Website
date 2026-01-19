@@ -20,18 +20,21 @@ export default function ProductPage() {
 	const [selectedProduct, setSelectedProduct] = useState(null);
 	const [brands, setBrands] = useState([]);
 	const [promotions, setPromotions] = useState([]);
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+	const [rowCount, setRowCount] = useState(0);
 	const { toast, showSuccess, showError, closeToast } = useToast();
 
 	// Fetch products function
-	const fetchProducts = () => {
+	const fetchProducts = (model = paginationModel) => {
 		setLoading(true);
 		Promise.all([
-			api.get("/products"),
+			api.get("/products", { params: { page: model.page + 1, per_page: model.pageSize } }),
 			api.get("/brands"),
 			api.get("/promotions"),
 		])
 			.then(([productsRes, brandsRes, promotionsRes]) => {
 				setProducts(productsRes.data.data || []);
+				setRowCount(productsRes.data.pagination?.total ?? 0);
 				setBrands(brandsRes.data.data || []);
 				setPromotions(promotionsRes.data.data || []);
 			})
@@ -44,8 +47,8 @@ export default function ProductPage() {
 	};
 
 	useEffect(() => {
-		fetchProducts();
-	}, []);
+		fetchProducts(paginationModel);
+	}, [paginationModel.page, paginationModel.pageSize]);
 
 	const handleCreate = () => {
 		setOpenAddDialog(true);
@@ -74,7 +77,7 @@ export default function ProductPage() {
 				.then((res) => {
 					if (res.data.success) {
 						showSuccess("Xoá sản phẩm thành công!");
-						fetchProducts();
+						fetchProducts(paginationModel);
 					} else {
 						showError("Xoá sản phẩm thất bại!");
 					}
@@ -186,6 +189,10 @@ export default function ProductPage() {
 				title='Quản lý sản phẩm'
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
+				paginationMode='server'
+				rowCount={rowCount}
+				paginationModel={paginationModel}
+				onPaginationModelChange={setPaginationModel}
 				checkboxSelection={true}
 				actions={
 					<Button
@@ -203,14 +210,14 @@ export default function ProductPage() {
 			<AddProduct
 				open={openAddDialog}
 				onClose={handleCloseCreate}
-				onSuccess={fetchProducts}
+				onSuccess={() => fetchProducts(paginationModel)}
 				brands={brands}
 				promotions={promotions}
 			/>
 			<EditProduct
 				open={openEditDialog}
 				onClose={handleCloseEdit}
-				onSuccess={fetchProducts}
+				onSuccess={() => fetchProducts(paginationModel)}
 				product={selectedProduct}
 				brands={brands}
 				promotions={promotions}

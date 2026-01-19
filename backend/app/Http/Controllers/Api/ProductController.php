@@ -11,43 +11,13 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $products = Product::with(['category', 'brand', 'promotion'])
-                ->withAvg('product_reviews as rating_average', 'rating')
-                ->withCount('product_reviews as rating_count')
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lay danh sach san pham thanh cong',
-                'data' => $products,
-                'error' => null,
-                'timestamp' => now(),
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Loi khi lay danh sach san pham',
-                'data' => null,
-                'error' => $th->getMessage(),
-                'timestamp' => now(),
-            ]);
-        }
-    }
-
-    /**
-     * Display a paginated listing of the resource.
-     */
-    public function paginated(Request $request)
-    {
-        try {
+            $page = $request->input('page', 1);
             $perPage = $request->input('per_page', 9);
-            $products = Product::with(['category', 'brand', 'promotion'])
-                ->withAvg('product_reviews as rating_average', 'rating')
-                ->withCount('product_reviews as rating_count')
-                ->paginate($perPage);
+
+            $products = Product::with(['category', 'brand', 'promotion'])->withAvg('product_reviews as rating_average', 'rating')->withCount('product_reviews as rating_count')->paginate($perPage);
 
             return response()->json([
                 'success' => true,
@@ -64,12 +34,12 @@ class ProductController extends Controller
                 ],
                 'timestamp' => now(),
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Loi khi lay danh sach san pham',
                 'data' => null,
-                'error' => $th->getMessage(),
+                'error' => $e->getMessage(),
                 'timestamp' => now(),
             ]);
         }
@@ -264,7 +234,6 @@ class ProductController extends Controller
                 'error' => null,
                 'timestamp' => now(),
             ]);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,

@@ -36,7 +36,6 @@ Route::post('/login', [AuthController::class, 'login']);
 // Product routes
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/paginated', [ProductController::class, 'paginated']);
     Route::get('/{slug}', [ProductController::class, 'show']);
     Route::post('/', [ProductController::class, 'store']);
     Route::put('/{id}', [ProductController::class, 'update']);
