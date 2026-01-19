@@ -12,12 +12,62 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json([
-            'message' => 'Goi den api category thanh cong',
-            'data' => Category::with('category')->get(),
-        ]);
+        try {
+            $flat = filter_var($request->query('flat', false), FILTER_VALIDATE_BOOLEAN);
+            $paginate = filter_var($request->query('paginate', false), FILTER_VALIDATE_BOOLEAN);
+            $perPage = (int) $request->query('per_page', 10);
+            $perPage = max(1, min($perPage, 200));
+
+            if ($flat) {
+                $query = Category::query()
+                    ->with(['category:id,name,slug'])
+                    ->orderByRaw('COALESCE(parent_id, 0) ASC')
+                    ->orderBy('name');
+
+                if ($paginate) {
+                    $paginator = $query->paginate($perPage);
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Lay danh sach danh muc thanh cong',
+                        'data' => $paginator->items(),
+                        'meta' => [
+                            'current_page' => $paginator->currentPage(),
+                            'per_page' => $paginator->perPage(),
+                            'last_page' => $paginator->lastPage(),
+                            'total' => $paginator->total(),
+                        ],
+                        'error' => null,
+                        'timestamp' => now(),
+                    ]);
+                }
+
+                $categories = $query->get();
+            } else {
+                $categories = Category::whereNull('parent_id')
+                    ->with('childrenRecursive')
+                    ->get();
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach danh muc thanh cong',
+                'data' => $categories,
+                'meta' => null,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lay danh sach danh muc that bai',
+                'data' => null,
+                'error' => $ex->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
     }
 
     /**
@@ -33,7 +83,7 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create($validated);
-        $category->load('category');
+        $category->load('categories');
 
         return response()->json([
             'message' => 'Tao danh muc thanh cong',
@@ -82,20 +132,6 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //Lấy số lượng danh mục con và sản phẩm liên quan
-        $childCount = $category->categories()->count();
-        $productCount = $category->products()->count();
-        //Kiểm tra nếu có danh mục con hoặc sản phẩm liên quan thì không cho xóa
-        if ($childCount > 0 || $productCount > 0) {
-            return response()->json([
-                'message' => 'Khong the xoa danh muc vi van con danh muc con hoac san pham',
-                'errors' => [
-                    'child_categories' => $childCount,
-                    'products' => $productCount,
-                ],
-            ], 409);
-        }
-
         $category->delete();
 
         return response()->json([

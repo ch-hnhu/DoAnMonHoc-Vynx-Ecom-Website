@@ -17,19 +17,11 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
-import api from "../../services/api";
-import { formatSlug } from "../../../../shared/utils/formatHelper";
 
-export default function AddCategory({
-	open,
-	onClose,
-	categories,
-	onCreated,
-	showSuccess,
-	showError,
-}) {
+export default function AddCategory({ open, onClose, categories }) {
 	const [formData, setFormData] = useState({
 		name: "",
+		slug: "",
 		parent_id: "",
 		description: "",
 	});
@@ -56,6 +48,12 @@ export default function AddCategory({
 			nextErrors.name = "Name must be 255 characters or less.";
 		}
 
+		if (!formData.slug.trim()) {
+			nextErrors.slug = "Please enter a slug.";
+		} else if (formData.slug.length > 255) {
+			nextErrors.slug = "Slug must be 255 characters or less.";
+		}
+
 		if (formData.description.length > 1000) {
 			nextErrors.description = "Description must be 1000 characters or less.";
 		}
@@ -72,50 +70,18 @@ export default function AddCategory({
 		}
 
 		setSubmitting(true);
-		const payload = {
-			name: formData.name.trim(),
-			slug: formatSlug(formData.name),
-			description: formData.description.trim() || null,
-			parent_id: formData.parent_id ? Number(formData.parent_id) : null,
-		};
+		console.log("Category Form:", formData);
 
-		api.post("/categories", payload)
-			.then((response) => {
-				const created = response?.data?.data ?? response?.data;
-				showSuccess("Thêm danh mục thành công!");
-				// Gọi callback để refetch data
-				onCreated?.(created);
-				// Delay close để toast kịp hiển thị
-				handleClose();
-			})
-			.catch((error) => {
-				if (error?.response?.status === 422) {
-					const serverErrors = error.response.data?.errors || {};
-					const nextErrors = {};
-					Object.keys(serverErrors).forEach((key) => {
-						const messages = serverErrors[key];
-						if (Array.isArray(messages) && messages.length > 0) {
-							nextErrors[key] = messages[0];
-						}
-					});
-					setErrors((prev) => ({ ...prev, ...nextErrors }));
-					const firstError = Object.values(nextErrors)[0];
-					if (firstError) {
-						showError(firstError);
-					}
-				} else {
-					console.error("Error creating category:", error);
-					showError("Thêm danh mục thất bại!");
-				}
-			})
-			.finally(() => {
-				setSubmitting(false);
-			});
+		setTimeout(() => {
+			setSubmitting(false);
+			handleClose();
+		}, 1000);
 	};
 
 	const handleClose = () => {
 		setFormData({
 			name: "",
+			slug: "",
 			parent_id: "",
 			description: "",
 		});
@@ -129,7 +95,7 @@ export default function AddCategory({
 			<DialogTitle>
 				<Box display="flex" alignItems="center" justifyContent="space-between">
 					<Typography variant="h6" component="div">
-						THÊM DANH MỤC MỚI
+						ADD NEW CATEGORY
 					</Typography>
 					<IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
 						<CloseIcon />
@@ -155,7 +121,7 @@ export default function AddCategory({
 							align="center"
 							sx={{ color: "white", letterSpacing: 1 }}
 						>
-							THÔNG TIN DANH MỤC
+							CATEGORY INFORMATION
 						</Typography>
 					</Box>
 
@@ -170,6 +136,20 @@ export default function AddCategory({
 								onChange={handleChange}
 								error={!!errors.name}
 								helperText={errors.name || `${formData.name.length}/255`}
+								inputProps={{ maxLength: 255 }}
+							/>
+						</Grid>
+
+						<Grid size={12}>
+							<TextField
+								fullWidth
+								required
+								label="Slug"
+								name="slug"
+								value={formData.slug}
+								onChange={handleChange}
+								error={!!errors.slug}
+								helperText={errors.slug || "Use lowercase letters, numbers, and dashes."}
 								inputProps={{ maxLength: 255 }}
 							/>
 						</Grid>
@@ -241,7 +221,6 @@ export default function AddCategory({
 					{submitting ? "Saving..." : "Save Category"}
 				</Button>
 			</DialogActions>
-
 		</Dialog>
 	);
 }

@@ -263,16 +263,24 @@ export default function BillingDetails() {
 												items.map((item) => {
 													const price = getFinalPrice(item.product);
 													return (
-														<tr className='text-center' key={item.product.id}>
-															<th scope='row' className='text-start py-4'>
+														<tr
+															className='text-center'
+															key={item.product.id}>
+															<th
+																scope='row'
+																className='text-start py-4'>
 																{item.product.name}
 															</th>
-															<td className='py-4'>{formatCurrency(price)}</td>
+															<td className='py-4'>
+																{formatCurrency(price)}
+															</td>
 															<td className='py-4 text-center'>
 																{item.quantity}
 															</td>
 															<td className='py-4'>
-																{formatCurrency(price * item.quantity)}
+																{formatCurrency(
+																	price * item.quantity
+																)}
 															</td>
 														</tr>
 													);
@@ -295,7 +303,9 @@ export default function BillingDetails() {
 											<tr>
 												<th scope='row'></th>
 												<td className='py-4'>
-													<p className='mb-0 text-dark py-4'>Vận chuyển</p>
+													<p className='mb-0 text-dark py-4'>
+														Vận chuyển
+													</p>
 												</td>
 												<td colSpan='2' className='py-4'>
 													<div className='form-check text-start'>
@@ -306,7 +316,9 @@ export default function BillingDetails() {
 															name='Shipping'
 															value='free'
 															checked={shippingOption === "free"}
-															onChange={() => setShippingOption("free")}
+															onChange={() =>
+																setShippingOption("free")
+															}
 														/>
 														<label
 															className='form-check-label'
@@ -322,7 +334,9 @@ export default function BillingDetails() {
 															name='Shipping'
 															value='flat'
 															checked={shippingOption === "flat"}
-															onChange={() => setShippingOption("flat")}
+															onChange={() =>
+																setShippingOption("flat")
+															}
 														/>
 														<label
 															className='form-check-label'
@@ -338,12 +352,15 @@ export default function BillingDetails() {
 															name='Shipping'
 															value='pickup'
 															checked={shippingOption === "pickup"}
-															onChange={() => setShippingOption("pickup")}
+															onChange={() =>
+																setShippingOption("pickup")
+															}
 														/>
 														<label
 															className='form-check-label'
 															htmlFor='Shipping-3'>
-															Nhận tại cửa hàng: {formatCurrency(8000)}
+															Nhận tại cửa hàng:{" "}
+															{formatCurrency(8000)}
 														</label>
 													</div>
 												</td>
@@ -387,8 +404,9 @@ export default function BillingDetails() {
 										</div>
 										<p className='text-start text-dark'>
 											Thanh toán trực tiếp vào tài khoản ngân hàng của chúng
-											tôi. Vui lòng dùng mã đơn hàng làm nội dung chuyển khoản.
-											Đơn hàng sẽ được xử lý sau khi hệ thống nhận được thanh toán.
+											tôi. Vui lòng dùng mã đơn hàng làm nội dung chuyển
+											khoản. Đơn hàng sẽ được xử lý sau khi hệ thống nhận được
+											thanh toán.
 										</p>
 									</div>
 								</div>

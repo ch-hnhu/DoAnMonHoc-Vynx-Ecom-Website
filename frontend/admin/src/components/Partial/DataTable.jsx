@@ -31,6 +31,7 @@ export default function DataTable({
 	sx = {},
 	...otherProps
 }) {
+	const hasControlledPagination = Boolean(otherProps.paginationModel);
 	const defaultSx = {
 		"& .MuiDataGrid-cell": {
 			borderBottom: "1px solid #f0f0f0",
@@ -76,9 +77,9 @@ export default function DataTable({
 							checkboxSelection={checkboxSelection}
 							disableRowSelectionOnClick={disableRowSelectionOnClick}
 							pageSizeOptions={pageSizeOptions}
-							initialState={{
-								pagination: { paginationModel: { pageSize } },
-							}}
+							{...(!hasControlledPagination
+								? { initialState: { pagination: { paginationModel: { pageSize } } } }
+								: {})}
 							sx={defaultSx}
 							{...otherProps}
 						/>
