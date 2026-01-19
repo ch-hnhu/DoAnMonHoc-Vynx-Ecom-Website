@@ -34,7 +34,10 @@ export default function Header() {
 
 		// Lắng nghe sự kiện storage để cập nhật khi đăng nhập/đăng xuất
 		window.addEventListener("storage", checkAuth);
-		return () => window.removeEventListener("storage", checkAuth);
+		return () => {
+			window.removeEventListener("auth:changed", checkAuth);
+			window.removeEventListener("storage", checkAuth);
+		};
 	}, []);
 
 	const handleLogout = async () => {
