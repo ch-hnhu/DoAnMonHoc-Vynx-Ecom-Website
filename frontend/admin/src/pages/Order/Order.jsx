@@ -21,8 +21,10 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditOrder from "./EditOrder.jsx";
 import OrderDetails from "./OrderDetails.jsx";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function OrderPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐƠN HÀNG");
 	const [orders, setOrders] = useState([]);
 	const [selectedOrder, setSelectedOrder] = useState(null);
 	const [openEditDialog, setOpenEditDialog] = useState(false);

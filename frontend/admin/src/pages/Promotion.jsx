@@ -8,8 +8,11 @@ import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function PromotionPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ KHUYẾN MÃI");
+	
 	const [promotions, setPromotions] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const discountTypeColor = {

@@ -23,8 +23,11 @@ import { renderChip } from "@shared/utils/renderHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
 import { useToast } from "@shared/hooks/useToast";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function ConfigurationPage() {
+	useDocumentTitle("VYNX ADMIN | CẤU HÌNH HỆ THỐNG");
+	
 	const [configurations, setConfigurations] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openEditDialog, setOpenEditDialog] = useState(false);

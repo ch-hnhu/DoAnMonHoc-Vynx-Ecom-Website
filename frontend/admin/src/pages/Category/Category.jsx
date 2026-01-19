@@ -11,8 +11,11 @@ import EditCategory from "./EditCategory.jsx";
 import { useToast } from "@shared/hooks/useToast";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function CategoryPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ DANH MỤC");
+	
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openAddDialog, setOpenAddDialog] = useState(false);

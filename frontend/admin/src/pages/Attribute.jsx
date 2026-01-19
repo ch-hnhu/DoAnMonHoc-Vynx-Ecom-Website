@@ -6,6 +6,7 @@ import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 const renderFilterChip = (isFilterable) => {
 	if (isFilterable) {
@@ -16,6 +17,8 @@ const renderFilterChip = (isFilterable) => {
 };
 
 export default function AttributePage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ THUỘC TÍNH");
+	
 	const [attributes, setAttributes] = useState([]);
 	const [loading, setLoading] = useState(true);
 

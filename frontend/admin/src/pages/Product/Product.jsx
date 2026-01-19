@@ -11,8 +11,11 @@ import { getProductImage } from "../../../../shared/utils/productHelper";
 import EditProduct from "./EditProduct";
 import { useToast } from "@shared/hooks/useToast";
 import { Snackbar, Alert } from "@mui/material";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function ProductPage() {
+	const title = "VYNX ADMIN | QUẢN LÝ SẢN PHẨM";
+	useDocumentTitle(title);
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openAddDialog, setOpenAddDialog] = useState(false);

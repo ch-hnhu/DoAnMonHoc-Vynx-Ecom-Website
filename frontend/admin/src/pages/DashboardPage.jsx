@@ -4,8 +4,11 @@ import SmallBox from "../components/Dashboard/SmallBox";
 import SalesChart from "../components/Dashboard/SalesChart";
 import DirectChatCard from "../components/Dashboard/DirectChatCard";
 import WorldMapCard from "../components/Dashboard/WorldMapCard";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function DashboardPage() {
+	useDocumentTitle("VYNX ADMIN | DASHBOARD");
+	
 	useEffect(() => {
 		// Sortable - cho phép kéo thả cards
 		if (window.Sortable) {
