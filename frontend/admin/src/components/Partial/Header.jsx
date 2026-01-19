@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { logout, getUser, isAuthenticated } from "../../services/authService";
 
 export default function Header() {
-  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -32,7 +30,8 @@ export default function Header() {
       await logout();
       setUser(null);
       setIsLoggedIn(false);
-      navigate("/dang-nhap");
+      // Chuyển về trang đăng nhập của user (port 5173)
+      window.location.href = "http://localhost:5173/dang-nhap";
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -274,7 +273,7 @@ export default function Header() {
                       onClick={handleLogout}
                       className="btn btn-outline-danger float-end"
                     >
-                      Sign out
+                      Đăng xuất
                     </button>
                   </li>
                 </ul>

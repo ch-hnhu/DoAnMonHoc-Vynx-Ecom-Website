@@ -22,7 +22,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="login" element={<Login />} />
-      <Route path="signup" element={<Signup />} />
+      <Route path="dang-ky" element={<Signup />} />
       <Route path="auth-redirect" element={<AuthRedirect />} />
 
       {/* Protected routes - Chỉ admin/employee */}
