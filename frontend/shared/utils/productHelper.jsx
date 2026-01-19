@@ -1,36 +1,67 @@
 /**
  * Lấy ảnh sản phẩm đầu tiên từ image_url
  * @param {string|Array} imageUrl - URL ảnh hoặc array các URL
- * @returns {string} - URL ảnh đầu tiên hoặc ảnh mặc định
+ * @returns {string} - URL ảnh đầy đủ hoặc ảnh mặc định
  */
 export const getProductImage = (imageUrl) => {
-	if (!imageUrl) return "https://placehold.co/600x400";
+	if (!imageUrl) return "/img/product-default.png";
 
 	try {
 		const images = typeof imageUrl === "string" ? JSON.parse(imageUrl) : imageUrl;
-		return Array.isArray(images) && images.length > 0
-			? images[0]
-			: "https://placehold.co/600x400";
+		const firstImage = Array.isArray(images) && images.length > 0 ? images[0] : null;
+
+		if (!firstImage) return "/img/product-default.png";
+
+		// Nếu URL đã có protocol (http/https), return luôn
+		if (firstImage.startsWith("http://") || firstImage.startsWith("https://")) {
+			return firstImage;
+		}
+
+		// Nếu là relative path, thêm domain backend
+		return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${firstImage}`;
 	} catch {
-		return imageUrl;
+		// Nếu imageUrl là string đơn giản (không phải JSON)
+		if (typeof imageUrl === "string") {
+			if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+				return imageUrl;
+			}
+			return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${imageUrl}`;
+		}
+		return "/img/product-default.png";
 	}
 };
 
 /**
  * Lấy tất cả ảnh sản phẩm
  * @param {string|Array} imageUrl - URL ảnh hoặc array các URL
- * @returns {Array} - Mảng các URL ảnh
+ * @returns {Array} - Mảng các URL ảnh đầy đủ
  */
 export const getAllProductImages = (imageUrl) => {
-	if (!imageUrl) return ["https://placehold.co/600x400"];
+	if (!imageUrl) return ["/img/product-default.png"];
 
 	try {
 		const images = typeof imageUrl === "string" ? JSON.parse(imageUrl) : imageUrl;
-		return Array.isArray(images) && images.length > 0
-			? images
-			: ["https://placehold.co/600x400"];
+
+		if (!Array.isArray(images) || images.length === 0) {
+			return ["/img/product-default.png"];
+		}
+
+		// Convert tất cả URLs
+		return images.map((url) => {
+			if (url.startsWith("http://") || url.startsWith("https://")) {
+				return url;
+			}
+			return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${url}`;
+		});
 	} catch {
-		return [imageUrl];
+		// Nếu imageUrl là string đơn giản
+		if (typeof imageUrl === "string") {
+			if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+				return [imageUrl];
+			}
+			return [`${import.meta.env.VITE_API_URL || "http://localhost:8000"}${imageUrl}`];
+		}
+		return ["/img/product-default.png"];
 	}
 };
 

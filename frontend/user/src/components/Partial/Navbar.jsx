@@ -3,6 +3,44 @@ import api from "../../services/api";
 
 export default function Navbar() {
 	const [configuration, setConfiguration] = useState({});
+	const [categories, setCategories] = useState([]);
+
+	const getChildren = (cat) => {
+		return cat?.children_recursive || [];
+	};
+
+	const renderCategoryTree = (nodes, level = 0) => {
+		if (!nodes || nodes.length === 0) return null;
+
+		return (
+			<ul className={`list-unstyled categories-bars ${level > 0 ? "ms-3" : ""}`}>
+				{nodes.map((cat) => {
+					const children = getChildren(cat);
+					return (
+						<li key={cat.id}>
+							<div className='categories-bars-item'>
+								<a href={`/danh-muc/${cat.slug}`}>{cat.name}</a>
+							</div>
+							{children.length > 0 ? renderCategoryTree(children, level + 1) : null}
+						</li>
+					);
+				})}
+			</ul>
+		);
+	};
+
+	useEffect(() => {
+		api.get("/categories")
+			.then((res) => {
+				if (res.data && res.data.data) {
+					console.log(res.data.data);
+					setCategories(res.data.data);
+				}
+			})
+			.catch((err) => {
+				console.error("Error fetching categories:", err);
+			});
+	}, []);
 
 	useEffect(() => {
 		api.get("/configuration").then((res) => {
@@ -55,38 +93,13 @@ export default function Navbar() {
 										className='collapse navbar-collapse rounded-bottom'
 										id='allCat'>
 										<div className='navbar-nav ms-auto py-0'>
-											<ul className='list-unstyled categories-bars'>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Accessories</a>
-														<span>(3)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Electronics &amp; Computer</a>
-														<span>(5)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Laptops &amp; Desktops</a>
-														<span>(2)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Mobiles &amp; Tablets</a>
-														<span>(8)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>SmartPhone &amp; Smart TV</a>
-														<span>(5)</span>
-													</div>
-												</li>
-											</ul>
+											{categories && categories.length > 0 ? (
+												renderCategoryTree(categories)
+											) : (
+												<ul className='list-unstyled categories-bars'>
+													<li>Không có danh mục</li>
+												</ul>
+											)}
 										</div>
 									</div>
 								</nav>
@@ -151,46 +164,13 @@ export default function Navbar() {
 													</span>
 												</a>
 												<div className='dropdown-menu m-0'>
-													<ul className='list-unstyled categories-bars'>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>Accessories</a>
-																<span>(3)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	Electronics &amp; Computer
-																</a>
-																<span>(5)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	Laptops &amp; Desktops
-																</a>
-																<span>(2)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	Mobiles &amp; Tablets
-																</a>
-																<span>(8)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	SmartPhone &amp; Smart TV
-																</a>
-																<span>(5)</span>
-															</div>
-														</li>
-													</ul>
+													{categories && categories.length > 0 ? (
+														renderCategoryTree(categories)
+													) : (
+														<ul className='list-unstyled categories-bars'>
+															<li>Không có danh mục</li>
+														</ul>
+													)}
 												</div>
 											</div>
 										</div>

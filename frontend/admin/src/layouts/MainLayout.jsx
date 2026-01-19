@@ -8,7 +8,7 @@ export default function MainLayout() {
 	useEffect(() => {
 		const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
 		const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);
-		const isMobile = window.innerWidth <= 992;
+		const isMobile = window.matchMedia?.("(max-width: 992px)")?.matches ?? window.innerWidth <= 992;
 
 		if (sidebarWrapper?.dataset?.osInit === "1") return;
 
@@ -37,11 +37,31 @@ export default function MainLayout() {
 				if (!btn.dataset.ltInit) {
 					btn.addEventListener("click", (e) => {
 						e.preventDefault();
-						document.body.classList.toggle("sidebar-collapse");
+						const mobile =
+							window.matchMedia?.("(max-width: 992px)")?.matches ?? window.innerWidth <= 992;
+
+						if (mobile) {
+							// Mobile: off-canvas
+							document.body.classList.toggle("sidebar-open");
+							document.body.classList.remove("sidebar-collapse");
+						} else {
+							// Desktop: collapse
+							document.body.classList.toggle("sidebar-collapse");
+							document.body.classList.remove("sidebar-open");
+						}
 					});
 					btn.dataset.ltInit = "1";
 				}
 			});
+
+			// Click backdrop to close on mobile
+			const backdrop = document.querySelector(".sidebar-backdrop");
+			if (backdrop && !backdrop.dataset.ltInit) {
+				backdrop.addEventListener("click", () => {
+					document.body.classList.remove("sidebar-open");
+				});
+				backdrop.dataset.ltInit = "1";
+			}
 
 			const treeviewButtons = document.querySelectorAll('[data-lte-toggle="treeview"]');
 			treeviewButtons.forEach((btn) => {
@@ -187,6 +207,8 @@ export default function MainLayout() {
 		<div className='app-wrapper' style={{ backgroundColor: "#f5f5f5" }}>
 			<Header />
 			<Sidebar />
+			{/* Backdrop chỉ dùng cho mobile off-canvas */}
+			<div className='sidebar-backdrop' aria-hidden='true' />
 
 			{/* AdminLTE: app-main */}
 			<main className='app-main' style={{ backgroundColor: "#f5f5f5" }}>

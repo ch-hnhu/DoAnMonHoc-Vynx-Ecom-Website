@@ -1,9 +1,5 @@
 import { Link } from "react-router-dom";
-import {
-	getProductImage,
-	getFinalPrice,
-	hasDiscount,
-} from "@shared/utils/productHelper.jsx";
+import { getProductImage, getFinalPrice, hasDiscount } from "@shared/utils/productHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
 

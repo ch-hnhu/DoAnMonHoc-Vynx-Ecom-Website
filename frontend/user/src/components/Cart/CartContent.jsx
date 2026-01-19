@@ -56,7 +56,10 @@ export default function CartContent() {
 														className='btn btn-sm btn-minus rounded-circle bg-light border'
 														type='button'
 														onClick={() =>
-															updateQuantity(item.product.id, item.quantity - 1)
+															updateQuantity(
+																item.product.id,
+																item.quantity - 1
+															)
 														}>
 														<i className='fa fa-minus'></i>
 													</button>
@@ -72,7 +75,10 @@ export default function CartContent() {
 														className='btn btn-sm btn-plus rounded-circle bg-light border'
 														type='button'
 														onClick={() =>
-															updateQuantity(item.product.id, item.quantity + 1)
+															updateQuantity(
+																item.product.id,
+																item.quantity + 1
+															)
 														}>
 														<i className='fa fa-plus'></i>
 													</button>
@@ -105,9 +111,7 @@ export default function CartContent() {
 							className='border-0 border-bottom rounded me-5 py-3 mb-4'
 							placeholder='Mã giảm giá'
 						/>
-						<button className='btn btn-primary rounded-pill px-4 py-3'>
-							Áp dụng
-						</button>
+						<button className='btn btn-primary rounded-pill px-4 py-3'>Áp dụng</button>
 					</div>
 
 					{/* Cart Total */}

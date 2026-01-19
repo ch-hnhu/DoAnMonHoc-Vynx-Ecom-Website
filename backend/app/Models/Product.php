@@ -1,3 +1,4 @@
+
 <?php
 
 /**
@@ -40,63 +41,63 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends Model
 {
-    use HasFactory, SoftDeletes;
-    protected $table = 'products';
+	use HasFactory, SoftDeletes;
+	protected $table = 'products';
 
-    protected $casts = [
-        'price' => 'float',
-        'image_url' => 'array',
-        'category_id' => 'int',
-        'brand_id' => 'int',
-        'promotion_id' => 'int',
-        'stock_quantity' => 'int',
-    ];
+	protected $casts = [
+		'price' => 'float',
+		'image_url' => 'array',
+		'category_id' => 'int',
+		'brand_id' => 'int',
+		'promotion_id' => 'int',
+		'stock_quantity' => 'int',
+		'image_url' => 'array'
+	];
 
-    protected $fillable = [
-        'name',
-        'slug',
-        'description',
-        'price',
-        'image_url',
-        'category_id',
-        'brand_id',
-        'promotion_id',
-        'stock_quantity'
-    ];
+	protected $fillable = [
+		'name',
+		'slug',
+		'description',
+		'price',
+		'image_url',
+		'category_id',
+		'brand_id',
+		'promotion_id',
+		'stock_quantity'
+	];
 
-    public function brand()
-    {
-        return $this->belongsTo(Brand::class);
-    }
+	public function brand()
+	{
+		return $this->belongsTo(Brand::class);
+	}
 
-    public function category()
-    {
-        return $this->belongsTo(Category::class);
-    }
+	public function category()
+	{
+		return $this->belongsTo(Category::class);
+	}
 
-    public function promotion()
-    {
-        return $this->belongsTo(Promotion::class);
-    }
+	public function promotion()
+	{
+		return $this->belongsTo(Promotion::class);
+	}
 
-    public function cart_items()
-    {
-        return $this->hasMany(CartItem::class);
-    }
+	public function cart_items()
+	{
+		return $this->hasMany(CartItem::class);
+	}
 
-    public function order_items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
+	public function order_items()
+	{
+		return $this->hasMany(OrderItem::class);
+	}
 
-    public function attributes()
-    {
-        return $this->belongsToMany(Attribute::class, 'product_attribute_values')
-            ->withPivot('value', 'deleted_at')
-            ->withTimestamps();
-    }
-
-    public function specifications()
+	public function attributes()
+	{
+		return $this->belongsToMany(Attribute::class, 'product_attribute_values')
+			->withPivot('value', 'deleted_at')
+			->withTimestamps();
+	}
+	 public function specifications()
     {
         return $this->belongsToMany(Attribute::class, 'product_attribute_values')
             ->where('attributes.attribute_type', 'specification')

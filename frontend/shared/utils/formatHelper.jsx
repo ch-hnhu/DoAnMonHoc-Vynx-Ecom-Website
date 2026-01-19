@@ -36,7 +36,6 @@ export const formatSlug = (text) => {
 		.toString()
 		.toLowerCase()
 		.normalize("NFD") // tách các ký tự có dấu
-		.replace(/đ/g, "d") // đổi đ thành d
 		.replace(/[\u0300-\u036f]/g, "") // xóa dấu
 		.replace(/\s+/g, "-") // thay khoảng trắng bằng dấu gạch ngang
 		.replace(/[^\w\-]+/g, "") // xóa ký tự đặc biệt

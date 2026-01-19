@@ -1,14 +1,50 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
+import { useNavigate } from "react-router-dom";
+import { logout, getUser, isAuthenticated } from "../../services/authService";
 
 export default function Sidebar() {
 	const [configuration, setConfiguration] = useState({});
+	const navigate = useNavigate();
+	const [user, setUser] = useState(null);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	useEffect(() => {
 		api.get("/configuration").then((res) => {
 			setConfiguration(res.data.data[0]);
 		});
 	}, []);
+
+	useEffect(() => {
+		// Kiểm tra trạng thái đăng nhập
+		const checkAuth = () => {
+			if (isAuthenticated()) {
+				const userData = getUser();
+				setUser(userData);
+				setIsLoggedIn(true);
+			} else {
+				setUser(null);
+				setIsLoggedIn(false);
+			}
+		};
+
+		checkAuth();
+
+		// Lắng nghe sự kiện storage để cập nhật khi đăng nhập/đăng xuất
+		window.addEventListener("storage", checkAuth);
+		return () => window.removeEventListener("storage", checkAuth);
+	}, []);
+
+	const handleLogout = async () => {
+		try {
+			await logout();
+			setUser(null);
+			setIsLoggedIn(false);
+			navigate("/dang-nhap");
+		} catch (error) {
+			console.error("Logout error:", error);
+		}
+	};
 	return (
 		<aside
 			className='app-sidebar shadow'
@@ -20,7 +56,7 @@ export default function Sidebar() {
 				className='sidebar-brand'
 				style={{
 					backgroundColor: "#F5F5F5",
-					padding: "10px",
+					padding: "20px",
 					borderRadius: "8px",
 					margin: "10px",
 					marginBottom: "0px",
@@ -34,7 +70,7 @@ export default function Sidebar() {
 					/>
 				</a>
 			</div>
-			<div className='sidebar-wrapper'>
+			<div className='sidebar-wrapper' style={{ paddingBottom: "80px" }}>
 				<nav className='mt-2'>
 					<ul
 						className='nav sidebar-menu flex-column'
@@ -43,95 +79,79 @@ export default function Sidebar() {
 						aria-label='Main navigation'
 						data-accordion='false'
 						id='navigation'>
-						<li className='nav-item menu-open'>
-							<a href='#' className='nav-link active'>
+						<li className='nav-item'>
+							<a href='/' className='nav-link'>
 								<i className='nav-icon bi bi-speedometer'></i>
-								<p>
-									Dashboard
-									<i className='nav-arrow bi bi-chevron-right'></i>
-								</p>
+								<p>Thống kê</p>
 							</a>
-							<ul className='nav nav-treeview'>
-								<li className='nav-item'>
-									<a href='/' className='nav-link active'>
-										<i className='nav-icon bi bi-circle'></i>
-										<p>Dashboard v1</p>
-									</a>
-								</li>
-								<li className='nav-item'>
-									<a href='/table' className='nav-link'>
-										<i className='nav-icon bi bi-circle'></i>
-										<p>Dashboard v2</p>
-									</a>
-								</li>
-								<li className='nav-item'>
-									<a href='./index3.html' className='nav-link'>
-										<i className='nav-icon bi bi-circle'></i>
-										<p>Dashboard v3</p>
-									</a>
-								</li>
-							</ul>
 						</li>
-
 						<li className='nav-item'>
 							<a href='/products' className='nav-link'>
 								<i className='nav-icon bi bi-box-seam' />
-								<p>Products</p>
+								<p>Quản lý sản phẩm</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/orders' className='nav-link'>
 								<i className='nav-icon bi bi-receipt' />
-								<p>Orders</p>
+								<p>Quản lý đơn hàng</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/users' className='nav-link'>
 								<i className='nav-icon bi bi-people' />
-								<p>Users</p>
+								<p>Quản lý người dùng</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/categories' className='nav-link'>
 								<i className='nav-icon bi bi-grid' />
-								<p>Categories</p>
+								<p>Quản lý danh mục</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/brands' className='nav-link'>
 								<i className='nav-icon bi bi-tags' />
-								<p>Brands</p>
+								<p>Quản lý thương hiệu</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/attributes' className='nav-link'>
 								<i className='nav-icon bi bi-sliders' />
-								<p>Attributes</p>
+								<p>Quản lý thuộc tính</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/reviews' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
-								<p>Reviews</p>
+								<p>Quản lý đánh giá</p>
+							</a>
+						</li>
+						<li className='nav-item'>
+							<a href='/contacts' className='nav-link'>
+								<i className='nav-icon bi bi-chat-left-text' />
+								<p>Quản lý liên hệ</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/promotions' className='nav-link'>
 								<i className='nav-icon bi bi-ticket-perforated' />
-								<p>Coupons</p>
+								<p>Quản lý khuyến mãi</p>
 							</a>
 						</li>
 						<li className='nav-item'>
 							<a href='/configurations' className='nav-link'>
 								<i className='nav-icon bi bi-gear' />
-								<p>Settings</p>
+								<p>Quản lý cấu hình</p>
 							</a>
 						</li>
 						<li className='nav-item'>
-							<a href='#' className='nav-link text-danger'>
-								<i className='nav-icon bi bi-box-arrow-right text-danger' />
-								<p>Logout</p>
-							</a>
+							<button
+								onClick={handleLogout}
+								className='nav-link btn btn-link w-100 text-start'>
+								<i className='nav-icon bi bi-box-arrow-right' />
+								<p>Đăng xuất</p>
+							</button>
 						</li>
 					</ul>
 				</nav>
