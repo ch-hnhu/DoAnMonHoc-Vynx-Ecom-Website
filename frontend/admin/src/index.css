@@ -1,37 +1,24 @@
-/* Fix scroll issue - prevent negative margin scroll */
 html,
 body {
-	overflow-x: hidden;
-	margin: 0;
-	padding: 0;
-	height: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* body không scroll */
 }
 
-body {
-	overflow-y: auto;
-}
-
-#root {
-	min-height: 100vh;
-}
-
+#root,
 .app-wrapper {
-	min-height: 100vh;
-	overflow: hidden;
+    height: 100%;
 }
 
+/* CHỈ app-main được scroll */
 .app-main {
-	overflow-x: hidden;
+    height: calc(100vh - 56px); /* header */
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
-/* Fix app-content-header negative margin issue */
-.app-content-header {
-	margin-top: 0 !important;
-	margin-bottom: 1rem;
-	padding-top: 0.5rem;
-}
-
-.app-content {
-	padding-top: 0 !important;
-	margin-top: 0 !important;
+/* Sidebar không bị cắt */
+.main-sidebar .sidebar {
+    height: calc(100vh - 56px);
+    overflow-y: auto;
 }
