@@ -15,54 +15,63 @@ import ShippingPolicy from "./pages/ShippingPolicy.jsx";
 import Faq from "./pages/Faq.jsx";
 import Warranty from "./pages/Warranty.jsx";
 import Terms from "./pages/Terms.jsx";
+import Account from "./pages/Account.jsx";
 import { CartProvider } from "./components/Cart/CartContext.jsx";
 import { HelmetProvider } from "react-helmet-async";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 export default function App() {
-	return (
-		<HelmetProvider>
-			<CartProvider>
-				<Routes>
-					<Route path='dang-nhap' element={<Login />} />
-					<Route path='dang-ky' element={<Signup />} />
-					<Route path='/' element={<MainLayout />}>
-						<Route index element={<Home />} />
+  return (
+    <HelmetProvider>
+      <CartProvider>
+        <Routes>
+          <Route path="dang-nhap" element={<Login />} />
+          <Route path="dang-ky" element={<Signup />} />
+          <Route path="/" element={<MainLayout />}>
+            <Route index element={<Home />} />
 
-						<Route path='san-pham' element={<Shop />} />
+            <Route path="san-pham" element={<Shop />} />
 
-						{/* Protected routes - Cần đăng nhập */}
-						<Route
-							path='gio-hang'
-							element={
-								<ProtectedRoute>
-									<Cart />
-								</ProtectedRoute>
-							}
-						/>
-						<Route
-							path='thanh-toan'
-							element={
-								<ProtectedRoute>
-									<Checkout />
-								</ProtectedRoute>
-							}
-						/>
+            {/* Protected routes - Cần đăng nhập */}
+            <Route
+              path="gio-hang"
+              element={
+                <ProtectedRoute>
+                  <Cart />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="thanh-toan"
+              element={
+                <ProtectedRoute>
+                  <Checkout />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="tai-khoan/*"
+              element={
+                <ProtectedRoute>
+                  <Account />
+                </ProtectedRoute>
+              }
+            />
 
-						<Route path='chinh-sach-bao-mat' element={<PrivacyPolicy />} />
-						<Route path='lien-he' element={<Contact />} />
-						<Route path='ve-chung-toi' element={<About />} />
-						<Route path='chinh-sach-van-chuyen' element={<ShippingPolicy />} />
-						<Route path='cau-hoi-thuong-gap' element={<Faq />} />
-						<Route path='chinh-sach-bao-hanh' element={<Warranty />} />
-						<Route path='dieu-khoan' element={<Terms />} />
-						<Route path='404' element={<NotFound />} />
+            <Route path="chinh-sach-bao-mat" element={<PrivacyPolicy />} />
+            <Route path="lien-he" element={<Contact />} />
+            <Route path="ve-chung-toi" element={<About />} />
+            <Route path="chinh-sach-van-chuyen" element={<ShippingPolicy />} />
+            <Route path="cau-hoi-thuong-gap" element={<Faq />} />
+            <Route path="chinh-sach-bao-hanh" element={<Warranty />} />
+            <Route path="dieu-khoan" element={<Terms />} />
+            <Route path="404" element={<NotFound />} />
 
-						<Route path=':slug' element={<ProductDetails />} />
-						<Route path='*' element={<NotFound />} />
-					</Route>
-				</Routes>
-			</CartProvider>
-		</HelmetProvider>
-	);
+            <Route path=":slug" element={<ProductDetails />} />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </CartProvider>
+    </HelmetProvider>
+  );
 }
