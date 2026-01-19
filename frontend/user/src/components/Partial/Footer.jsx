@@ -1,4 +1,45 @@
+import { useEffect, useState } from "react";
+import api from "../../services/api";
+import { API_BASE_URL } from "../../config/api";
 export default function Footer() {
+	const [companyProfile, setCompanyProfile] = useState(null);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		api.get("/configuration")
+			.then((response) => {
+				const configurations = response?.data?.data ?? [];
+				const activeConfig = configurations.find((item) => item.is_active);
+
+				if (isMounted) {
+					setCompanyProfile(activeConfig || null);
+				}
+			})
+			.catch(() => {
+				if (isMounted) {
+					setCompanyProfile(null);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	const companyAddress = companyProfile?.address || "Đang cập nhật";
+	const companyEmail = companyProfile?.email || "Đang cập nhật";
+	const companyPhone = companyProfile?.phone || "Đang cập nhật";
+	// Xử lý logo 
+	const footerLogoUrl = (() => {
+		const logo = companyProfile?.logo;
+		if (!logo) return "/img/vynx-logo.png";
+		if (/^https?:\/\//i.test(logo) || logo.startsWith("data:")) return logo;
+		const base = API_BASE_URL.replace(/\/api\/?$/, "");
+		if (logo.startsWith("/")) return `${base}${logo}`;
+		return `${base}/${logo}`;
+	})();
+
 	return (
 		<>
 			{/* Footer Start */}
@@ -16,7 +57,7 @@ export default function Footer() {
 								</div>
 								<div>
 									<h4 className='text-white'>Địa chỉ</h4>
-									<p className='mb-2'>123 Street New York.USA</p>
+									<p className='mb-2'>{companyAddress}</p>
 								</div>
 							</div>
 						</div>
@@ -30,7 +71,7 @@ export default function Footer() {
 								</div>
 								<div>
 									<h4 className='text-white'>Email</h4>
-									<p className='mb-2'>info@example.com</p>
+									<p className='mb-2'>{companyEmail}</p>
 								</div>
 							</div>
 						</div>
@@ -44,7 +85,7 @@ export default function Footer() {
 								</div>
 								<div>
 									<h4 className='text-white'>Điện thoại</h4>
-									<p className='mb-2'>(+012) 3456 7890</p>
+									<p className='mb-2'>{companyPhone}</p>
 								</div>
 							</div>
 						</div>
@@ -57,8 +98,8 @@ export default function Footer() {
 									<i className='fab fa-firefox-browser fa-2x text-primary'></i>
 								</div>
 								<div>
-									<h4 className='text-white'>Yoursite@ex.com</h4>
-									<p className='mb-2'>(+012) 3456 7890</p>
+									<h4 className='text-white'>Website</h4>
+									<p className='mb-2'>www.vynx.com</p>
 								</div>
 							</div>
 						</div>
@@ -68,12 +109,16 @@ export default function Footer() {
 						<div className='col-md-6 col-lg-6 col-xl-3'>
 							<div className='footer-item d-flex flex-column'>
 								<div className='footer-item'>
-									<h4 className='text-primary mb-4'>Bản tin</h4>
+									<img
+										src={footerLogoUrl}
+										alt='Vynx Logo'
+										className='footer-logo mb-3'
+									/>
+									<h4 className='text-primary mb-4'>Bảng tin</h4>
 
-									{/* ✅ Template gốc: không có text-white */}
 									<p className='mb-3'>
-										Đăng ký để nhận tin mới nhất về sản phẩm, ưu đãi và các
-										chương trình đặc biệt từ Electro.
+										Đăng ký nhận tin mới nhất về sản phẩm, ưu đãi và các chương trình đặc biệt
+										từ Vynx E-Commerce
 									</p>
 
 									<div className='position-relative mx-auto rounded-pill'>
@@ -88,6 +133,32 @@ export default function Footer() {
 											Đăng ký
 										</button>
 									</div>
+									<div className='d-flex align-items-center gap-3 mt-3'>
+										<a
+											href='#'
+											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
+											style={{ width: 36, height: 36 }}
+											aria-label='Facebook'>
+											<i className='fab fa-facebook-f' style={{ color: '#1877f2' }}></i>
+										</a>
+										<a
+											href='#'
+											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
+											style={{ width: 36, height: 36 }}
+											aria-label='Zalo'>
+											<span className='fw-bold' style={{ fontSize: 13, color: '#0068ff' }}>
+												Z
+											</span>
+										</a>
+										<a
+											href='#'
+											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
+											style={{ width: 36, height: 36 }}
+											aria-label='YouTube'>
+											<i className='fab fa-youtube' style={{ color: '#ff0000' }}></i>
+										</a>
+									</div>
+
 								</div>
 							</div>
 						</div>
@@ -105,7 +176,7 @@ export default function Footer() {
 									<i className='fas fa-angle-right me-2'></i> Lịch sử đơn hàng
 								</a>
 								<a href='#'>
-									<i className='fas fa-angle-right me-2'></i> Sơ đồ website
+									<i className='fas fa-angle-right me-2'></i> Sử dụng website
 								</a>
 								<a href='#'>
 									<i className='fas fa-angle-right me-2'></i> Đánh giá
@@ -183,25 +254,14 @@ export default function Footer() {
 			<div className='container-fluid copyright py-4'>
 				<div className='container'>
 					<div className='row g-4 align-items-center'>
-						<div className='col-md-6 text-center text-md-start mb-md-0'>
-							<span className='text-white'>
-								<a href='#' className='border-bottom text-white'>
-									<i className='fas fa-copyright text-light me-2'></i>Tên website
-								</a>
-								, Đã đăng ký bản quyền.
-							</span>
-						</div>
-
-						<div className='col-md-6 text-center text-md-end text-white'>
-							Thiết kế bởi{" "}
-							<a className='border-bottom text-white' href='https://htmlcodex.com'>
-								HTML Codex
-							</a>
-							. Phân phối bởi{" "}
-							<a className='border-bottom text-white' href='https://themewagon.com'>
-								ThemeWagon
-							</a>
-							.
+						<div className='col-12 text-center'>
+							<p className='text-white mb-1'>
+								<i className='fas fa-copyright text-light me-2'></i>2026 Vynx E-Commerce. All rights
+								reserved. Website thương mại điện tử chuyên cung cấp laptop và phụ kiện chính hãng.
+							</p>
+							<p className='text-white mb-0'>
+								Mọi nội dung trên website thuộc quyền sở hữu của Vynx E-Commerce.
+							</p>
 						</div>
 					</div>
 				</div>

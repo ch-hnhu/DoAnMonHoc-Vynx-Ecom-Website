@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -123,20 +121,6 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //Lấy số lượng danh mục con và sản phẩm liên quan
-        $childCount = $category->categories()->count();
-        $productCount = $category->products()->count();
-        //Kiểm tra nếu có danh mục con hoặc sản phẩm liên quan thì không cho xóa
-        if ($childCount > 0 || $productCount > 0) {
-            return response()->json([
-                'message' => 'Khong the xoa danh muc vi van con danh muc con hoac san pham',
-                'errors' => [
-                    'child_categories' => $childCount,
-                    'products' => $productCount,
-                ],
-            ], 409);
-        }
-
         $category->delete();
 
         return response()->json([

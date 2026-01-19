@@ -27,7 +27,7 @@ export default function Sidebar() {
 				}}>
 				<a href='/' className='brand-link' style={{ justifyContent: "center" }}>
 					<img
-						src={configuration?.logo || "../../../public/assets/img/vynx-logo.png"}
+						src={configuration?.logo || "/assets/img/vynx-logo.png"}
 						alt='Vynx Logo'
 						className='brand-image'
 						style={{ maxHeight: "50px", width: "auto" }}

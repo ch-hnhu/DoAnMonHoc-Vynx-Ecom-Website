@@ -1,14 +1,52 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { logout, getUser, isAuthenticated } from "../../services/authService";
 import api from "../../services/api";
+import { useCart } from "../Cart/CartContext.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function Header() {
+	const navigate = useNavigate();
+	const [user, setUser] = useState(null);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const [configuration, setConfiguration] = useState({});
+	const { itemCount, subtotal } = useCart();
 
 	useEffect(() => {
+		// Lấy configuration
 		api.get("/configuration").then((res) => {
 			setConfiguration(res.data.data[0]);
 		});
+
+		// Kiểm tra trạng thái đăng nhập
+		const checkAuth = () => {
+			if (isAuthenticated()) {
+				const userData = getUser();
+				setUser(userData);
+				setIsLoggedIn(true);
+			} else {
+				setUser(null);
+				setIsLoggedIn(false);
+			}
+		};
+
+		checkAuth();
+
+		// Lắng nghe sự kiện storage để cập nhật khi đăng nhập/đăng xuất
+		window.addEventListener("storage", checkAuth);
+		return () => window.removeEventListener("storage", checkAuth);
 	}, []);
+
+	const handleLogout = async () => {
+		try {
+			await logout();
+			setUser(null);
+			setIsLoggedIn(false);
+			navigate("/dang-nhap");
+		} catch (error) {
+			console.error("Logout error:", error);
+		}
+	};
 
 	return (
 		<>
@@ -51,25 +89,53 @@ export default function Header() {
 										className='dropdown-toggle text-muted ms-2'
 										data-bs-toggle='dropdown'>
 										<small>
-											<i className='fa fa-home me-2'></i> Trang chủ
+											<i className='fa fa-user me-2'></i>
+											{isLoggedIn && user ? user.full_name : "Trang chủ"}
 										</small>
 									</a>
 									<div className='dropdown-menu rounded'>
-										<a href='/dang-nhap' className='dropdown-item'>
-											Đăng nhập
-										</a>
-										<a href='/wishlist' className='dropdown-item'>
-											Wishlist
-										</a>
-										<a href='/gio-hang' className='dropdown-item'>
-											Giỏ hàng
-										</a>
-										<a href='/tai-khoan' className='dropdown-item'>
-											Tài khoản
-										</a>
-										<a href='/dang-xuat' className='dropdown-item'>
-											Đăng xuất
-										</a>
+										{!isLoggedIn ? (
+											<>
+												<a href='/dang-nhap' className='dropdown-item'>
+													<i className='fa fa-sign-in-alt me-2'></i>
+													Đăng nhập
+												</a>
+												<a href='/dang-ky' className='dropdown-item'>
+													<i className='fa fa-user-plus me-2'></i>
+													Đăng ký
+												</a>
+											</>
+										) : (
+											<>
+												<div className='dropdown-item-text'>
+													<small className='text-muted'>
+														Đăng nhập với
+													</small>
+													<br />
+													<strong>{user?.email}</strong>
+												</div>
+												<div className='dropdown-divider'></div>
+												<a href='/tai-khoan' className='dropdown-item'>
+													<i className='fa fa-user me-2'></i>
+													Tài khoản
+												</a>
+												<a href='/wishlist' className='dropdown-item'>
+													<i className='fa fa-heart me-2'></i>
+													Wishlist
+												</a>
+												<a href='/gio-hang' className='dropdown-item'>
+													<i className='fa fa-shopping-cart me-2'></i>
+													Giỏ hàng
+												</a>
+												<div className='dropdown-divider'></div>
+												<button
+													onClick={handleLogout}
+													className='dropdown-item text-danger'>
+													<i className='fa fa-sign-out-alt me-2'></i>
+													Đăng xuất
+												</button>
+											</>
+										)}
 									</div>
 								</div>
 							</div>
@@ -127,12 +193,19 @@ export default function Header() {
 								</a>
 
 								<a
-									href='gio-hang'
+									href='/gio-hang'
 									className='text-muted d-flex align-items-center justify-content-center'>
-									<span className='rounded-circle btn-md-square border'>
+									<span className='rounded-circle btn-md-square border position-relative'>
 										<i className='fas fa-shopping-cart'></i>
+										{itemCount > 0 && (
+											<span className='position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'>
+												{itemCount}
+											</span>
+										)}
 									</span>
-									<span className='text-dark ms-2'>$0.00</span>
+									<span className='text-dark ms-2'>
+										{formatCurrency(subtotal)}
+									</span>
 								</a>
 							</div>
 						</div>
