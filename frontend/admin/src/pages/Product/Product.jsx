@@ -8,19 +8,24 @@ import AddIcon from "@mui/icons-material/Add";
 import { formatDate, formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddProduct from "./AddProduct";
 import { getProductImage } from "../../../../shared/utils/productHelper";
+import EditProduct from "./EditProduct";
+import { useToast } from "@shared/hooks/useToast";
+import { Snackbar, Alert } from "@mui/material";
 
 export default function ProductPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [openDialog, setOpenDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
+	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [selectedProduct, setSelectedProduct] = useState(null);
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 	const [promotions, setPromotions] = useState([]);
+	const { toast, showSuccess, showError, closeToast } = useToast();
 
-	useEffect(() => {
+	// Fetch products function
+	const fetchProducts = () => {
 		setLoading(true);
-
-		// Fetch products and related data
 		Promise.all([
 			api.get("/products"),
 			api.get("/categories"),
@@ -39,15 +44,28 @@ export default function ProductPage() {
 			.finally(() => {
 				setLoading(false);
 			});
+	};
+
+	useEffect(() => {
+		fetchProducts();
 	}, []);
 
 	const handleCreate = () => {
-		setOpenDialog(true);
+		setOpenAddDialog(true);
 	};
 
-	const handleEdit = (id) => {
-		console.log("Edit product:", id);
-		alert(`Chỉnh sửa sản phẩm ID: ${id}`);
+	const handleCloseCreate = () => {
+		setOpenAddDialog(false);
+	};
+
+	const handleEdit = (product) => {
+		setSelectedProduct(product);
+		setOpenEditDialog(true);
+	};
+
+	const handleCloseEdit = () => {
+		setOpenEditDialog(false);
+		setSelectedProduct(null);
 	};
 
 	const handleDelete = (product) => {
@@ -66,7 +84,7 @@ export default function ProductPage() {
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);
-					alert("Xóa thất bại!");
+					showError("Xoá sản phẩm thất bại!");
 				});
 		}
 	};
@@ -80,8 +98,7 @@ export default function ProductPage() {
 			width: 150,
 			renderCell: (params) => {
 				const imageUrl = getProductImage(params.value);
-
-				return imageUrl && imageUrl !== "/img/product-default.png" ? (
+				return (
 					<img
 						src={imageUrl}
 						alt={params.row.name}
@@ -95,8 +112,6 @@ export default function ProductPage() {
 							e.target.src = "https://placehold.co/600x400";
 						}}
 					/>
-				) : (
-					<span>Không có ảnh</span>
 				);
 			},
 		},
@@ -134,6 +149,7 @@ export default function ProductPage() {
 			headerName: "Thao tác",
 			width: 220,
 			sortable: false,
+			filterable: false,
 			renderCell: (params) => {
 				return (
 					<Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
@@ -142,7 +158,7 @@ export default function ProductPage() {
 							color='primary'
 							size='small'
 							startIcon={<EditIcon />}
-							onClick={() => handleEdit(params.row.id)}>
+							onClick={() => handleEdit(params.row)}>
 							Sửa
 						</Button>
 						<Button
@@ -188,12 +204,32 @@ export default function ProductPage() {
 				}
 			/>
 			<AddProduct
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
+				open={openAddDialog}
+				onClose={handleCloseCreate}
+				onSuccess={fetchProducts}
 				categories={categories}
 				brands={brands}
 				promotions={promotions}
 			/>
+			<EditProduct
+				open={openEditDialog}
+				onClose={handleCloseEdit}
+				onSuccess={fetchProducts}
+				product={selectedProduct}
+				categories={categories}
+				brands={brands}
+				promotions={promotions}
+			/>
+			{/* Toast Notification */}
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={3000}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 }

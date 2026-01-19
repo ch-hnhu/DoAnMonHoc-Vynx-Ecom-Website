@@ -4,7 +4,7 @@ import DashboardPage from "./pages/DashboardPage";
 import Table from "./pages/Table";
 import Product from "./pages/Product/Product";
 import AddProduct from "./pages/Product/AddProduct";
-import Order from "./pages/Order";
+import Order from "./pages/Order/Order";
 import User from "./pages/User";
 import Brand from "./pages/Brand";
 import Category from "./pages/Category/Category";
