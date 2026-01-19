@@ -1,37 +1,113 @@
-/* Fix scroll issue - prevent negative margin scroll */
+:root {
+	--admin-sidebar-width: 250px;
+	--admin-header-height: 56px;
+	--admin-transition: 0.3s ease;
+}
+
 html,
 body {
-	overflow-x: hidden;
+	height: 100%;
 	margin: 0;
-	padding: 0;
+	overflow: hidden; /* body không scroll, chỉ app-main scroll */
+	overflow-x: hidden;
+}
+
+#root,
+.app-wrapper {
 	height: 100%;
 }
 
-body {
-	overflow-y: auto;
-}
-
-#root {
-	min-height: 100vh;
-}
-
+/* Tắt layout grid mặc định của AdminLTE để tránh bị "double offset" (grid + margin-left) */
 .app-wrapper {
-	min-height: 100vh;
-	overflow: hidden;
+	display: block !important;
 }
 
+/* Header fixed */
+.app-header {
+	position: fixed;
+	top: 0;
+	left: var(--admin-sidebar-width);
+	right: 0;
+	height: var(--admin-header-height);
+	z-index: 1030;
+	transition: left var(--admin-transition);
+	will-change: left;
+}
+
+/* Sidebar fixed + animate */
+.app-sidebar {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: var(--admin-sidebar-width);
+	height: 100vh;
+	overflow-y: auto;
+	z-index: 900;
+	transform: translateX(0);
+	transition: transform var(--admin-transition);
+	will-change: transform;
+}
+
+/* CHỈ app-main được scroll */
 .app-main {
+	position: fixed;
+	top: var(--admin-header-height);
+	left: var(--admin-sidebar-width);
+	right: 0;
+	bottom: 0;
+	overflow-y: auto;
 	overflow-x: hidden;
+	transition: left var(--admin-transition);
+	will-change: left;
 }
 
-/* Fix app-content-header negative margin issue */
-.app-content-header {
-	margin-top: 0 !important;
-	margin-bottom: 1rem;
-	padding-top: 0.5rem;
+/* Desktop: collapse */
+body.sidebar-collapse .app-header {
+	left: 0;
 }
 
-.app-content {
-	padding-top: 0 !important;
-	margin-top: 0 !important;
+body.sidebar-collapse .app-main {
+	left: 0;
+}
+
+body.sidebar-collapse .app-sidebar {
+	transform: translateX(calc(-1 * var(--admin-sidebar-width)));
+}
+
+/* Backdrop cho mobile off-canvas */
+.sidebar-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.35);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity var(--admin-transition);
+	z-index: 1040;
+}
+
+/* Mobile: off-canvas */
+@media (max-width: 992px) {
+	.app-header {
+		left: 0;
+	}
+
+	.app-main {
+		left: 0;
+	}
+
+	/* Mobile mặc định ẩn sidebar */
+	.app-sidebar {
+		z-index: 1050;
+		transform: translateX(calc(-1 * var(--admin-sidebar-width)));
+	}
+
+	/* Mở sidebar bằng class sidebar-open */
+	body.sidebar-open .app-sidebar {
+		transform: translateX(0);
+	}
+
+	body.sidebar-open .sidebar-backdrop {
+		opacity: 1;
+		pointer-events: auto;
+	}
 }

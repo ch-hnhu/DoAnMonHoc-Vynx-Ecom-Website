@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 /**
  * Custom hook for toast notifications
@@ -9,6 +9,7 @@ export const useToast = () => {
 		open: false,
 		message: "",
 		severity: "success", // 'success' | 'error' | 'warning' | 'info'
+		duration: 1500,
 	});
 
 	/**
@@ -16,24 +17,24 @@ export const useToast = () => {
 	 * @param {string} message - Nội dung thông báo
 	 * @param {string} severity - Loại thông báo (success/error/warning/info)
 	 */
-	const showToast = (message, severity = "success") => {
-		setToast({ open: true, message, severity });
+	const showToast = (message, severity = "success", duration = 1500) => {
+		setToast({ open: true, message, severity, duration });
 	};
 
 	/**
 	 * Hiển thị toast success
 	 * @param {string} message - Nội dung thông báo
 	 */
-	const showSuccess = (message) => {
-		showToast(message, "success");
+	const showSuccess = (message, duration) => {
+		showToast(message, "success", duration);
 	};
 
 	/**
 	 * Hiển thị toast error
 	 * @param {string} message - Nội dung thông báo
 	 */
-	const showError = (message) => {
-		showToast(message, "error");
+	const showError = (message, duration) => {
+		showToast(message, "error", duration);
 	};
 
 	/**
@@ -59,8 +60,22 @@ export const useToast = () => {
 	 */
 	const closeToast = (event, reason) => {
 		if (reason === "clickaway") return;
-		setToast({ ...toast, open: false });
+		setToast((prev) => ({ ...prev, open: false }));
 	};
+
+	// Auto close toast after `duration` milliseconds
+	const timeoutRef = useRef();
+
+	useEffect(() => {
+		if (toast.open && toast.duration) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = setTimeout(() => {
+				setToast((prev) => ({ ...prev, open: false }));
+			}, toast.duration);
+		}
+
+		return () => clearTimeout(timeoutRef.current);
+	}, [toast.open, toast.duration]);
 
 	return {
 		toast,

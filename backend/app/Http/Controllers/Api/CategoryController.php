@@ -4,8 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -14,11 +12,52 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return response()->json([
-            'message' => 'Goi den api category thanh cong',
-            'data' => Category::with('category')->get(),
-        ]);
+        try {
+            $categories = Category::whereNull('parent_id')
+                ->with('categories')
+                ->get();
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach danh muc thanh cong',
+                'data' => $categories,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $ex) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lay danh sach danh muc that bai',
+                'data' => null,
+                'error' => $ex->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
     }
+
+    /**
+     * Build nested tree from flat category array
+     *
+     * @param array $items
+     * @param int|null $parentId
+     * @return array
+     */
+    // private function buildTree(array $items, $parentId = null)
+    // {
+    //     $branch = [];
+
+    //     foreach ($items as $item) {
+    //         $pid = isset($item['parent_id']) ? $item['parent_id'] : null;
+    //         if ($pid == $parentId) {
+    //             $children = $this->buildTree($items, $item['id']);
+    //             if ($children) {
+    //                 $item['children'] = $children;
+    //             }
+    //             $branch[] = $item;
+    //         }
+    //     }
+
+    //     return $branch;
+    // }
 
     /**
      * Store a newly created resource in storage.
@@ -33,7 +72,7 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create($validated);
-        $category->load('category');
+        $category->load('categories');
 
         return response()->json([
             'message' => 'Tao danh muc thanh cong',
@@ -82,20 +121,6 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //Lấy số lượng danh mục con và sản phẩm liên quan
-        $childCount = $category->categories()->count();
-        $productCount = $category->products()->count();
-        //Kiểm tra nếu có danh mục con hoặc sản phẩm liên quan thì không cho xóa
-        if ($childCount > 0 || $productCount > 0) {
-            return response()->json([
-                'message' => 'Khong the xoa danh muc vi van con danh muc con hoac san pham',
-                'errors' => [
-                    'child_categories' => $childCount,
-                    'products' => $productCount,
-                ],
-            ], 409);
-        }
-
         $category->delete();
 
         return response()->json([

@@ -137,7 +137,7 @@ export default function PromotionPage() {
 			columns={columns}
 			rows={promotions}
 			loading={loading}
-			title='Quản lý mã khuyến mãi'
+			title='Quản lý khuyến mãi'
 			breadcrumbs={breadcrumbs}
 			pageSize={25}
 			checkboxSelection={true}

@@ -59,12 +59,13 @@ Route::prefix('configuration')->group(function () {
 });
 
 // Resource routes
+Route::apiResource('contacts', SupportRequestController::class)->only(['index', 'destroy']);
 Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
-Route::apiResource('reviews', ReviewController::class)->only(['index', 'destroy']);
+Route::apiResource('reviews', ReviewController::class)->only(['index', 'update', 'destroy']);
 Route::apiResource('slideshows', SlideshowController::class)->only(['index']);
 
 // Protected routes - Require authentication

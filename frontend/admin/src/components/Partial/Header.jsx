@@ -2,8 +2,21 @@ import { useState, useEffect } from "react";
 import { logout, getUser, isAuthenticated } from "../../services/authService";
 
 export default function Header() {
+  const DEFAULT_AVATAR = "https://placehold.co/400?text=Chưa+có+ảnh";
   const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  const getAvatarSrc = () => {
+    const raw = user?.image;
+    const src = typeof raw === "string" ? raw.trim() : raw;
+    return src ? src : DEFAULT_AVATAR;
+  };
+
+  const handleAvatarError = (e) => {
+    // Tránh vòng lặp nếu default cũng lỗi
+    e.currentTarget.onerror = null;
+    e.currentTarget.src = DEFAULT_AVATAR;
+  };
 
   useEffect(() => {
     // Kiểm tra trạng thái đăng nhập
@@ -40,7 +53,9 @@ export default function Header() {
   return (
     <nav
       className="app-header navbar navbar-expand"
-      style={{ background: "#456882" }}
+      style={{
+        background: "#456882",
+      }}
     >
       <div className="container-fluid">
         <ul className="navbar-nav">
@@ -234,18 +249,20 @@ export default function Header() {
                   style={{ color: "#f5f5f5" }}
                 >
                   <img
-                    src={user.image || "/assets/img/user2-160x160.jpg"}
+                    src={getAvatarSrc()}
                     className="user-image rounded-circle shadow"
                     alt="User Image"
+                    onError={handleAvatarError}
                   />
                   <span className="d-none d-md-inline">{user.full_name}</span>
                 </a>
                 <ul className="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                   <li className="user-header text-bg-primary">
                     <img
-                      src={user.image || "/assets/img/user2-160x160.jpg"}
+                      src={getAvatarSrc()}
                       className="rounded-circle shadow"
                       alt="User Image"
+                      onError={handleAvatarError}
                     />
                     <p>
                       {user.full_name} - {user.role}

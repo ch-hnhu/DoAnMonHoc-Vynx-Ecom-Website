@@ -3,6 +3,19 @@ import api from "../../services/api";
 
 export default function Navbar() {
 	const [configuration, setConfiguration] = useState({});
+	const [categories, setCategories] = useState([]);
+
+	useEffect(() => {
+		api.get("/categories")
+			.then((res) => {
+				if (res.data && res.data.data) {
+					setCategories(res.data.data);
+				}
+			})
+			.catch((err) => {
+				console.error("Error fetching categories:", err);
+			});
+	}, []);
 
 	useEffect(() => {
 		api.get("/configuration").then((res) => {
@@ -56,36 +69,38 @@ export default function Navbar() {
 										id='allCat'>
 										<div className='navbar-nav ms-auto py-0'>
 											<ul className='list-unstyled categories-bars'>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Accessories</a>
-														<span>(3)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Electronics &amp; Computer</a>
-														<span>(5)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Laptops &amp; Desktops</a>
-														<span>(2)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Mobiles &amp; Tablets</a>
-														<span>(8)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>SmartPhone &amp; Smart TV</a>
-														<span>(5)</span>
-													</div>
-												</li>
+												{categories && categories.length > 0 ? (
+													categories.map((cat) => (
+														<li key={cat.id}>
+															<div className='categories-bars-item'>
+																<a href={`/danh-muc/${cat.slug}`}>
+																	{cat.name}
+																</a>
+															</div>
+															{cat.categories &&
+																cat.categories.length > 0 && (
+																	<ul className='list-unstyled ms-3'>
+																		{cat.categories.map(
+																			(sub) => (
+																				<li key={sub.id}>
+																					<div className='categories-bars-item'>
+																						<a
+																							href={`/danh-muc/${sub.slug}`}>
+																							{
+																								sub.name
+																							}
+																						</a>
+																					</div>
+																				</li>
+																			)
+																		)}
+																	</ul>
+																)}
+														</li>
+													))
+												) : (
+													<li>Không có danh mục</li>
+												)}
 											</ul>
 										</div>
 									</div>
@@ -152,44 +167,43 @@ export default function Navbar() {
 												</a>
 												<div className='dropdown-menu m-0'>
 													<ul className='list-unstyled categories-bars'>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>Accessories</a>
-																<span>(3)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	Electronics &amp; Computer
-																</a>
-																<span>(5)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	Laptops &amp; Desktops
-																</a>
-																<span>(2)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	Mobiles &amp; Tablets
-																</a>
-																<span>(8)</span>
-															</div>
-														</li>
-														<li>
-															<div className='categories-bars-item'>
-																<a href='#'>
-																	SmartPhone &amp; Smart TV
-																</a>
-																<span>(5)</span>
-															</div>
-														</li>
+														{categories && categories.length > 0 ? (
+															categories.map((cat) => (
+																<li key={cat.id}>
+																	<div className='categories-bars-item'>
+																		<a
+																			href={`/danh-muc/${cat.slug}`}>
+																			{cat.name}
+																		</a>
+																	</div>
+																	{cat.categories &&
+																		cat.categories.length >
+																			0 && (
+																			<ul className='list-unstyled ms-3'>
+																				{cat.categories.map(
+																					(sub) => (
+																						<li
+																							key={
+																								sub.id
+																							}>
+																							<div className='categories-bars-item'>
+																								<a
+																									href={`/danh-muc/${sub.slug}`}>
+																									{
+																										sub.name
+																									}
+																								</a>
+																							</div>
+																						</li>
+																					)
+																				)}
+																			</ul>
+																		)}
+																</li>
+															))
+														) : (
+															<li>Không có danh mục</li>
+														)}
 													</ul>
 												</div>
 											</div>
