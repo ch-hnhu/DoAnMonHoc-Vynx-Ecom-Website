@@ -15,50 +15,39 @@ class CategoryController extends Controller
     public function index(Request $request)
     {
         try {
-            $flat = filter_var($request->query('flat', false), FILTER_VALIDATE_BOOLEAN);
-            $paginate = filter_var($request->query('paginate', false), FILTER_VALIDATE_BOOLEAN);
-            $perPage = (int) $request->query('per_page', 10);
-            $perPage = max(1, min($perPage, 200));
+            $flat = $request->input('flat', false);
+            $perPage = $request->input('per_page', 10);
 
             if ($flat) {
-                $query = Category::query()
-                    ->with(['category:id,name,slug'])
-                    ->orderByRaw('COALESCE(parent_id, 0) ASC')
-                    ->orderBy('name');
+                // Danh mục phẳng kèm phân trang
+                $categories = Category::with('category')->orderBy('name')->paginate($perPage);
 
-                if ($paginate) {
-                    $paginator = $query->paginate($perPage);
-
-                    return response()->json([
-                        'success' => true,
-                        'message' => 'Lay danh sach danh muc thanh cong',
-                        'data' => $paginator->items(),
-                        'meta' => [
-                            'current_page' => $paginator->currentPage(),
-                            'per_page' => $paginator->perPage(),
-                            'last_page' => $paginator->lastPage(),
-                            'total' => $paginator->total(),
-                        ],
-                        'error' => null,
-                        'timestamp' => now(),
-                    ]);
-                }
-
-                $categories = $query->get();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lay danh sach danh muc thanh cong',
+                    'data' => $categories->items(),
+                    'error' => null,
+                    'pagination' => [
+                        'total' => $categories->total(),
+                        'per_page' => $categories->perPage(),
+                        'current_page' => $categories->currentPage(),
+                        'last_page' => $categories->lastPage(),
+                        'from' => $categories->firstItem(),
+                        'to' => $categories->lastItem(),
+                    ],
+                    'timestamp' => now(),
+                ]);
             } else {
-                $categories = Category::whereNull('parent_id')
-                    ->with('childrenRecursive')
-                    ->get();
+                // Danh mục phân cấp
+                $categories = Category::whereNull('parent_id')->with('childrenRecursive')->get();
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lay danh sach danh muc thanh cong',
+                    'data' => $categories,
+                    'error' => null,
+                    'timestamp' => now(),
+                ]);
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lay danh sach danh muc thanh cong',
-                'data' => $categories,
-                'meta' => null,
-                'error' => null,
-                'timestamp' => now(),
-            ]);
         } catch (\Exception $ex) {
             return response()->json([
                 'success' => false,
@@ -83,7 +72,7 @@ class CategoryController extends Controller
         ]);
 
         $category = Category::create($validated);
-        $category->load('categories');
+        $category->load('category');
 
         return response()->json([
             'message' => 'Tao danh muc thanh cong',

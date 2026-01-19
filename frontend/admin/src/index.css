@@ -39,6 +39,14 @@ body {
 	will-change: left;
 }
 
+/* MUI Snackbar: tránh bị header fixed che (toast ở top) */
+.MuiSnackbar-anchorOriginTopLeft,
+.MuiSnackbar-anchorOriginTopCenter,
+.MuiSnackbar-anchorOriginTopRight {
+	top: calc(var(--admin-header-height) + 12px) !important;
+	z-index: 2000;
+}
+
 /* Sidebar fixed + animate */
 .app-sidebar {
 	position: fixed;
