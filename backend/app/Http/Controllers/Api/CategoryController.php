@@ -17,6 +17,42 @@ class CategoryController extends Controller
         try {
             $flat = $request->input('flat', false);
             $perPage = $request->input('per_page', 10);
+            $parent_id = $request->input('parent_id', 0);
+            $parent_slug = $request->input('parent_slug', null);
+
+            if ($parent_slug) {
+                // Danh mục con của danh mục cha theo slug
+                $parent_id = Category::where('slug', $parent_slug)->value('id');
+                if (!$parent_id) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Danh muc cha khong ton tai',
+                        'data' => null,
+                        'error' => null,
+                        'timestamp' => now(),
+                    ], 404);
+                }
+                $categories = Category::where('parent_id', $parent_id)->orderBy('name')->paginate($perPage);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lay danh sach danh muc thanh cong',
+                    'data' => $categories->items(),
+                    'error' => null,
+                    'timestamp' => now(),
+                ]);
+            }
+
+            if ($parent_id) {
+                // Danh mục con của danh mục cha
+                $categories = Category::where('parent_id', $parent_id)->orderBy('name')->paginate($perPage);
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Lay danh sach danh muc thanh cong',
+                    'data' => $categories->items(),
+                    'error' => null,
+                    'timestamp' => now(),
+                ]);
+            }
 
             if ($flat) {
                 // Danh mục phẳng kèm phân trang
