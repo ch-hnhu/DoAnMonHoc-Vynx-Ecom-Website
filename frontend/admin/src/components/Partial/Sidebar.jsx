@@ -1,4 +1,14 @@
+import React, { useEffect, useState } from "react";
+import api from "../../services/api";
+
 export default function Sidebar() {
+	const [configuration, setConfiguration] = useState({});
+
+	useEffect(() => {
+		api.get("/configuration").then((res) => {
+			setConfiguration(res.data.data[0]);
+		});
+	}, []);
 	return (
 		<aside
 			className='app-sidebar shadow'
@@ -6,17 +16,24 @@ export default function Sidebar() {
 			style={{
 				background: "linear-gradient(180deg, #1B3C53 0%, #234C6A 100%)",
 			}}>
-			<div className='sidebar-brand'>
-				<a href='#' className='brand-link'>
+			<div
+				className='sidebar-brand'
+				style={{
+					backgroundColor: "#F5F5F5",
+					padding: "10px",
+					borderRadius: "8px",
+					margin: "10px",
+					marginBottom: "0px",
+				}}>
+				<a href='/' className='brand-link' style={{ justifyContent: "center" }}>
 					<img
-						src='/assets/img/AdminLTELogo.png'
-						alt='AdminLTE Logo'
-						className='brand-image opacity-75 shadow'
+						src={configuration?.logo || "../../../public/assets/img/vynx-logo.png"}
+						alt='Vynx Logo'
+						className='brand-image'
+						style={{ maxHeight: "50px", width: "auto" }}
 					/>
-					<span className='brand-text fw-light'>AdminLTE 4</span>
 				</a>
 			</div>
-
 			<div className='sidebar-wrapper'>
 				<nav className='mt-2'>
 					<ul
@@ -96,12 +113,6 @@ export default function Sidebar() {
 							<a href='/reviews' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Reviews</p>
-							</a>
-						</li>
-						<li className='nav-item'>
-							<a href='/support-requests' className='nav-link'>
-								<i className='nav-icon bi bi-headset' />
-								<p>Support</p>
 							</a>
 						</li>
 						<li className='nav-item'>

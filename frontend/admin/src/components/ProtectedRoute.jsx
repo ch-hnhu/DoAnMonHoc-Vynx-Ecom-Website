@@ -17,7 +17,7 @@ export default function ProtectedRoute({ children }) {
   if (!authenticated) {
     console.log("-> Chuyển đến /login");
     // Chưa đăng nhập -> chuyển đến trang login
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/dang-nhap" replace />;
   }
 
   // Lấy thông tin user

@@ -11,7 +11,7 @@ export default function ProtectedRoute({ children, allowedRoles = null }) {
   // Kiểm tra xem user đã đăng nhập chưa
   if (!isAuthenticated()) {
     // Chưa đăng nhập -> chuyển đến trang login
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/dang-nhap" replace />;
   }
 
   // Nếu có yêu cầu về role
@@ -28,4 +28,3 @@ export default function ProtectedRoute({ children, allowedRoles = null }) {
   // Đã đăng nhập và có quyền truy cập -> render component
   return children;
 }
-

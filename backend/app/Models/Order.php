@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class Order
@@ -39,7 +40,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Order extends Model
 {
-	use HasFactory;
+	use HasFactory, SoftDeletes;
 	protected $table = 'orders';
 
 	protected $casts = [

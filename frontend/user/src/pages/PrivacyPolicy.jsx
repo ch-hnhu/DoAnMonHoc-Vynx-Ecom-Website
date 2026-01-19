@@ -1,28 +1,19 @@
 import { Helmet } from "react-helmet-async";
+import PageHeader from "../components/Partial/PageHeader";
 
 export default function PrivacyPolicy() {
+	const title = "CHÍNH SÁCH BẢO MẬT";
+	const breadcrumbs = [
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Chính sách bảo mật", active: true },
+	];
 	return (
 		<>
 			<Helmet>
-				<title>Chính sách bảo mật - Electro</title>
+				<title>VYNX | {title}</title>
 			</Helmet>
 
-			<div className='container-fluid page-header py-5'>
-				<h1 className='text-center text-white display-6 wow fadeInUp' data-wow-delay='0.1s'>
-					Chính sách bảo mật
-				</h1>
-				<ol
-					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
-					data-wow-delay='0.3s'>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang chủ</a>
-					</li>
-					<li className='breadcrumb-item'>
-						<a href='/'>Trang</a>
-					</li>
-					<li className='breadcrumb-item active text-white'>Chính sách bảo mật</li>
-				</ol>
-			</div>
+			<PageHeader title={title} breadcrumbs={breadcrumbs} />
 
 			<div className='container-fluid py-5'>
 				<div className='container py-5'>
@@ -32,10 +23,9 @@ export default function PrivacyPolicy() {
 								<p className='text-muted mb-2'>Cập nhật lần cuối: 11/01/2026</p>
 								<h2 className='mb-3'>Tổng quan</h2>
 								<p className='mb-4'>
-									Chúng tôi chỉ thu thập dữ liệu cần thiết để vận hành cửa
-									hàng, xử lý đơn hàng và hỗ trợ khách hàng. Chính sách này
-									giải thích dữ liệu được thu thập, cách sử dụng và các lựa
-									chọn của bạn.
+									Chúng tôi chỉ thu thập dữ liệu cần thiết để vận hành cửa hàng,
+									xử lý đơn hàng và hỗ trợ khách hàng. Chính sách này giải thích
+									dữ liệu được thu thập, cách sử dụng và các lựa chọn của bạn.
 								</p>
 
 								<h4 className='mb-3'>Thông tin chúng tôi thu thập</h4>
@@ -58,27 +48,31 @@ export default function PrivacyPolicy() {
 								<ul className='mb-4'>
 									<li>Xử lý đơn hàng, đổi trả và yêu cầu hỗ trợ.</li>
 									<li>Ngăn chặn gian lận và bảo vệ tài khoản, giao dịch.</li>
-									<li>Cải thiện hiệu năng, danh mục và trải nghiệm người dùng.</li>
+									<li>
+										Cải thiện hiệu năng, danh mục và trải nghiệm người dùng.
+									</li>
 								</ul>
 
 								<h4 className='mb-3'>Chia sẻ và công bố</h4>
 								<p className='mb-4'>
-									Chúng tôi chỉ chia sẻ dữ liệu với đối tác cần thiết để xử lý
-									đơn hàng (thanh toán, vận chuyển, phân tích). Chúng tôi không
-									bán dữ liệu cá nhân. Thông tin có thể được cung cấp khi pháp
-									luật yêu cầu.
+									Chúng tôi chỉ chia sẻ dữ liệu với đối tác cần thiết để xử lý đơn
+									hàng (thanh toán, vận chuyển, phân tích). Chúng tôi không bán dữ
+									liệu cá nhân. Thông tin có thể được cung cấp khi pháp luật yêu
+									cầu.
 								</p>
 
 								<h4 className='mb-3'>Thời gian lưu trữ</h4>
 								<p className='mb-4'>
-									Chúng tôi lưu dữ liệu tài khoản và đơn hàng trong thời gian
-									cần thiết cho mục đích pháp lý, kế toán và dịch vụ. Bạn có
-									thể yêu cầu xóa nếu không xung đột nghĩa vụ pháp lý.
+									Chúng tôi lưu dữ liệu tài khoản và đơn hàng trong thời gian cần
+									thiết cho mục đích pháp lý, kế toán và dịch vụ. Bạn có thể yêu
+									cầu xóa nếu không xung đột nghĩa vụ pháp lý.
 								</p>
 
 								<h4 className='mb-3'>Quyền lựa chọn của bạn</h4>
 								<ul className='mb-0'>
-									<li>Truy cập và cập nhật thông tin tài khoản bất cứ lúc nào.</li>
+									<li>
+										Truy cập và cập nhật thông tin tài khoản bất cứ lúc nào.
+									</li>
 									<li>Hủy nhận email marketing trong phần cài đặt.</li>
 									<li>Yêu cầu bản sao hoặc xóa dữ liệu cá nhân.</li>
 								</ul>
@@ -96,16 +90,16 @@ export default function PrivacyPolicy() {
 							<div className='bg-white rounded p-4 border mb-4'>
 								<h5 className='mb-3'>Bảo mật</h5>
 								<p className='mb-0'>
-									Chúng tôi sử dụng kết nối mã hóa và kiểm soát truy cập để bảo
-									vệ dữ liệu. Bạn có trách nhiệm giữ bí mật mật khẩu.
+									Chúng tôi sử dụng kết nối mã hóa và kiểm soát truy cập để bảo vệ
+									dữ liệu. Bạn có trách nhiệm giữ bí mật mật khẩu.
 								</p>
 							</div>
 
 							<div className='bg-white rounded p-4 border'>
 								<h5 className='mb-3'>Cập nhật chính sách</h5>
 								<p className='mb-0'>
-									Nếu có thay đổi, chúng tôi sẽ cập nhật ngày phía trên và
-									thông báo trên website.
+									Nếu có thay đổi, chúng tôi sẽ cập nhật ngày phía trên và thông
+									báo trên website.
 								</p>
 							</div>
 						</div>

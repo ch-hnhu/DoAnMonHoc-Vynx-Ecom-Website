@@ -15,7 +15,7 @@ class ConfigurationSeeder extends Seeder
     {
         DB::table('configurations')->insert([
             [
-                'logo' => 'https://example.com/logo-vynx.png',
+                'logo' => 'http://localhost:8000/storage/logo/vynx-logo.png',
                 'name' => 'Vynx E-commerce',
                 'email' => 'contact@vynx.com',
                 'phone' => '0123456789',
@@ -25,7 +25,7 @@ class ConfigurationSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'logo' => 'https://example.com/logo-vynx-dark.png',
+                'logo' => 'http://localhost:8000/storage/logo/vynx-logo.png',
                 'name' => 'Vynx E-commerce Dark',
                 'email' => 'support@vynx.com',
                 'phone' => '0987654321',
@@ -35,7 +35,7 @@ class ConfigurationSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'logo' => 'https://example.com/logo-vynx-sale.png',
+                'logo' => 'http://localhost:8000/storage/logo/vynx-logo.png',
                 'name' => 'Vynx Flash Sale',
                 'email' => 'sale@vynx.com',
                 'phone' => '0369852147',
@@ -45,7 +45,7 @@ class ConfigurationSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
-                'logo' => 'https://example.com/logo-vynx-mobile.png',
+                'logo' => 'http://localhost:8000/storage/logo/vynx-logo.png',
                 'name' => 'Vynx Mobile',
                 'email' => 'mobile@vynx.com',
                 'phone' => '0258147963',

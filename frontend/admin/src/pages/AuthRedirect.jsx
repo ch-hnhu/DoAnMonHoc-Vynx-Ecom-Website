@@ -47,12 +47,12 @@ export default function AuthRedirect() {
       } catch (error) {
         console.error("Auth redirect error:", error);
         // Có lỗi -> chuyển về login
-        navigate("/login", { replace: true });
+        navigate("/dang-nhap", { replace: true });
       }
     } else {
       console.log("-> Không có token/user. Chuyển về login");
       // Không có token -> chuyển về login
-      navigate("/login", { replace: true });
+      navigate("/dang-nhap", { replace: true });
     }
   }, [searchParams, navigate]);
 

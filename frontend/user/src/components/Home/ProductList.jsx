@@ -10,7 +10,9 @@ export default function ProductList() {
 							data-wow-delay='0.1s'>
 							Products
 						</h4>
-						<h1 className='mb-0 display-3 wow fadeInUp' data-wow-delay='0.3s'>
+						<h1
+							className='mb-0 display-3 text-primary wow fadeInUp'
+							data-wow-delay='0.3s'>
 							All Product Items
 						</h1>
 					</div>

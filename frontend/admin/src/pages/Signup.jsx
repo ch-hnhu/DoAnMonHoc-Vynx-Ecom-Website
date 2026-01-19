@@ -258,7 +258,7 @@ export default function Signup() {
 
             <Box sx={{ textAlign: "center", pt: 1 }}>
               <Button
-                onClick={() => navigate("/login")}
+                onClick={() => navigate("/dang-nhap")}
                 size="small"
                 color="primary"
                 sx={{ textTransform: "none" }}

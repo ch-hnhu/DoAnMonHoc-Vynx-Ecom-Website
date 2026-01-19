@@ -1,0 +1,37 @@
+/* Fix scroll issue - prevent negative margin scroll */
+html,
+body {
+	overflow-x: hidden;
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+
+body {
+	overflow-y: auto;
+}
+
+#root {
+	min-height: 100vh;
+}
+
+.app-wrapper {
+	min-height: 100vh;
+	overflow: hidden;
+}
+
+.app-main {
+	overflow-x: hidden;
+}
+
+/* Fix app-content-header negative margin issue */
+.app-content-header {
+	margin-top: 0 !important;
+	margin-bottom: 1rem;
+	padding-top: 0.5rem;
+}
+
+.app-content {
+	padding-top: 0 !important;
+	margin-top: 0 !important;
+}

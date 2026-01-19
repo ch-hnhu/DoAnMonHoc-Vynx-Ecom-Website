@@ -72,8 +72,8 @@ export default function Footer() {
 
 									{/* ✅ Template gốc: không có text-white */}
 									<p className='mb-3'>
-										Đăng ký để nhận tin mới nhất về sản phẩm, ưu đãi và các chương
-										trình đặc biệt từ Electro.
+										Đăng ký để nhận tin mới nhất về sản phẩm, ưu đãi và các
+										chương trình đặc biệt từ Electro.
 									</p>
 
 									<div className='position-relative mx-auto rounded-pill'>
@@ -95,7 +95,7 @@ export default function Footer() {
 						<div className='col-md-6 col-lg-6 col-xl-3'>
 							<div className='footer-item d-flex flex-column'>
 								<h4 className='text-primary mb-4'>Chăm sóc khách hàng</h4>
-								<a href='/contact'>
+								<a href='/lien-he'>
 									<i className='fas fa-angle-right me-2'></i> Liên hệ
 								</a>
 								<a href='#'>
@@ -122,28 +122,28 @@ export default function Footer() {
 						<div className='col-md-6 col-lg-6 col-xl-3'>
 							<div className='footer-item d-flex flex-column'>
 								<h4 className='text-primary mb-4'>Thông tin</h4>
-								<a href='/about'>
+								<a href='/ve-chung-toi'>
 									<i className='fas fa-angle-right me-2'></i> Về chúng tôi
 								</a>
-								<a href='/shipping-policy'>
-									<i className='fas fa-angle-right me-2'></i> Chính sách giao hàng
+								<a href='/chinh-sach-van-chuyen'>
+									<i className='fas fa-angle-right me-2'></i> Chính sách vận
+									chuyển
 								</a>
-								<a href='/privacy-policy'>
+								<a href='/chinh-sach-bao-mat'>
 									<i className='fas fa-angle-right me-2'></i> Chính sách bảo mật
 								</a>
-								<a href='/terms'>
-									<i className='fas fa-angle-right me-2'></i> Điều khoản &amp; điều
-									kiện
+								<a href='/dieu-khoan'>
+									<i className='fas fa-angle-right me-2'></i> Điều khoản &amp;
+									điều kiện
 								</a>
-								<a href='/warranty'>
+								<a href='/chinh-sach-bao-hanh'>
 									<i className='fas fa-angle-right me-2'></i> Bảo hành
 								</a>
-								<a href='/faq'>
+								<a href='/cau-hoi-thuong-gap'>
 									<i className='fas fa-angle-right me-2'></i> Câu hỏi thường gặp
 								</a>
-								<a href='#'>
-									<i className='fas fa-angle-right me-2'></i> Đăng nhập nhà bán
-									hàng
+								<a href='http://localhost:5174/dang-nhap'>
+									<i className='fas fa-angle-right me-2'></i> Đăng nhập quản trị
 								</a>
 							</div>
 						</div>

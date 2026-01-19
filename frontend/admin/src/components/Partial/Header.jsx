@@ -32,7 +32,7 @@ export default function Header() {
       await logout();
       setUser(null);
       setIsLoggedIn(false);
-      navigate("/login");
+      navigate("/dang-nhap");
     } catch (error) {
       console.error("Logout error:", error);
     }
@@ -281,7 +281,7 @@ export default function Header() {
               </>
             ) : (
               <a
-                href="/login"
+                href="/dang-nhap"
                 className="nav-link"
                 style={{ color: "#f5f5f5" }}
               >

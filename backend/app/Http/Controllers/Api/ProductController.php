@@ -138,10 +138,10 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $slug)
     {
         try {
-            $product = Product::with(['category', 'brand', 'promotion'])->findOrFail($id);
+            $product = Product::with(['category', 'brand', 'promotion'])->where('slug', $slug)->firstOrFail();
 
             return response()->json([
                 'success' => true,

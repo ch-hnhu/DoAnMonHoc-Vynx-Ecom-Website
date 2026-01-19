@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 
-export default function SingleProduct() {
+export default function SingleProduct({ product }) {
 	useEffect(() => {
 		// Call the carousel init function from main.js
 		if (window.initCarousels?.single) {
