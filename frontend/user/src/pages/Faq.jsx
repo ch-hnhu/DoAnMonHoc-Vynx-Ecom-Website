@@ -1,7 +1,51 @@
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import api from "../services/api";
 import PageHeader from "../components/Partial/PageHeader";
 
 export default function Faq() {
+	const [companyProfile, setCompanyProfile] = useState(null);
+	const [isLoadingCompany, setIsLoadingCompany] = useState(true);
+
+	useEffect(() => {
+		let isMounted = true;
+		//Gọi api lấy thông tin công ty
+		api.get("/configuration")
+			.then((response) => {
+				const configurations = response?.data?.data ?? [];
+				//Lấy cấu hình công ty đang hoạt động
+				const activeConfig = configurations.find((item) => item.is_active);
+
+				if (isMounted) {
+					setCompanyProfile(activeConfig || null);
+				}
+			})
+			.catch(() => {
+				if (isMounted) {
+					setCompanyProfile(null);
+				}
+			})
+			.finally(() => {
+				if (isMounted) {
+					setIsLoadingCompany(false);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+
+	const supportPhone = companyProfile?.phone || "Dang cap nhat";
+	const supportEmail = companyProfile?.email || "Dang cap nhat";
+	const supportPhoneHref = companyProfile?.phone
+		? `tel:${companyProfile.phone}`
+		: undefined;
+	const supportEmailHref = companyProfile?.email
+		? `mailto:${companyProfile.email}`
+		: undefined;
+
 	const title = "CÂU HỎI THƯỜNG GẶP";
 	const breadcrumbs = [
 		{ label: "Trang chủ", href: "/" },
@@ -92,8 +136,7 @@ export default function Faq() {
 											aria-labelledby='faqHeadingThree'
 											data-bs-parent='#faqAccordion'>
 											<div className='accordion-body'>
-												Chúng tôi hỗ trợ thanh toán COD, chuyển khoản ngân
-												hàng và các cổng thanh toán trực tuyến phổ biến.
+												Chúng tôi hỗ trợ thanh toán COD, chuyển khoản qua VNPay.
 											</div>
 										</div>
 									</div>
@@ -129,8 +172,28 @@ export default function Faq() {
 						<div className='col-lg-4'>
 							<div className='bg-white rounded p-4 border mb-4'>
 								<h5 className='mb-3'>Hỗ trợ nhanh</h5>
-								<p className='mb-2'>Hotline: (+012) 3456 7890</p>
-								<p className='mb-2'>Email: support@electro.com</p>
+								{isLoadingCompany ? (
+									<p className='mb-2 text-muted'>Đang tải thông tin...</p>
+								) : (
+									<>
+										<p className='mb-2'>
+											Hotline:{" "}
+											{supportPhoneHref ? (
+												<a href={supportPhoneHref}>{supportPhone}</a>
+											) : (
+												supportPhone
+											)}
+										</p>
+										<p className='mb-2'>
+											Email:{" "}
+											{supportEmailHref ? (
+												<a href={supportEmailHref}>{supportEmail}</a>
+											) : (
+												supportEmail
+											)}
+										</p>
+									</>
+								)}
 								<p className='mb-0'>Giờ hỗ trợ: 9:00 - 18:00</p>
 							</div>
 
