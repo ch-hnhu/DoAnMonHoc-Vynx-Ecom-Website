@@ -59,6 +59,7 @@ Route::prefix('configuration')->group(function () {
 });
 
 // Resource routes
+Route::apiResource('contacts', SupportRequestController::class)->only(['index', 'destroy']);
 Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);

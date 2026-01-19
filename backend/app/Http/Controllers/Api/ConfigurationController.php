@@ -15,7 +15,7 @@ class ConfigurationController extends Controller
     public function index()
     {
         try {
-            $configuration = Configuration::orderBy('id')->take(3)->get();
+            $configuration = Configuration::orderBy('id')->get();
             return response()->json([
                 'success' => true,
                 'message' => 'Lay chi tiet cau hinh thanh cong',

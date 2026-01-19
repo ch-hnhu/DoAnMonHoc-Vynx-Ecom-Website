@@ -45,7 +45,7 @@ export default function App() {
 				<Route path='promotions' element={<Promotion />} />
 				<Route path='configurations' element={<Configuration />} />
 				<Route path='reviews' element={<Review />} />
-				<Route path='support-requests' element={<SupportRequest />} />
+				<Route path='contacts' element={<SupportRequest />} />
 			</Route>
 		</Routes>
 	);
