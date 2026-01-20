@@ -193,7 +193,7 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Cập nhật thông tin thành công',
+            'message' => 'Cap nhat thong tin thanh cong',
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,

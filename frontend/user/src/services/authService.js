@@ -11,7 +11,6 @@ const notifyAuthChange = () => {
   }
 };
 
-
 /**
  * Đăng ký người dùng mới
  */
@@ -24,7 +23,7 @@ export const register = async (
   phone = null,
 ) => {
   try {
-    const response = await api.post("/register", {
+    const response = await api.post("/dang-ky", {
       username,
       email,
       password,
@@ -54,7 +53,7 @@ export const register = async (
  */
 export const login = async (username, password) => {
   try {
-    const response = await api.post("/login", {
+    const response = await api.post("/dang-nhap", {
       username,
       password,
     });
