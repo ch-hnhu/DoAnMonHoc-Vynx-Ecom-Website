@@ -238,6 +238,15 @@ class ProductController extends Controller
             $product->setAttribute('specifications', $specifications);
             $product->unsetRelation('specifications');
 
+            // Calculate rating distribution
+            $ratingDistribution = [];
+            for ($i = 5; $i >= 1; $i--) {
+                $ratingDistribution[$i] = $product->product_reviews()
+                    ->where('rating', $i)
+                    ->count();
+            }
+            $product->setAttribute('rating_distribution', $ratingDistribution);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Lay chi tiet san pham thanh cong',

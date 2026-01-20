@@ -107,7 +107,7 @@ export default function SingleProduct({ product }) {
 										<div className='categories-item'>
 											<a href='#' className='text-dark'>
 												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Đồ điện tử 
+												Đồ điện tử
 											</a>
 											<span>(5)</span>
 										</div>
@@ -471,39 +471,39 @@ export default function SingleProduct({ product }) {
 													: "Hết hàng"}
 											</strong>
 										</small>
-									<small>Số lượng tồn kho: {product.stock_quantity ?? 0}</small>
+										<small>Số lượng tồn kho: {product.stock_quantity ?? 0}</small>
 									</div>
-								<div
-								className='input-group quantity mb-5'
-								style={{ width: "140px" }}>
-								<div className='input-group-btn'>
-									<button
-										className='btn btn-sm btn-minus rounded-circle bg-light border'
-										type='button'
-									disabled={quantity <= 1}
-										onClick={handleDecrease}>
-										<i className='fa fa-minus'></i>
-									</button>
-								</div>
-								<input
-									type='number'
-									min={1}
-									max={getMaxQuantity()}
-									className='form-control form-control-sm text-center border-0'
-									style={{ height: "40px", padding: "0 8px" }}
-									value={quantity}
-									onChange={handleQuantityChange}
-								/>
-								<div className='input-group-btn'>
-									<button
-										className='btn btn-sm btn-plus rounded-circle bg-light border'
-										type='button'
-										disabled={quantity >= getMaxQuantity()}
-										onClick={handleIncrease}>
-										<i className='fa fa-plus'></i>
-									</button>
-								</div>
-								</div>
+									<div
+										className='input-group quantity mb-5'
+										style={{ width: "140px" }}>
+										<div className='input-group-btn'>
+											<button
+												className='btn btn-sm btn-minus rounded-circle bg-light border'
+												type='button'
+												disabled={quantity <= 1}
+												onClick={handleDecrease}>
+												<i className='fa fa-minus'></i>
+											</button>
+										</div>
+										<input
+											type='number'
+											min={1}
+											max={getMaxQuantity()}
+											className='form-control form-control-sm text-center border-0'
+											style={{ height: "40px", padding: "0 8px" }}
+											value={quantity}
+											onChange={handleQuantityChange}
+										/>
+										<div className='input-group-btn'>
+											<button
+												className='btn btn-sm btn-plus rounded-circle bg-light border'
+												type='button'
+												disabled={quantity >= getMaxQuantity()}
+												onClick={handleIncrease}>
+												<i className='fa fa-plus'></i>
+											</button>
+										</div>
+									</div>
 									<a
 										href='#'
 										onClick={handleAddToCart}
@@ -512,158 +512,243 @@ export default function SingleProduct({ product }) {
 									</a>
 								</div>
 								<div className='col-lg-12'>
-							<nav>
-								<div className='nav nav-tabs mb-3'>
-									<button
-										className='nav-link active border-white border-bottom-0'
-										type='button'
-										role='tab'
-										id='nav-desc-tab'
-										data-bs-toggle='tab'
-										data-bs-target='#nav-desc'
-										aria-controls='nav-desc'
-										aria-selected='true'>
-										Mô tả sản phẩm
-									</button>
-									<button
-										className='nav-link border-white border-bottom-0'
-										type='button'
-										role='tab'
-										id='nav-about-tab'
-										data-bs-toggle='tab'
-										data-bs-target='#nav-about'
-										aria-controls='nav-about'
-										aria-selected='false'>
-										Thông số kỹ thuật
-									</button>
-									<button
-										className='nav-link border-white border-bottom-0'
-										type='button'
-										role='tab'
-										id='nav-review-tab'
-										data-bs-toggle='tab'
-										data-bs-target='#nav-review'
-										aria-controls='nav-review'
-										aria-selected='false'>
-										Đánh giá
-									</button>
-								</div>
-							</nav>
-							<div className='tab-content mb-5'>
-								<div
-									className='tab-pane active'
-									id='nav-desc'
-									role='tabpanel'
-									aria-labelledby='nav-desc-tab'>
-									<p className='mb-0'>
-										{product.description ||
-											product.short_description ||
-											"Chưa có mô tả sản phẩm."}
-									</p>
-								</div>
-								<div
-									className='tab-pane'
-									id='nav-about'
-									role='tabpanel'
-									aria-labelledby='nav-about-tab'>
-									<div className='table-responsive'>
-										<table className='table table-bordered mb-0'>
-											<tbody>
-									{(product.specifications && product.specifications.length > 0) ? (
-										product.specifications.map((spec) => (
-											<tr key={spec.id || spec.name}>
-												<th scope='row'>{spec.name}</th>
-												<td>{spec.value}{spec.unit ? ` ${spec.unit}` : ""}</td>
-											</tr>
-										))
-									) : (
-										<tr>
-											<td colSpan='2'>Chưa có thông số kỹ thuật.</td>
-										</tr>
-									)}
-								</tbody>
-										</table>
-									</div>
-								</div>
-								<div
-									className='tab-pane'
-									id='nav-review'
-									role='tabpanel'
-									aria-labelledby='nav-review-tab'>
-									<div className='d-flex'>
-										<img
-											src='/img/avatar.jpg'
-											className='img-fluid rounded-circle p-3'
-											style={{ width: "100px", height: "100px" }}
-											alt=''
-										/>
-										<div className=''>
-											<p
-												className='mb-2'
-												style={{ fontSize: "14px" }}>
-												April 12, 2024
-											</p>
-											<div className='d-flex justify-content-between'>
-												<h5>Jason Smith</h5>
-												<div className='d-flex mb-3'>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star'></i>
-												</div>
-											</div>
-											<p>
-												The generated Lorem Ipsum is therefore always free
-												from repetition injected humour, or non-characteristic
-												words etc. Susp endisse ultricies nisi vel quam
-												suscipit{" "}
+									<nav>
+										<div className='nav nav-tabs mb-3'>
+											<button
+												className='nav-link active border-white border-bottom-0'
+												type='button'
+												role='tab'
+												id='nav-desc-tab'
+												data-bs-toggle='tab'
+												data-bs-target='#nav-desc'
+												aria-controls='nav-desc'
+												aria-selected='true'>
+												Mô tả sản phẩm
+											</button>
+											<button
+												className='nav-link border-white border-bottom-0'
+												type='button'
+												role='tab'
+												id='nav-about-tab'
+												data-bs-toggle='tab'
+												data-bs-target='#nav-about'
+												aria-controls='nav-about'
+												aria-selected='false'>
+												Thông số kỹ thuật
+											</button>
+											<button
+												className='nav-link border-white border-bottom-0'
+												type='button'
+												role='tab'
+												id='nav-review-tab'
+												data-bs-toggle='tab'
+												data-bs-target='#nav-review'
+												aria-controls='nav-review'
+												aria-selected='false'>
+												Đánh giá
+											</button>
+										</div>
+									</nav>
+									<div className='tab-content mb-5'>
+										<div
+											className='tab-pane active'
+											id='nav-desc'
+											role='tabpanel'
+											aria-labelledby='nav-desc-tab'>
+											<p className='mb-0'>
+												{product.description ||
+													product.short_description ||
+													"Chưa có mô tả sản phẩm."}
 											</p>
 										</div>
-									</div>
-									<div className='d-flex'>
-										<img
-											src='/img/avatar.jpg'
-											className='img-fluid rounded-circle p-3'
-											style={{ width: "100px", height: "100px" }}
-											alt=''
-										/>
-										<div className=''>
-											<p
-												className='mb-2'
-												style={{ fontSize: "14px" }}>
-												April 12, 2024
-											</p>
-											<div className='d-flex justify-content-between'>
-												<h5>Sam Peters</h5>
-												<div className='d-flex mb-3'>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star text-secondary'></i>
-													<i className='fa fa-star'></i>
-													<i className='fa fa-star'></i>
+										<div
+											className='tab-pane'
+											id='nav-about'
+											role='tabpanel'
+											aria-labelledby='nav-about-tab'>
+											<div className='table-responsive'>
+												<table className='table table-bordered mb-0'>
+													<tbody>
+														{(product.specifications && product.specifications.length > 0) ? (
+															product.specifications.map((spec) => (
+																<tr key={spec.id || spec.name}>
+																	<th scope='row'>{spec.name}</th>
+																	<td>{spec.value}{spec.unit ? ` ${spec.unit}` : ""}</td>
+																</tr>
+															))
+														) : (
+															<tr>
+																<td colSpan='2'>Chưa có thông số kỹ thuật.</td>
+															</tr>
+														)}
+													</tbody>
+												</table>
+											</div>
+										</div>
+										<div
+											className='tab-pane'
+											id='nav-review'
+											role='tabpanel'
+											aria-labelledby='nav-review-tab'>
+											{/* Rating Summary */}
+											<div className='row mb-4'>
+												<div className='col-lg-4'>
+													<div className='bg-light rounded p-4 text-center'>
+														<h1 className='display-4 fw-bold text-primary mb-2'>
+															{product.rating_average ? Number(product.rating_average).toFixed(1) : '0.0'}
+														</h1>
+														<div className='d-flex justify-content-center mb-2'>
+															{renderRating(product.rating_average || 0)}
+														</div>
+														<p className='mb-0 text-muted'>
+															{product.rating_count || 0} đánh giá
+														</p>
+													</div>
+												</div>
+												<div className='col-lg-8'>
+													<div className='p-3'>
+														{[5, 4, 3, 2, 1].map((star) => {
+															const ratingDist = product.rating_distribution || {};
+															const count = ratingDist[star] || 0;
+															const totalReviews = product.rating_count || 0;
+															const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+
+															return (
+																<div key={star} className='d-flex align-items-center mb-2'>
+																	<span className='me-2' style={{ minWidth: '60px' }}>
+																		{star} <i className='fa fa-star text-warning'></i>
+																	</span>
+																	<div className='progress flex-grow-1 me-2' style={{ height: '8px' }}>
+																		<div
+																			className='progress-bar bg-warning'
+																			role='progressbar'
+																			style={{ width: `${percentage}%` }}
+																			aria-valuenow={percentage}
+																			aria-valuemin={0}
+																			aria-valuemax={100}></div>
+																	</div>
+																	<span className='text-muted' style={{ minWidth: '40px' }}>{count}</span>
+																</div>
+															);
+														})}
+													</div>
 												</div>
 											</div>
-											<p className='text-dark'>
-												The generated Lorem Ipsum is therefore always free
-												from repetition injected humour, or non-characteristic
-												words etc. Susp endisse ultricies nisi vel quam
-												suscipit{" "}
-											</p>
+
+											{/* Review List */}
+											<div className='reviews-list mb-4'>
+												<h5 className='mb-4'>Đánh giá từ khách hàng</h5>
+
+												{/* Review Item 1 - With Reply */}
+												<div className='review-item border rounded p-3 mb-3'>
+													<div className='d-flex'>
+														<img
+															src='/img/avatar.jpg'
+															className='rounded-circle me-3'
+															style={{ width: "60px", height: "60px", objectFit: "cover" }}
+															alt='Avatar'
+														/>
+														<div className='flex-grow-1'>
+															<div className='d-flex justify-content-between align-items-start mb-2'>
+																<div>
+																	<h6 className='mb-1 fw-bold'>Nguyễn Văn A</h6>
+																	<div className='d-flex align-items-center mb-1'>
+																		<div className='d-flex me-3'>
+																			{renderRating(5)}
+																		</div>
+																		<small className='text-muted'>15/01/2026</small>
+																	</div>
+																</div>
+															</div>
+															<p className='mb-2'>
+																Sản phẩm rất tốt, đúng như mô tả. Giao hàng nhanh chóng,
+																đóng gói cẩn thận. Shop tư vấn nhiệt tình. Tôi rất hài lòng
+																và sẽ ủng hộ shop lâu dài.
+															</p>
+
+															{/* Reply from Shop */}
+															<div className='reply-section bg-light rounded p-3 ms-4 mt-3'>
+																<div className='d-flex'>
+																	<i className='fas fa-reply text-primary me-2 mt-1'></i>
+																	<div className='flex-grow-1'>
+																		<p className='mb-1'>
+																			<strong className='text-primary'>VYNX Store</strong>
+																			<small className='text-muted ms-2'>16/01/2026</small>
+																		</p>
+																		<p className='mb-0'>
+																			Cảm ơn bạn đã tin tưởng và ủng hộ VYNX! Chúng tôi rất
+																			vui khi bạn hài lòng với sản phẩm. Hẹn gặp lại bạn ở
+																			những đơn hàng tiếp theo nhé! 💚
+																		</p>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+
+											{/* Write Review Form */}
+											{/* <div className='write-review bg-light rounded p-4'>
+												<h5 className='mb-4'>Viết đánh giá của bạn</h5>
+												<form>
+													<div className='mb-3'>
+														<label className='form-label fw-bold'>
+															Đánh giá của bạn <span className='text-danger'>*</span>
+														</label>
+														<div className='d-flex gap-2'>
+															{[1, 2, 3, 4, 5].map((star) => (
+																<i
+																	key={star}
+																	className='fa fa-star text-muted'
+																	style={{ fontSize: '24px', cursor: 'pointer' }}
+																	onMouseEnter={(e) => e.target.classList.replace('text-muted', 'text-warning')}
+																	onMouseLeave={(e) => e.target.classList.replace('text-warning', 'text-muted')}></i>
+															))}
+														</div>
+													</div>
+													<div className='mb-3'>
+														<label htmlFor='reviewName' className='form-label fw-bold'>
+															Tên của bạn <span className='text-danger'>*</span>
+														</label>
+														<input
+															type='text'
+															className='form-control'
+															id='reviewName'
+															placeholder='Nhập tên của bạn'
+														/>
+													</div>
+													<div className='mb-3'>
+														<label htmlFor='reviewContent' className='form-label fw-bold'>
+															Nội dung đánh giá <span className='text-danger'>*</span>
+														</label>
+														<textarea
+															className='form-control'
+															id='reviewContent'
+															rows='4'
+															placeholder='Chia sẻ trải nghiệm của bạn về sản phẩm này...'></textarea>
+													</div>
+													<div className='mb-3'>
+														<label htmlFor='reviewImages' className='form-label fw-bold'>
+															Hình ảnh (Tùy chọn)
+														</label>
+														<input
+															type='file'
+															className='form-control'
+															id='reviewImages'
+															multiple
+															accept='image/*'
+														/>
+														<small className='text-muted'>Tối đa 5 ảnh</small>
+													</div>
+													<button type='submit' className='btn btn-primary rounded-pill px-4'>
+														<i className='fa fa-paper-plane me-2'></i>
+														Gửi đánh giá
+													</button>
+												</form>
+											</div> */}
 										</div>
 									</div>
-								</div>
-								<div className='tab-pane' id='nav-vision' role='tabpanel'>
-									<p className='text-dark'>
-										Tempor erat elitr rebum at clita. Diam dolor diam ipsum
-										et tempor sit. Aliqu diam amet diam et eos labore. 3
-									</p> 
-									<p className='mb-0'>
-										Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam
-										et eos labore. Clita erat ipsum et lorem et sit
-									</p>
-								</div>
-							</div>
 								</div>
 							</div>
 						</div>

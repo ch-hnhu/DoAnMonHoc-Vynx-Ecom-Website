@@ -47,20 +47,23 @@ const renderStars = (rating) => {
 
 export default function ReviewPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐÁNH GIÁ");
-	
+
 	const [reviews, setReviews] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openReplyDialog, setOpenReplyDialog] = useState(false);
 	const [selectedReview, setSelectedReview] = useState(null);
 	const [replyText, setReplyText] = useState("");
 	const [submitting, setSubmitting] = useState(false);
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+	const [rowCount, setRowCount] = useState(0);
 	const { toast, showSuccess, showError, showInfo, closeToast } = useToast();
 
-	useEffect(() => {
+	const fetchReviews = (model = paginationModel) => {
 		setLoading(true);
-		api.get("/reviews")
+		api.get("/reviews", { params: { page: model.page + 1, per_page: model.pageSize } })
 			.then((response) => {
 				setReviews(response.data.data || []);
+				setRowCount(response.data.pagination?.total ?? 0);
 			})
 			.catch((error) => {
 				showError("Tải đánh giá thất bại!");
@@ -68,7 +71,11 @@ export default function ReviewPage() {
 			.finally(() => {
 				setLoading(false);
 			});
-	}, []);
+	};
+
+	useEffect(() => {
+		fetchReviews();
+	}, [paginationModel.page, paginationModel.pageSize]);
 
 	const handleEdit = (row) => {
 		setSelectedReview(row);
@@ -209,6 +216,10 @@ export default function ReviewPage() {
 				title='Quản lý đánh giá'
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
+				paginationMode='server'
+				rowCount={rowCount}
+				paginationModel={paginationModel}
+				onPaginationModelChange={setPaginationModel}
 				checkboxSelection={true}
 			/>
 
