@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Alert, Snackbar } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
 	getProductImage,
 	getFinalPrice,
@@ -100,33 +100,33 @@ export default function ProductCarousel({
 											<div className='related-new'>New</div>
 										)}
 										<div className='related-details'>
-											<a
-												href='#'
+											<Link
+												to={`/${product.slug}`}
 												onClick={(e) => {
 													e.preventDefault();
 													handleViewDetails(product);
 												}}>
 												<i className='fa fa-eye fa-1x'></i>
-											</a>
+											</Link>
 										</div>
 									</div>
 
 									{/* Product Info */}
 									<div className='text-center rounded-bottom p-4'>
 										{showCategory && (
-											<a href='#' className='d-block mb-2'>
+											<Link to={`/${product.slug}`} className='d-block mb-2'>
 												{product.category?.name || "Chưa phân loại"}
-											</a>
+											</Link>
 										)}
-										<a
-											href='#'
+										<Link
+											to={`/${product.slug}`}
 											className='d-block h4'
 											onClick={(e) => {
 												e.preventDefault();
 												handleViewDetails(product);
 											}}>
 											{product.name}
-										</a>
+										</Link>
 
 										{/* Price */}
 										{hasDiscount(product) ? (

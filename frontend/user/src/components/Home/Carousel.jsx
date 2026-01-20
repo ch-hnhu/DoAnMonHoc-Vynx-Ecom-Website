@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { API_BASE_URL } from "../../config/api";
 
 export default function Carousel() {
 	const baseUrl = API_BASE_URL.replace(/\/api\/?$/, "");
+	const isExternalLink = (link) =>
+		!link || link.startsWith("#") || /^https?:\/\//i.test(link);
 	const defaultSlides = [
 		{
 			tag: "Sản phẩm nổi bật",
@@ -119,27 +122,37 @@ export default function Carousel() {
 						<div className='header-carousel owl-carousel bg-light'>
 							{slides.map((slide) => (
 								<div key={slide.title} className='header-carousel-item'>
-									<a href={slide.link} className='d-block'>
-										<img
-											src={slide.image}
-											className='img-fluid w-100'
-											alt={slide.title}
-										/>
-									</a>
+									{isExternalLink(slide.link) ? (
+										<a href={slide.link || "#"} className='d-block'>
+											<img
+												src={slide.image}
+												className='img-fluid w-100'
+												alt={slide.title}
+											/>
+										</a>
+									) : (
+										<Link to={slide.link} className='d-block'>
+											<img
+												src={slide.image}
+												className='img-fluid w-100'
+												alt={slide.title}
+											/>
+										</Link>
+									)}
 								</div>
 							))}
 						</div>
 					</div>
 					<div className='col-12 col-lg-5 col-xl-3 wow fadeInRight' data-wow-delay='0.1s'>
 						<div className='carousel-header-banner h-100'>
-							<a href='/san-pham' className='d-block h-100'>
+							<Link to='/san-pham' className='d-block h-100'>
 								<img
 									src={`${baseUrl}/storage/slideshows/banner-doc.png`}
 									className='img-fluid w-100 h-100'
 									style={{ objectFit: "cover" }}
 									alt='banner-doc'
 								/>
-							</a>
+							</Link>
 						</div>
 					</div>
 				</div>

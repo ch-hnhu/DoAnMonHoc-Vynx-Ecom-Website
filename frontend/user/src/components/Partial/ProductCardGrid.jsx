@@ -39,12 +39,12 @@ export default function ProductCardGrid({ product, onAddToCart, onViewDetails })
 						</div>
 					</div>
 					<div className='text-center rounded-bottom p-4'>
-						<a href='#' className='d-block mb-2'>
+						<Link to={`/${product.slug}`} className='d-block mb-2'>
 							{product.category?.name || "Uncategorized"}
-						</a>
-						<a href='#' className='d-block h4' onClick={handleViewDetails}>
+						</Link>
+						<Link to={`/${product.slug}`} className='d-block h4' onClick={handleViewDetails}>
 							{product.name}
-						</a>
+						</Link>
 						{hasDiscount(product) ? (
 							<>
 								<del className='me-2 fs-5'>{formatCurrency(product.price)}</del>

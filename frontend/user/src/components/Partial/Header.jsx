@@ -62,17 +62,17 @@ export default function Header() {
                 className="d-inline-flex align-items-center"
                 style={{ height: 45 }}
               >
-                <a href="/ve-chung-toi" className="text-muted me-2">
+                <Link to="/ve-chung-toi" className="text-muted me-2">
                   Về chúng tôi
-                </a>
+                </Link>
                 <small> / </small>
-                <a href="/cau-hoi-thuong-gap" className="text-muted mx-2">
+                <Link to="/cau-hoi-thuong-gap" className="text-muted mx-2">
                   Câu hỏi thường gặp
-                </a>
+                </Link>
                 <small> / </small>
-                <a href="/lien-he" className="text-muted ms-2">
+                <Link to="/lien-he" className="text-muted ms-2">
                   Liên hệ
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -105,14 +105,14 @@ export default function Header() {
                   <div className="dropdown-menu rounded">
                     {!isLoggedIn ? (
                       <>
-                        <a href="/dang-nhap" className="dropdown-item">
+                        <Link to="/dang-nhap" className="dropdown-item">
                           <i className="fa fa-sign-in-alt me-2"></i>
                           Đăng nhập
-                        </a>
-                        <a href="/dang-ky" className="dropdown-item">
+                        </Link>
+                        <Link to="/dang-ky" className="dropdown-item">
                           <i className="fa fa-user-plus me-2"></i>
                           Đăng ký
-                        </a>
+                        </Link>
                       </>
                     ) : (
                       <>
@@ -161,7 +161,7 @@ export default function Header() {
           <div className="row gx-0 align-items-center text-center">
             <div className="col-md-4 col-lg-3 text-center text-lg-start">
               <div className="d-inline-flex align-items-center">
-                <a href="/" className="navbar-brand p-0">
+                <Link to="/" className="navbar-brand p-0">
                   <img
                     src={
                       configuration?.logo || "../../../public/img/vynx-logo.png"
@@ -169,7 +169,7 @@ export default function Header() {
                     alt="Logo"
                     style={{ height: 110, width: "auto" }}
                   />
-                </a>
+                </Link>
               </div>
             </div>
 
@@ -194,18 +194,18 @@ export default function Header() {
 
             <div className="col-md-4 col-lg-3 text-center text-lg-end">
               <div className="d-inline-flex align-items-center">
-                <a
-                  href="/wishlist"
+                <Link
+                  to="/wishlist"
                   className="text-muted d-flex align-items-center justify-content-center me-3"
                 >
                   <span className="rounded-circle btn-md-square border">
                     <i className="fas fa-heart"></i>
                   </span>
                   <span className="text-dark ms-2">Wishlist</span>
-                </a>
+                </Link>
 
-                <a
-                  href="/gio-hang"
+                <Link
+                  to="/gio-hang"
                   className="text-muted d-flex align-items-center justify-content-center"
                 >
                   <span className="rounded-circle btn-md-square border position-relative">
@@ -219,7 +219,7 @@ export default function Header() {
                   <span className="text-dark ms-2">
                     {formatCurrency(subtotal)}
                   </span>
-                </a>
+                </Link>
               </div>
             </div>
           </div>

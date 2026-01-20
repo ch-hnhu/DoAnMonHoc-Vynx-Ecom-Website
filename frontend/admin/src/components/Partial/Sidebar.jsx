@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logout, getUser, isAuthenticated } from "../../services/authService";
 
 export default function Sidebar() {
@@ -61,14 +61,14 @@ export default function Sidebar() {
 					margin: "10px",
 					marginBottom: "0px",
 				}}>
-				<a href='/' className='brand-link' style={{ justifyContent: "center" }}>
+				<Link to='/' className='brand-link' style={{ justifyContent: "center" }}>
 					<img
 						src={configuration?.logo || "/assets/img/vynx-logo.png"}
 						alt='Vynx Logo'
 						className='brand-image'
 						style={{ maxHeight: "50px", width: "auto" }}
 					/>
-				</a>
+				</Link>
 			</div>
 			<div className='sidebar-wrapper' style={{ paddingBottom: "80px" }}>
 				<nav className='mt-2'>
@@ -80,70 +80,70 @@ export default function Sidebar() {
 						data-accordion='false'
 						id='navigation'>
 						<li className='nav-item'>
-							<a href='/' className='nav-link'>
+							<Link to='/' className='nav-link'>
 								<i className='nav-icon bi bi-speedometer'></i>
 								<p>Thống kê</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/products' className='nav-link'>
+							<Link to='/products' className='nav-link'>
 								<i className='nav-icon bi bi-box-seam' />
 								<p>Quản lý sản phẩm</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/orders' className='nav-link'>
+							<Link to='/orders' className='nav-link'>
 								<i className='nav-icon bi bi-receipt' />
 								<p>Quản lý đơn hàng</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/users' className='nav-link'>
+							<Link to='/users' className='nav-link'>
 								<i className='nav-icon bi bi-people' />
 								<p>Quản lý người dùng</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/categories' className='nav-link'>
+							<Link to='/categories' className='nav-link'>
 								<i className='nav-icon bi bi-grid' />
 								<p>Quản lý danh mục</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/brands' className='nav-link'>
+							<Link to='/brands' className='nav-link'>
 								<i className='nav-icon bi bi-tags' />
 								<p>Quản lý thương hiệu</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/attributes' className='nav-link'>
+							<Link to='/attributes' className='nav-link'>
 								<i className='nav-icon bi bi-sliders' />
 								<p>Quản lý thuộc tính</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/reviews' className='nav-link'>
+							<Link to='/reviews' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý đánh giá</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/contacts' className='nav-link'>
+							<Link to='/contacts' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý liên hệ</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/promotions' className='nav-link'>
+							<Link to='/promotions' className='nav-link'>
 								<i className='nav-icon bi bi-ticket-perforated' />
 								<p>Quản lý khuyến mãi</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
-							<a href='/configurations' className='nav-link'>
+							<Link to='/configurations' className='nav-link'>
 								<i className='nav-icon bi bi-gear' />
 								<p>Quản lý cấu hình</p>
-							</a>
+							</Link>
 						</li>
 						<li className='nav-item'>
 							<button

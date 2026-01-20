@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 
 export default function Navbar() {
@@ -69,7 +70,7 @@ export default function Navbar() {
 							]
 								.filter(Boolean)
 								.join(" ")}>
-							<a className='vynx-catmenu-link' href={`/${cat.slug}`}>
+							<Link className='vynx-catmenu-link' to={`/${cat.slug}`}>
 								<span className='vynx-catmenu-text'>{cat.name}</span>
 								{hasChildren ? (
 									<i
@@ -77,7 +78,7 @@ export default function Navbar() {
 										aria-hidden='true'
 									/>
 								) : null}
-							</a>
+							</Link>
 
 							{hasChildren ? (
 								<div className='vynx-catmenu-submenu'>
@@ -187,25 +188,25 @@ export default function Navbar() {
 
 									<div className='collapse navbar-collapse' id='navbarCollapse'>
 										<div className='navbar-nav ms-auto py-0'>
-											<a href='/' className='nav-item nav-link'>
+											<Link to='/' className='nav-item nav-link'>
 												Trang chủ
-											</a>
-											<a href='/san-pham' className='nav-item nav-link'>
+											</Link>
+											<Link to='/san-pham' className='nav-item nav-link'>
 												Sản phẩm
-											</a>
-											<a href='/laptop' className='nav-item nav-link'>
+											</Link>
+											<Link to='/laptop' className='nav-item nav-link'>
 												Laptop
-											</a>
+											</Link>
 
 											<div className='nav-item dropdown'>
-												<a
-													href='/phu-kien'
+												<Link
+													to='/phu-kien'
 													className='nav-link'
 													data-bs-toggle='dropdown'>
 													<span className='dropdown-toggle'>
 														Phụ kiện
 													</span>
-												</a>
+												</Link>
 												<div className='dropdown-menu m-0'>
 													{phuKienCategories && phuKienCategories.length > 0 ? (
 														renderCategoryTree(phuKienCategories)
@@ -217,14 +218,14 @@ export default function Navbar() {
 												</div>
 											</div>
 											<div className='nav-item dropdown'>
-												<a
-													href='/linh-kien-may-tinh'
+												<Link
+													to='/linh-kien-may-tinh'
 													className='nav-link'
 													data-bs-toggle='dropdown'>
 													<span className='dropdown-toggle'>
 														Linh kiện máy tính
 													</span>
-												</a>
+												</Link>
 												<div className='dropdown-menu m-0'>
 													{linhKienCategories && linhKienCategories.length > 0 ? (
 														renderCategoryTree(linhKienCategories)

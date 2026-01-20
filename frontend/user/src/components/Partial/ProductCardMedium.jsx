@@ -1,4 +1,5 @@
 import { getProductImage, getFinalPrice } from "@shared/utils/productHelper.jsx";
+import { Link } from "react-router-dom";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function ProductCardMedium({ product, onAddToCart, onViewDetails }) {
@@ -30,20 +31,20 @@ export default function ProductCardMedium({ product, onAddToCart, onViewDetails 
 								}}
 							/>
 							<div className='products-mini-icon rounded-circle bg-primary'>
-								<a href='#' onClick={handleViewDetails}>
+								<Link to={`/${product.slug}`} onClick={handleViewDetails}>
 									<i className='fa fa-eye fa-1x text-white'></i>
-								</a>
+								</Link>
 							</div>
 						</div>
 					</div>
 					<div className='col-7'>
 						<div className='products-mini-content p-3'>
-							<a href='#' className='d-block mb-2'>
+							<Link to={`/${product.slug}`} className='d-block mb-2'>
 								{product.category?.name || "Uncategorized"}
-							</a>
-							<a href='#' className='d-block h4'>
+							</Link>
+							<Link to={`/${product.slug}`} className='d-block h4' onClick={handleViewDetails}>
 								{product.name}
-							</a>
+							</Link>
 							<del className='me-2 fs-5'>{formatCurrency(product.price)}</del>
 							<span className='text-primary fs-5'>
 								{formatCurrency(getFinalPrice(product))}

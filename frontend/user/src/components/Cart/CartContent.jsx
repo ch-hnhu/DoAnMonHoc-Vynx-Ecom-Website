@@ -89,9 +89,9 @@ export default function CartContent() {
 			<div className='container-fluid py-5'>
 				<div className='container py-5 text-center'>
 					<h4 className='mb-3'>Giỏ hàng đang trống</h4>
-					<a href='/san-pham' className='btn btn-primary rounded-pill px-4 py-3'>
+					<Link to='/san-pham' className='btn btn-primary rounded-pill px-4 py-3'>
 						Tiếp tục mua sắm
-					</a>
+					</Link>
 				</div>
 			</div>
 		);
@@ -240,9 +240,9 @@ export default function CartContent() {
 							</div>
 							<div className='cart-v2-summary-savings'>{"Ti\u1EBFt ki\u1EC7m 0\u0111"}</div>
 						</div>
-						<a href='/thanh-toan' className='btn btn-primary cart-v2-checkout'>
+						<Link to='/thanh-toan' className='btn btn-primary cart-v2-checkout'>
 							Mua hàng
-						</a>
+						</Link>
 					</div>
 				</div>
 				</div>
