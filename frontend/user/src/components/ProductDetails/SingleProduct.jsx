@@ -6,12 +6,14 @@ import {
 	hasDiscount,
 	isInStock,
 } from "@shared/utils/productHelper.jsx";
-import { formatCurrency } from "@shared/utils/formatHelper.jsx";
+import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
 import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
+import api from "../../services/api";
 
 export default function SingleProduct({ product }) {
+	const [reviews, setReviews] = useState([]);
 	const { addToCart } = useCart();
 	const { toast, showSuccess, closeToast } = useToast();
 	const [quantity, setQuantity] = useState(1);
@@ -19,12 +21,29 @@ export default function SingleProduct({ product }) {
 		() => getAllProductImages(product?.image_url),
 		[product?.image_url]
 	);
+	const DEFAULT_AVATAR = "https://placehold.co/400?text=Chưa+có+ảnh";
+	const getAvatarSrc = () => {
+		const raw = reviews.user?.image;
+		const src = typeof raw === "string" ? raw.trim() : raw;
+		return src ? src : DEFAULT_AVATAR;
+	};
+
+	const fetchReviews = () => {
+		api.get(`/reviews?product_id=${product.id}`)
+			.then((response) => {
+				setReviews(response.data.data || []);
+			})
+			.catch((error) => {
+				console.error("Error fetching reviews:", error);
+			});
+	};
 
 	useEffect(() => {
+		fetchReviews();
 		if (window.initCarousels?.single) {
 			window.initCarousels.single();
 		}
-	}, [images.length]);
+	}, [images.length, product.id]);
 
 	const getMaxQuantity = () => {
 		const stock = Number(product?.stock_quantity ?? 0);
@@ -637,55 +656,73 @@ export default function SingleProduct({ product }) {
 
 											{/* Review List */}
 											<div className='reviews-list mb-4'>
-												<h5 className='mb-4'>Đánh giá từ khách hàng</h5>
+												<h5 className='mb-4'>
+													Đánh giá từ khách hàng ({reviews.length})
+												</h5>
 
-												{/* Review Item 1 - With Reply */}
-												<div className='review-item border rounded p-3 mb-3'>
-													<div className='d-flex'>
-														<img
-															src='/img/avatar.jpg'
-															className='rounded-circle me-3'
-															style={{ width: "60px", height: "60px", objectFit: "cover" }}
-															alt='Avatar'
-														/>
-														<div className='flex-grow-1'>
-															<div className='d-flex justify-content-between align-items-start mb-2'>
-																<div>
-																	<h6 className='mb-1 fw-bold'>Nguyễn Văn A</h6>
-																	<div className='d-flex align-items-center mb-1'>
-																		<div className='d-flex me-3'>
-																			{renderRating(5)}
+												{reviews.length > 0 ? (
+													reviews.map((review) => (
+														<div key={review.id} className='review-item border rounded p-3 mb-3'>
+															<div className='d-flex'>
+																<img
+																	src={getAvatarSrc()}
+																	className='rounded-circle me-3'
+																	style={{ width: "60px", height: "60px", objectFit: "cover" }}
+																	alt='Avatar'
+																/>
+																<div className='flex-grow-1'>
+																	<div className='d-flex justify-content-between align-items-start mb-2'>
+																		<div>
+																			<h6 className='mb-1 fw-bold'>
+																				{review.user?.full_name || 'Khách hàng'}
+																			</h6>
+																			<div className='d-flex align-items-center mb-1'>
+																				<div className='d-flex me-3'>
+																					{renderRating(review.rating)}
+																				</div>
+																				<small className='text-muted'>
+																					{formatDate(review.created_at)}
+																				</small>
+																			</div>
 																		</div>
-																		<small className='text-muted'>15/01/2026</small>
 																	</div>
-																</div>
-															</div>
-															<p className='mb-2'>
-																Sản phẩm rất tốt, đúng như mô tả. Giao hàng nhanh chóng,
-																đóng gói cẩn thận. Shop tư vấn nhiệt tình. Tôi rất hài lòng
-																và sẽ ủng hộ shop lâu dài.
-															</p>
+																	<p className='mb-2'>
+																		{review.content}
+																	</p>
 
-															{/* Reply from Shop */}
-															<div className='reply-section bg-light rounded p-3 ms-4 mt-3'>
-																<div className='d-flex'>
-																	<i className='fas fa-reply text-primary me-2 mt-1'></i>
-																	<div className='flex-grow-1'>
-																		<p className='mb-1'>
-																			<strong className='text-primary'>VYNX Store</strong>
-																			<small className='text-muted ms-2'>16/01/2026</small>
-																		</p>
-																		<p className='mb-0'>
-																			Cảm ơn bạn đã tin tưởng và ủng hộ VYNX! Chúng tôi rất
-																			vui khi bạn hài lòng với sản phẩm. Hẹn gặp lại bạn ở
-																			những đơn hàng tiếp theo nhé! 💚
-																		</p>
-																	</div>
+																	{/* Reply from Shop */}
+																	{review.review_reply && (
+																		<div className='reply-section bg-light rounded p-3 ms-4 mt-3'>
+																			<div className='d-flex'>
+																				<i className='fas fa-reply text-primary me-2 mt-1'></i>
+																				<div className='flex-grow-1'>
+																					<p className='mb-1'>
+																						<strong className='text-primary'>VYNX Store</strong>
+																						<small className='text-muted ms-2'>
+																							{review.updated_at && formatDate(review.updated_at)}
+																						</small>
+																					</p>
+																					<p className='mb-0'>
+																						{review.review_reply}
+																					</p>
+																				</div>
+																			</div>
+																		</div>
+																	)}
 																</div>
 															</div>
 														</div>
+													))
+												) : (
+													<div className='text-center py-5'>
+														<i className='fas fa-comments fa-3x text-muted mb-3'></i>
+														<p className='text-muted'>
+															Chưa có đánh giá nào cho sản phẩm này.
+															<br />
+															Hãy là người đầu tiên đánh giá!
+														</p>
 													</div>
-												</div>
+												)}
 											</div>
 
 											{/* Write Review Form */}
