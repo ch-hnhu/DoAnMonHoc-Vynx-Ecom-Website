@@ -20,7 +20,10 @@ export default function ProductDetails() {
 		setLoading(true);
 		setNotFound(false);
 
-		Promise.all([api.get(`products/${slug}`), api.get("/products")])
+		Promise.all([
+			api.get(`products/${slug}`),
+			api.get("/products", { params: { per_page: 1000 } }),
+		])
 			.then(([productRes, productsRes]) => {
 				if (!isActive) return;
 				if (productRes.data && productRes.data.data) {
@@ -33,7 +36,7 @@ export default function ProductDetails() {
 								? item.category_id === currentProduct.category_id
 								: true
 						)
-						.slice(0, 8);
+						.slice(0, 5);
 
 					setProduct(currentProduct);
 					setRelatedProducts(filteredRelated);

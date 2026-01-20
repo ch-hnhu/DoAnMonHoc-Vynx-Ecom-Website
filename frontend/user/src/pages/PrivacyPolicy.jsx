@@ -1,7 +1,35 @@
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import api from "../services/api";
 import PageHeader from "../components/Partial/PageHeader";
 
 export default function PrivacyPolicy() {
+	const [companyProfile, setCompanyProfile] = useState(null);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		api.get("/configuration")
+			.then((response) => {
+				const configurations = response?.data?.data ?? [];
+				const activeConfig = configurations.find((item) => item.is_active);
+				if (isMounted) {
+					setCompanyProfile(activeConfig || null);
+				}
+			})
+			.catch(() => {
+				if (isMounted) {
+					setCompanyProfile(null);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	const supportEmail = companyProfile?.email || "Đang cập nhật";
+	const supportHotline = companyProfile?.phone || "Đang cập nhật";
 	const title = "CHÍNH SÁCH BẢO MẬT";
 	const breadcrumbs = [
 		{ label: "Trang chủ", href: "/" },
@@ -82,7 +110,13 @@ export default function PrivacyPolicy() {
 						<div className='col-lg-4'>
 							<div className='bg-white rounded p-4 border mb-4'>
 								<h5 className='mb-3'>Liên hệ</h5>
-								<p className='mb-2'>Email: privacy@electro.com</p>
+								<p className='mb-2'>Email: {supportEmail}</p>
+								<p className='mb-2'>Điện thoại: {supportHotline}</p>
+								<p className='mb-0'>Giờ hỗ trợ: 9:00 - 18:00</p>
+							</div>
+							<div className='bg-white rounded p-4 border mb-4' style={{ display: "none" }}>
+								<h5 className='mb-3'>Liên hệ</h5>
+								<p className='mb-2'>Email: {supportEmail}</p>
 								<p className='mb-2'>Điện thoại: (+012) 3456 7890</p>
 								<p className='mb-0'>Giờ hỗ trợ: 9:00 - 18:00</p>
 							</div>
