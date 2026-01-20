@@ -83,4 +83,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Order routes for authenticated users
     Route::get('/orders', [OrderController::class, 'index']);
     Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
+
+    // Review routes for authenticated users
+    Route::get('/reviews/reviewed-orders', [ReviewController::class, 'getReviewedOrders']);
+    Route::get('/reviews/pending-orders', [ReviewController::class, 'getPendingReviewOrders']);
+    Route::post('/reviews', [ReviewController::class, 'store']);
 });
