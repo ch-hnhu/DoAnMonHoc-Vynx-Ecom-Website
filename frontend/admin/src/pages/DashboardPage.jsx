@@ -2,10 +2,13 @@ import { useEffect } from "react";
 import PageHeader from "../components/Dashboard/PageHeader";
 import SmallBox from "../components/Dashboard/SmallBox";
 import SalesChart from "../components/Dashboard/SalesChart";
-// import DirectChatCard from "../components/Dashboard/DirectChatCard";
+import DirectChatCard from "../components/Dashboard/DirectChatCard";
 import WorldMapCard from "../components/Dashboard/WorldMapCard";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function DashboardPage() {
+	useDocumentTitle("VYNX ADMIN | DASHBOARD");
+	
 	useEffect(() => {
 		// Sortable - cho phép kéo thả cards
 		if (window.Sortable) {
@@ -80,7 +83,7 @@ export default function DashboardPage() {
 					<div className='row'>
 						<div className='col-lg-7 connectedSortable'>
 							<SalesChart />
-							{/* <DirectChatCard /> */}
+							<DirectChatCard />
 						</div>
 
 						<div className='col-lg-5 connectedSortable'>

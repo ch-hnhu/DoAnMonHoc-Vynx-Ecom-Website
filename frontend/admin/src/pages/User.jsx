@@ -8,8 +8,11 @@ import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function UserPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ NGƯỜI DÙNG");
+	
 	const [users, setUsers] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const statusColor = {

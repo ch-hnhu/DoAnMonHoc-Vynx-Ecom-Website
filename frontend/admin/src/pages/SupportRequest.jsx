@@ -21,8 +21,10 @@ import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function SupportRequestPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ LIÊN HỆ");
 	const [supportRequests, setSupportRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [statusDialogOpen, setStatusDialogOpen] = useState(false);
@@ -156,7 +158,9 @@ export default function SupportRequestPage() {
 								textOverflow: "ellipsis",
 								maxWidth: 160,
 							}}>
-							<Box component='span' sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+							<Box
+								component='span'
+								sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
 								Cập nhật trạng thái
 							</Box>
 						</Button>
@@ -182,7 +186,7 @@ export default function SupportRequestPage() {
 
 	const breadcrumbs = [
 		{ label: "Trang chủ", href: "/" },
-		{ label: "Hỗ trợ", active: true },
+		{ label: "Liên hệ", active: true },
 	];
 
 	return (
@@ -191,12 +195,16 @@ export default function SupportRequestPage() {
 				columns={columns}
 				rows={supportRequests}
 				loading={loading}
-				title='Quan ly ho tro'
+				title='Quản lý liên hệ'
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
 				checkboxSelection={true}
 			/>
-			<Dialog open={statusDialogOpen} onClose={handleCloseStatusDialog} maxWidth='xs' fullWidth>
+			<Dialog
+				open={statusDialogOpen}
+				onClose={handleCloseStatusDialog}
+				maxWidth='xs'
+				fullWidth>
 				<DialogTitle>Cập nhật trạng thái</DialogTitle>
 				<DialogContent dividers>
 					<FormControl fullWidth>
@@ -204,8 +212,7 @@ export default function SupportRequestPage() {
 						<Select
 							value={statusValue}
 							label='Trang thai'
-							onChange={(event) => setStatusValue(event.target.value)}
-						>
+							onChange={(event) => setStatusValue(event.target.value)}>
 							<MenuItem value='pending'>Pending</MenuItem>
 							<MenuItem value='processing'>Processing</MenuItem>
 							<MenuItem value='resolved'>Resolved</MenuItem>
@@ -214,7 +221,10 @@ export default function SupportRequestPage() {
 					</FormControl>
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleCloseStatusDialog} variant='outlined' disabled={updating}>
+					<Button
+						onClick={handleCloseStatusDialog}
+						variant='outlined'
+						disabled={updating}>
 						Huy
 					</Button>
 					<Button onClick={handleSubmitStatus} variant='contained' disabled={updating}>
@@ -226,8 +236,7 @@ export default function SupportRequestPage() {
 				open={toast.open}
 				autoHideDuration={3000}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}
-			>
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>

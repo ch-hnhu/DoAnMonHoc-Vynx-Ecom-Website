@@ -126,6 +126,78 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'username' => $user->username,
                 'full_name' => $user->full_name,
+                'dob' => $user->dob,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'image' => $user->image,
+                'role' => $user->role,
+                'is_active' => $user->is_active,
+            ],
+        ], 200);
+    }
+
+    /**
+     * Cập nhật thông tin người dùng
+     */
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+
+        // Chuyển chuỗi rỗng thành null trước khi validate
+        if ($request->dob === '') {
+            $request->merge(['dob' => null]);
+        }
+        if ($request->phone === '') {
+            $request->merge(['phone' => null]);
+        }
+
+        // Validate dữ liệu
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'dob' => 'nullable|date',
+            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'email.unique' => 'Email này đã được sử dụng.',
+            'full_name.required' => 'Họ và tên không được để trống.',
+            'email.required' => 'Email không được để trống.',
+            'email.email' => 'Email không hợp lệ.',
+            'image.image' => 'File phải là ảnh.',
+            'image.mimes' => 'Ảnh phải có định dạng: jpeg, png, jpg, gif.',
+            'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
+        ]);
+
+        // Cập nhật thông tin
+        $user->full_name = $request->full_name;
+        $user->email = $request->email;
+        // Chuỗi rỗng sẽ được chuyển thành null (đã xử lý ở trên)
+        $user->dob = $request->dob;
+        $user->phone = $request->phone;
+
+        // Xử lý upload ảnh
+        if ($request->hasFile('image')) {
+            // Xóa ảnh cũ nếu có
+            if ($user->image && file_exists(public_path($user->image))) {
+                unlink(public_path($user->image));
+            }
+
+            // Lưu ảnh mới
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/avatars'), $imageName);
+            $user->image = '/uploads/avatars/' . $imageName;
+        }
+
+        $user->save();
+
+        return response()->json([
+            'message' => 'Cập nhật thông tin thành công',
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'full_name' => $user->full_name,
+                'dob' => $user->dob,
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'image' => $user->image,

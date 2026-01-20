@@ -1,24 +1,38 @@
 import { useEffect, useState } from "react";
-import { Button, Snackbar, Alert } from "@mui/material";
+import { Button, Snackbar, Alert, Box } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import DataTable from "../components/Partial/DataTable";
-import api from "../services/api";
+import DataTable from "../../components/Partial/DataTable.jsx";
+import api from "../../services/api.js";
 import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
+import {
+	paymentStatuses,
+	deliveryStatuses,
+	paymentStatusColors,
+	deliveryStatusColors,
+	getPaymentStatusName,
+	getDeliveryStatusName,
+	getPaymentStatusId,
+	getDeliveryStatusId,
+} from "@shared/utils/orderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { Box } from "@mui/system";
-//import EditOrder from "./EditOrder.jsx";
-//import OrderDetails from "./OrderDetails.jsx";
+import EditOrder from "./EditOrder.jsx";
+import OrderDetails from "./OrderDetails.jsx";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function OrderPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐƠN HÀNG");
 	const [orders, setOrders] = useState([]);
+	const [selectedOrder, setSelectedOrder] = useState(null);
+	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [openViewDialog, setOpenViewDialog] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const { toast, showSuccess, showError, showInfo, closeToast } = useToast();
 
-	useEffect(() => {
+	const fetchOrders = () => {
 		setLoading(true);
 		api.get("/orders")
 			.then((response) => {
@@ -30,6 +44,10 @@ export default function OrderPage() {
 			.finally(() => {
 				setLoading(false);
 			});
+	};
+
+	useEffect(() => {
+		fetchOrders();
 	}, []);
 
 	const handleCreate = () => {
@@ -85,10 +103,10 @@ export default function OrderPage() {
 				return oldRow;
 			}
 
-			// Gọi API để cập nhật
+			// Convert tiếng Việt về tiếng Anh trước khi gửi API
 			const response = await api.put(`/orders/${newRow.id}`, {
-				payment_status: newRow.payment_status,
-				delivery_status: newRow.delivery_status,
+				payment_status: getPaymentStatusId(newRow.payment_status),
+				delivery_status: getDeliveryStatusId(newRow.delivery_status),
 			});
 
 			// Kiểm tra success từ API response
@@ -106,24 +124,6 @@ export default function OrderPage() {
 			showError(error.response?.data?.message || error.message || "Cập nhật thất bại");
 			return oldRow; // Rollback về giá trị cũ
 		}
-	};
-
-	const paymentStatusColors = {
-		paid: "success",
-		pending: "warning",
-		failed: "error",
-		refunded: "info",
-		cancelled: "default",
-	};
-
-	const deliveryStatusColors = {
-		delivered: "success",
-		shipping: "info",
-		confirmed: "primary",
-		pending: "warning",
-		failed: "error",
-		returned: "default",
-		cancelled: "default",
 	};
 
 	const columns = [
@@ -160,7 +160,8 @@ export default function OrderPage() {
 			width: 160,
 			editable: true,
 			type: "singleSelect",
-			valueOptions: ["paid", "pending", "failed", "refunded", "cancelled"],
+			valueOptions: paymentStatuses.map((s) => s.name),
+			valueGetter: (value, row) => getPaymentStatusName(row.payment_status),
 			renderCell: (params) => renderChip(params.value, paymentStatusColors),
 		},
 		{
@@ -169,15 +170,8 @@ export default function OrderPage() {
 			width: 160,
 			editable: true,
 			type: "singleSelect",
-			valueOptions: [
-				"delivered",
-				"shipping",
-				"confirmed",
-				"pending",
-				"failed",
-				"returned",
-				"cancelled",
-			],
+			valueOptions: deliveryStatuses.map((s) => s.name),
+			valueGetter: (value, row) => getDeliveryStatusName(row.delivery_status),
 			renderCell: (params) => renderChip(params.value, deliveryStatusColors),
 		},
 		{
@@ -254,12 +248,19 @@ export default function OrderPage() {
 					</Button>
 				}
 			/>
+			<EditOrder
+				open={openEditDialog}
+				onClose={handleCloseEdit}
+				onSuccess={fetchOrders}
+				order={selectedOrder}
+			/>
+			<OrderDetails open={openViewDialog} onClose={handleCloseView} order={selectedOrder} />
 			<Snackbar
 				open={toast.open}
 				autoHideDuration={3000}
 				onClose={closeToast}
 				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-				<Alert onClose={closeToast} severity={toast.severity} variant='filled'>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>
 			</Snackbar>

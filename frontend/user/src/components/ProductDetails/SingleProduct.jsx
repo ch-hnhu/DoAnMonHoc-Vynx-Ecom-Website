@@ -448,6 +448,7 @@ export default function SingleProduct({ product }) {
 											product.description ||
 											"Chưa có mô tả ngắn."}
 									</p>
+									
 									<div
 										className='input-group quantity mb-5'
 										style={{ width: "100px" }}>
@@ -478,8 +479,7 @@ export default function SingleProduct({ product }) {
 										href='#'
 										onClick={handleAddToCart}
 										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary'>
-										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm
-										vào giỏ hàng
+										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm vào giỏ hàng
 									</a>
 								</div>
 								<div className='col-lg-12'>
@@ -495,17 +495,6 @@ export default function SingleProduct({ product }) {
 												aria-controls='nav-about'
 												aria-selected='true'>
 												Thông số kỹ thuật
-											</button>
-											<button
-												className='nav-link border-white border-bottom-0'
-												type='button'
-												role='tab'
-												id='nav-mission-tab'
-												data-bs-toggle='tab'
-												data-bs-target='#nav-mission'
-												aria-controls='nav-mission'
-												aria-selected='false'>
-												Đánh giá
 											</button>
 										</div>
 									</nav>
@@ -540,74 +529,6 @@ export default function SingleProduct({ product }) {
 												</li>
 											</ul>
 										</div>
-										<div
-											className='tab-pane'
-											id='nav-mission'
-											role='tabpanel'
-											aria-labelledby='nav-mission-tab'>
-											<div className='d-flex'>
-												<img
-													src='/img/avatar.jpg'
-													className='img-fluid rounded-circle p-3'
-													style={{ width: "100px", height: "100px" }}
-													alt=''
-												/>
-												<div className=''>
-													<p
-														className='mb-2'
-														style={{ fontSize: "14px" }}>
-														April 12, 2024
-													</p>
-													<div className='d-flex justify-content-between'>
-														<h5>Jason Smith</h5>
-														<div className='d-flex mb-3'>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star'></i>
-														</div>
-													</div>
-													<p>
-														The generated Lorem Ipsum is therefore always free
-														from repetition injected humour, or non-characteristic
-														words etc. Susp endisse ultricies nisi vel quam
-														suscipit{" "}
-													</p>
-												</div>
-											</div>
-											<div className='d-flex'>
-												<img
-													src='/img/avatar.jpg'
-													className='img-fluid rounded-circle p-3'
-													style={{ width: "100px", height: "100px" }}
-													alt=''
-												/>
-												<div className=''>
-													<p
-														className='mb-2'
-														style={{ fontSize: "14px" }}>
-														April 12, 2024
-													</p>
-													<div className='d-flex justify-content-between'>
-														<h5>Sam Peters</h5>
-														<div className='d-flex mb-3'>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star text-secondary'></i>
-															<i className='fa fa-star'></i>
-															<i className='fa fa-star'></i>
-														</div>
-													</div>
-													<p className='text-dark'>
-														The generated Lorem Ipsum is therefore always free
-														from repetition injected humour, or non-characteristic
-														words etc. Susp endisse ultricies nisi vel quam
-														suscipit{" "}
-													</p>
-												</div>
-											</div>
-										</div>
 										<div className='tab-pane' id='nav-vision' role='tabpanel'>
 											<p className='text-dark'>
 												Tempor erat elitr rebum at clita. Diam dolor diam ipsum
@@ -620,62 +541,6 @@ export default function SingleProduct({ product }) {
 										</div>
 									</div>
 								</div>
-								<form action='#'>
-									<h4 className='mb-5 fw-bold'>Để lại đánh giá</h4>
-									<div className='row g-4'>
-										<div className='col-lg-6'>
-											<div className='border-bottom rounded'>
-												<input
-													type='text'
-													className='form-control border-0 me-4'
-													placeholder='Họ và tên *'
-												/>
-											</div>
-										</div>
-										<div className='col-lg-6'>
-											<div className='border-bottom rounded'>
-												<input
-													type='email'
-													className='form-control border-0'
-													placeholder='Email *'
-												/>
-											</div>
-										</div>
-										<div className='col-lg-12'>
-											<div className='border-bottom rounded my-4'>
-												<textarea
-													name=''
-													id=''
-													className='form-control border-0'
-													cols='30'
-													rows='8'
-													placeholder='Nội dung đánh giá *'
-													spellCheck={false}></textarea>
-											</div>
-										</div>
-										<div className='col-lg-12'>
-											<div className='d-flex justify-content-between py-3 mb-5'>
-												<div className='d-flex align-items-center'>
-													<p className='mb-0 me-3'>Đánh giá:</p>
-													<div
-														className='d-flex align-items-center'
-														style={{ fontSize: "12px" }}>
-														<i className='fa fa-star text-muted'></i>
-														<i className='fa fa-star'></i>
-														<i className='fa fa-star'></i>
-														<i className='fa fa-star'></i>
-														<i className='fa fa-star'></i>
-													</div>
-												</div>
-												<a
-													href='#'
-													className='btn btn-primary border border-secondary text-primary rounded-pill px-4 py-3'>
-													Gửi đánh giá
-												</a>
-											</div>
-										</div>
-									</div>
-								</form>
 							</div>
 						</div>
 					</div>

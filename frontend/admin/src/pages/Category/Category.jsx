@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -6,39 +6,64 @@ import DataTable from "../../components/Partial/DataTable";
 import api from "../../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
-import AddCategory from "./AddCategory";
+import AddCategory from "./AddCategory.jsx";
+import EditCategory from "./EditCategory.jsx";
+import { useToast } from "@shared/hooks/useToast";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function CategoryPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ DANH MỤC");
+	
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [openDialog, setOpenDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
+	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [selectedCategory, setSelectedCategory] = useState(null);
+	const [rowCount, setRowCount] = useState(0);
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+	const { toast, showSuccess, showError, closeToast } = useToast();
+	
+	const fetchCategories = async (model = paginationModel) => {
+		setLoading(true);
+		try {
+			const res = await api.get("/categories", {
+				params: {
+					flat: 1,
+					page: model.page + 1,
+					per_page: model.pageSize,
+				},
+			});
+
+			if(res.data.success) {
+				setCategories(res.data.data || []);
+				setRowCount(res.data.pagination?.total ?? 0);
+			} else {
+				console.log("Error fetching categories: ", res.data.error);
+			}
+		} catch (error) {
+			console.error("Error fetching categories: ", error);
+		} finally {
+			setLoading(false);
+		}
+	};
+
+	const handleCreated = () => {
+		fetchCategories();
+	};
 
 	useEffect(() => {
-		setLoading(true);
-		api.get("/categories")
-			.then((response) => {
-				setCategories(response.data.data || []);
-			})
-			.catch((error) => {
-				console.error("Error fetching categories: ", error);
-			})
-			.finally(() => {
-				setLoading(false);
-			});
-	}, []);
+		fetchCategories(paginationModel);
+	}, [paginationModel.page, paginationModel.pageSize]);
 
 	const handleOpenDialog = () => {
-		setOpenDialog(true);
+		setOpenAddDialog(true);
 	};
 
-	const handleCreate = () => {
-		console.log("Create category");
-		alert("Tạo danh mục mới");
-	};
-
-	const handleEdit = (id) => {
-		console.log("Edit category:", id);
-		alert(`Cập nhật danh mục ID: ${id}`);
+	const handleEdit = (row) => {
+		setSelectedCategory(row);
+		setOpenEditDialog(true);
 	};
 
 	const handleDelete = (id) => {
@@ -56,12 +81,13 @@ export default function CategoryPage() {
 		}
 	};
 
-	const columns = [
+	const columns = useMemo(
+		() => [
 		{ field: "id", headerName: "ID", width: 90 },
 		{ field: "name", headerName: "Tên danh mục", width: 200 },
 		{ field: "slug", headerName: "Slug", width: 180 },
 		{
-			field: "parent",
+			field: "parent_id",
 			headerName: "Danh mục cha",
 			width: 200,
 			valueGetter: (params, row) => row.category?.name || "-",
@@ -88,7 +114,7 @@ export default function CategoryPage() {
 							color='primary'
 							size='small'
 							startIcon={<EditIcon />}
-							onClick={() => handleEdit(params.row.id)}>
+							onClick={() => handleEdit(params.row)}>
 							Sửa
 						</Button>
 						<Button
@@ -103,7 +129,9 @@ export default function CategoryPage() {
 				);
 			},
 		},
-	];
+	],
+		[]
+	);
 
 	const breadcrumbs = [
 		{ label: "Trang chủ", href: "/" },
@@ -119,6 +147,10 @@ export default function CategoryPage() {
 			title='Quản lý danh mục'
 			breadcrumbs={breadcrumbs}
 			pageSize={25}
+			paginationMode='server'
+			rowCount={rowCount}
+			paginationModel={paginationModel}
+			onPaginationModelChange={setPaginationModel}
 			checkboxSelection={true}
 			actions={
 				<Button
@@ -134,10 +166,33 @@ export default function CategoryPage() {
 			}
 		/>
 			<AddCategory
-				open={openDialog}
-				onClose={() => setOpenDialog(false)}
-				categories={categories}
+				open={openAddDialog}
+				onClose={() => setOpenAddDialog(false)}
+				onCreated={handleCreated}
+				showSuccess={showSuccess}
+				showError={showError}
 			/>
+			<EditCategory
+				open={openEditDialog}
+				onClose={() => {
+					setOpenEditDialog(false);
+					setSelectedCategory(null);
+				}}
+				category={selectedCategory}
+				onUpdated={handleCreated}
+				showSuccess={showSuccess}
+				showError={showError}
+			/>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={3000}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}
+			>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 }

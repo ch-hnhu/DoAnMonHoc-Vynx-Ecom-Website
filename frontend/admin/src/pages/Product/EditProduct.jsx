@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -26,7 +26,14 @@ import api from "../../services/api";
 import { useToast } from "@shared/hooks/useToast";
 import { formatSlug } from "../../../../shared/utils/formatHelper";
 
-export default function AddProduct({ open, onClose, onSuccess, brands, promotions }) {
+export default function EditProduct({
+	open,
+	onClose,
+	onSuccess,
+	product,
+	brands,
+	promotions,
+}) {
 	const [formData, setFormData] = useState({
 		name: "",
 		price: "",
@@ -61,6 +68,31 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 	useEffect(() => {
 		fetchCategories();
 	}, []);
+
+	// Update form khi product thay đổi
+	useEffect(() => {
+		if (product) {
+			setFormData({
+				name: product.name || "",
+				price: product.price || "",
+				stock_quantity: product.stock_quantity || "",
+				category_id: product.category_id || "",
+				brand_id: product.brand_id || "",
+				promotion_id: product.promotion_id || "",
+				description: product.description || "",
+			});
+
+			// Load existing images
+			if (product.image_url && Array.isArray(product.image_url)) {
+				const [firstImage, ...restImages] = product.image_url;
+				setHeroImage(firstImage || null);
+				setHeroImagePreview(firstImage || null);
+				setGalleryImages(restImages || []);
+				setGalleryPreviews(restImages || []);
+			}
+		}
+	}, [product]);
+
 	// Handle text field changes
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -76,7 +108,6 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 
 	// Handle hero image selection
 	const handleHeroImageChange = (e) => {
-		console.log("FILE CHANGE FIRED", e.target.files);
 		const file = e.target.files[0];
 		if (file && file.type.startsWith("image/")) {
 			setHeroImage(file);
@@ -164,7 +195,7 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 		setSubmitting(true);
 
 		try {
-			// Tạo FormData để upload files
+			// Tạo FormData để gửi dữ liệu
 			const formDataToSend = new FormData();
 
 			// Thêm các trường text
@@ -177,24 +208,39 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 			const slug = formatSlug(formData.name);
 			formDataToSend.append("slug", slug);
 
-			// Thêm hero image
-			if (heroImage) {
+			// Gửi danh sách ảnh cũ muốn giữ lại
+			const existingImages = [];
+
+			// Nếu hero image là URL (ảnh cũ), thêm vào existing
+			if (heroImage && typeof heroImage === "string") {
+				existingImages.push(heroImage);
+			}
+
+			// Thêm gallery images cũ (URLs) vào existing
+			const existingGalleryImages = galleryImages.filter((img) => typeof img === "string");
+			existingImages.push(...existingGalleryImages);
+
+			// LUÔN gửi existing_images, kể cả khi rỗng (để backend biết user đã xóa ảnh)
+			formDataToSend.append("existing_images", JSON.stringify(existingImages));
+
+			// Thêm hero image mới nếu là file
+			if (heroImage && typeof heroImage !== "string") {
 				formDataToSend.append("hero_image", heroImage);
 			}
 
-			// Thêm gallery images
-			galleryImages.forEach((image, index) => {
+			// Chỉ thêm gallery images mới (File objects, không phải URLs)
+			const newGalleryImages = galleryImages.filter((img) => img instanceof File);
+			newGalleryImages.forEach((image) => {
 				formDataToSend.append("gallery_images[]", image);
 			});
 
-			api.post("/products", formDataToSend, {
+			api.put(`/products/${product.id}`, formDataToSend, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
 			})
 				.then(() => {
-					showSuccess("Thêm sản phẩm thành công!");
-					// Gọi callback để refetch data
+					showSuccess("Chỉnh sửa sản phẩm thành công!");
 					onSuccess?.();
 					// Delay close để toast kịp hiển thị
 					setTimeout(() => {
@@ -202,15 +248,13 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 					}, 1500);
 				})
 				.catch((error) => {
-					console.error("Lỗi thêm sản phẩm:", error);
-					showError("Thêm sản phẩm thất bại!");
+					showError("Chỉnh sửa sản phẩm thất bại!");
 					setSubmitting(false);
 				})
 				.finally(() => {
 					setSubmitting(false);
 				});
 		} catch (error) {
-			console.error("Lỗi khi gửi biểu mẫu:", error);
 			showError("Lỗi khi gửi biểu mẫu!");
 			setSubmitting(false);
 		}
@@ -243,7 +287,7 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 			<DialogTitle>
 				<Box display='flex' alignItems='center' justifyContent='space-between'>
 					<Typography variant='h6' component='div'>
-						THÊM SẢN PHẨM MỚI
+						CHỈNH SỬA SẢN PHẨM
 					</Typography>
 					<IconButton edge='end' color='inherit' onClick={handleClose} aria-label='close'>
 						<CloseIcon />
