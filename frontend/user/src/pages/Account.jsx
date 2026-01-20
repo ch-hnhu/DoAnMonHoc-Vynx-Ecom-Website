@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useLocation, Routes, Route, Navigate } from "react-router-dom";
 import PersonalInfo from "./PersonalInfo";
+import Orders from "./Orders";
+import Reviews from "./Reviews";
 
 export default function Account() {
   const location = useLocation();
@@ -107,58 +109,10 @@ export default function Account() {
                 <Route path="thong-tin" element={<PersonalInfo />} />
 
                 {/* Route cho đơn mua */}
-                <Route
-                  path="don-mua"
-                  element={
-                    <div className="card border-0 shadow-sm">
-                      <div className="card-body p-4">
-                        <h4 className="mb-4">
-                          <i className="fas fa-shopping-bag me-2 text-primary"></i>
-                          Đơn mua
-                        </h4>
-                        <p className="text-muted">
-                          Chức năng đang phát triển...
-                        </p>
-                      </div>
-                    </div>
-                  }
-                />
+                <Route path="don-mua" element={<Orders />} />
 
-                {/* Route cho đã đánh giá */}
-                <Route
-                  path="danh-gia/da-danh-gia"
-                  element={
-                    <div className="card border-0 shadow-sm">
-                      <div className="card-body p-4">
-                        <h4 className="mb-4">
-                          <i className="fas fa-check-circle me-2 text-success"></i>
-                          Đã đánh giá
-                        </h4>
-                        <p className="text-muted">
-                          Chức năng đang phát triển...
-                        </p>
-                      </div>
-                    </div>
-                  }
-                />
-
-                {/* Route cho chưa đánh giá */}
-                <Route
-                  path="danh-gia/chua-danh-gia"
-                  element={
-                    <div className="card border-0 shadow-sm">
-                      <div className="card-body p-4">
-                        <h4 className="mb-4">
-                          <i className="fas fa-clock me-2 text-warning"></i>
-                          Chưa đánh giá
-                        </h4>
-                        <p className="text-muted">
-                          Chức năng đang phát triển...
-                        </p>
-                      </div>
-                    </div>
-                  }
-                />
+                {/* Route cho đánh giá (bao gồm cả sub-routes) */}
+                <Route path="danh-gia/*" element={<Reviews />} />
               </Routes>
             </div>
           </div>

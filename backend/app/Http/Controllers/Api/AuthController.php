@@ -156,13 +156,14 @@ class AuthController extends Controller
             'full_name' => 'required|string|max:255',
             'dob' => 'nullable|date',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
-            'phone' => 'nullable|string|max:20',
+            'phone' => ['nullable', 'string', 'regex:/^0\d{9}$/'],
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'email.unique' => 'Email này đã được sử dụng.',
             'full_name.required' => 'Họ và tên không được để trống.',
             'email.required' => 'Email không được để trống.',
             'email.email' => 'Email không hợp lệ.',
+            'phone.regex' => 'Số điện thoại không hợp lệ. Phải có 10 chữ số và bắt đầu bằng số 0.',
             'image.image' => 'File phải là ảnh.',
             'image.mimes' => 'Ảnh phải có định dạng: jpeg, png, jpg, gif.',
             'image.max' => 'Kích thước ảnh không được vượt quá 2MB.',
@@ -192,7 +193,7 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Cập nhật thông tin thành công',
+            'message' => 'Cap nhat thong tin thanh cong',
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
