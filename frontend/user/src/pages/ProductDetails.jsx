@@ -20,7 +20,7 @@ export default function ProductDetails() {
 		setLoading(true);
 		setNotFound(false);
 
-		Promise.all([api.get(`products/${slug}`), api.get("/products")])
+		Promise.all([api.get(`products/${slug}`), api.get("/products?sort=name_asc&per_page=1000")])
 			.then(([productRes, productsRes]) => {
 				if (!isActive) return;
 				if (productRes.data && productRes.data.data) {
