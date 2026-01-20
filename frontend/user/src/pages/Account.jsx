@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useLocation, Routes, Route, Navigate } from "react-router-dom";
 import PersonalInfo from "./PersonalInfo";
+import Orders from "./Orders";
 
 export default function Account() {
   const location = useLocation();
@@ -107,22 +108,7 @@ export default function Account() {
                 <Route path="thong-tin" element={<PersonalInfo />} />
 
                 {/* Route cho đơn mua */}
-                <Route
-                  path="don-mua"
-                  element={
-                    <div className="card border-0 shadow-sm">
-                      <div className="card-body p-4">
-                        <h4 className="mb-4">
-                          <i className="fas fa-shopping-bag me-2 text-primary"></i>
-                          Đơn mua
-                        </h4>
-                        <p className="text-muted">
-                          Chức năng đang phát triển...
-                        </p>
-                      </div>
-                    </div>
-                  }
-                />
+                <Route path="don-mua" element={<Orders />} />
 
                 {/* Route cho đã đánh giá */}
                 <Route

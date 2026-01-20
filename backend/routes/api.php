@@ -46,8 +46,8 @@ Route::prefix('products')->group(function () {
     Route::delete('/{id}', [ProductController::class, 'destroy']);
 });
 
+// Public order routes (for admin)
 Route::prefix('orders')->group(function () {
-    Route::get('/', [OrderController::class, 'index']);
     Route::get('/{id}', [OrderController::class, 'show']);
     Route::put('/{id}', [OrderController::class, 'update']);
     Route::delete('/{id}', [OrderController::class, 'destroy']);
@@ -79,4 +79,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
+
+    // Order routes for authenticated users
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 });
