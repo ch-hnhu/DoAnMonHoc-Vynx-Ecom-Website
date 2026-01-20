@@ -29,17 +29,26 @@ export default function Home() {
 			api.get("/products?sort=newest&per_page=8"),
 			api.get("/products?category_slug=laptop&per_page=8"),
 			api.get("/products?category_slug=phu-kien&per_page=8"),
-			api.get("/products?category_slug=linh-kien-may-tinh&per_page=8")
+			api.get("/products?category_slug=linh-kien-may-tinh&per_page=8"),
 		])
-			.then(([promotionRes, bestsellerRes, newestRes, laptopRes, accessoryRes, componentRes]) => {
-				if (!isActive) return;
-				setPromotionProducts(promotionRes.data.data || []);
-				setBestsellerProducts(bestsellerRes.data.data || []);
-				setNewestProducts(newestRes.data.data || []);
-				setLaptopProducts(laptopRes.data.data || []);
-				setAccessoryProducts(accessoryRes.data.data || []);
-				setComponentProducts(componentRes.data.data || []);
-			})
+			.then(
+				([
+					promotionRes,
+					bestsellerRes,
+					newestRes,
+					laptopRes,
+					accessoryRes,
+					componentRes,
+				]) => {
+					if (!isActive) return;
+					setPromotionProducts(promotionRes.data.data || []);
+					setBestsellerProducts(bestsellerRes.data.data || []);
+					setNewestProducts(newestRes.data.data || []);
+					setLaptopProducts(laptopRes.data.data || []);
+					setAccessoryProducts(accessoryRes.data.data || []);
+					setComponentProducts(componentRes.data.data || []);
+				},
+			)
 			.catch((err) => {
 				if (!isActive) return;
 				console.error("Error fetching products: ", err);
@@ -60,34 +69,34 @@ export default function Home() {
 			<ProductOffers />
 			<ProductCarousel2
 				products={promotionProducts}
-				title="Deal hời"
-				description="Ưu đãi đầu năm"
+				title='Deal hời'
+				description='Ưu đãi cực sốc'
 			/>
-			<ProductCarousel 
+			<ProductCarousel
 				products={newestProducts}
-				title="Hàng mới về"
-				description="Khám phá thêm các sản phẩm mới nhất."
+				title='Hàng mới về'
+				description='Khám phá thêm các sản phẩm mới nhất.'
 			/>
 			<ProductBanner />
 			<ProductCarousel2
 				products={bestsellerProducts}
-				title="Best Seller"
-				description="Sản phẩm bán chạy nhất"
+				title='Best Seller'
+				description='Sản phẩm bán chạy'
 			/>
-			<ProductCarousel 
+			<ProductCarousel
 				products={laptopProducts}
-				title="Laptop"
-				description="Khám phá thêm các sản phẩm laptop."
+				title='Laptop'
+				description='Khám phá thêm các sản phẩm laptop với đủ mọi cấu hình.'
 			/>
-			<ProductCarousel 
+			<ProductCarousel
 				products={accessoryProducts}
-				title="Phụ kiện"
-				description="Khám phá thêm các sản phẩm phụ kiện."
+				title='Phụ kiện'
+				description='Khám phá thêm các sản phẩm phụ kiện cực chất.'
 			/>
-			<ProductCarousel 
+			<ProductCarousel
 				products={componentProducts}
-				title="Linh kiện"
-				description="Khám phá thêm các sản phẩm linh kiện."
+				title='Linh kiện'
+				description='Khám phá thêm các sản phẩm linh kiện từ các thương hiệu nổi tiếng.'
 			/>
 		</>
 	);

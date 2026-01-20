@@ -13,6 +13,7 @@ import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
 import { isAuthenticated } from "../../services/authService";
 import api from "../../services/api";
+import Pagination from "../Partial/Pagination.jsx";
 
 export default function SingleProduct({ product }) {
 	const [reviews, setReviews] = useState([]);
@@ -29,10 +30,35 @@ export default function SingleProduct({ product }) {
 		return src ? src : DEFAULT_AVATAR;
 	};
 
-	const fetchReviews = () => {
-		api.get(`/reviews?product_id=${product.id}`)
+	// Pagination logic for reviews
+	const [reviewPage, setReviewPage] = useState(1);
+	const [totalPages, setTotalPages] = useState(1);
+	const REVIEWS_PER_PAGE = 5;
+
+	const handleReviewPageChange = (page) => {
+		setReviewPage(page);
+		const reviewSection = document.getElementById("nav-review");
+		if (reviewSection) {
+			reviewSection.scrollIntoView({ behavior: "smooth" });
+		}
+	};
+
+	const fetchReviews = (page) => {
+		api.get(`/reviews`, {
+			params: {
+				product_id: product.id,
+				page: page,
+				per_page: REVIEWS_PER_PAGE,
+			},
+		})
 			.then((response) => {
 				setReviews(response.data.data || []);
+				if (response.data.pagination) {
+					setTotalPages(response.data.pagination.last_page);
+				} else {
+					// Fallback if no pagination data
+					setTotalPages(1);
+				}
 			})
 			.catch((error) => {
 				console.error("Error fetching reviews:", error);
@@ -40,10 +66,14 @@ export default function SingleProduct({ product }) {
 	};
 
 	useEffect(() => {
+		fetchReviews(reviewPage);
+	}, [reviewPage, product.id]);
+
+	useEffect(() => {
 		const loggedIn = isAuthenticated();
 		setIsLoggedIn(loggedIn);
 
-		fetchReviews();
+		setReviewPage(1);
 
 		if (loggedIn) {
 			checkInWishlist();
@@ -765,78 +795,85 @@ export default function SingleProduct({ product }) {
 												</h5>
 
 												{reviews.length > 0 ? (
-													reviews.map((review) => (
-														<div
-															key={review.id}
-															className='review-item border rounded p-3 mb-3'>
-															<div className='d-flex'>
-																<img
-																	src={getAvatarSrc()}
-																	className='rounded-circle me-3'
-																	style={{
-																		width: "60px",
-																		height: "60px",
-																		objectFit: "cover",
-																	}}
-																	alt='Avatar'
-																/>
-																<div className='flex-grow-1'>
-																	<div className='d-flex justify-content-between align-items-start mb-2'>
-																		<div>
-																			<h6 className='mb-1 fw-bold'>
-																				{review.user
-																					?.full_name ||
-																					"Khách hàng"}
-																			</h6>
-																			<div className='d-flex align-items-center mb-1'>
-																				<div className='d-flex me-3'>
-																					{renderRating(
-																						review.rating,
-																					)}
+													<>
+														{reviews.map((review) => (
+															<div
+																key={review.id}
+																className='review-item border rounded p-3 mb-3'>
+																<div className='d-flex'>
+																	<img
+																		src={getAvatarSrc()}
+																		className='rounded-circle me-3'
+																		style={{
+																			width: "60px",
+																			height: "60px",
+																			objectFit: "cover",
+																		}}
+																		alt='Avatar'
+																	/>
+																	<div className='flex-grow-1'>
+																		<div className='d-flex justify-content-between align-items-start mb-2'>
+																			<div>
+																				<h6 className='mb-1 fw-bold'>
+																					{review.user
+																						?.full_name ||
+																						"Khách hàng"}
+																				</h6>
+																				<div className='d-flex align-items-center mb-1'>
+																					<div className='d-flex me-3'>
+																						{renderRating(
+																							review.rating,
+																						)}
+																					</div>
+																					<small className='text-muted'>
+																						{formatDate(
+																							review.created_at,
+																						)}
+																					</small>
 																				</div>
-																				<small className='text-muted'>
-																					{formatDate(
-																						review.created_at,
-																					)}
-																				</small>
 																			</div>
 																		</div>
-																	</div>
-																	<p className='mb-2'>
-																		{review.content}
-																	</p>
+																		<p className='mb-2'>
+																			{review.content}
+																		</p>
 
-																	{/* Reply from Shop */}
-																	{review.review_reply && (
-																		<div className='reply-section bg-light rounded p-3 ms-4 mt-3'>
-																			<div className='d-flex'>
-																				<i className='fas fa-reply text-primary me-2 mt-1'></i>
-																				<div className='flex-grow-1'>
-																					<p className='mb-1'>
-																						<strong className='text-primary'>
-																							VYNX
-																							Store
-																						</strong>
-																						<small className='text-muted ms-2'>
-																							{review.updated_at &&
-																								formatDate(
-																									review.updated_at,
-																								)}
-																						</small>
-																					</p>
-																					<p className='mb-0'>
-																						{
-																							review.review_reply
-																						}
-																					</p>
+																		{/* Reply from Shop */}
+																		{review.review_reply && (
+																			<div className='reply-section bg-light rounded p-3 ms-4 mt-3'>
+																				<div className='d-flex'>
+																					<i className='fas fa-reply text-primary me-2 mt-1'></i>
+																					<div className='flex-grow-1'>
+																						<p className='mb-1'>
+																							<strong className='text-primary'>
+																								VYNX
+																								Store
+																							</strong>
+																							<small className='text-muted ms-2'>
+																								{review.updated_at &&
+																									formatDate(
+																										review.updated_at,
+																									)}
+																							</small>
+																						</p>
+																						<p className='mb-0'>
+																							{
+																								review.review_reply
+																							}
+																						</p>
+																					</div>
 																				</div>
 																			</div>
-																		</div>
-																	)}
+																		)}
+																	</div>
 																</div>
 															</div>
-														</div>
-													))
+														))}
+														<Pagination
+															currentPage={reviewPage}
+															lastPage={totalPages}
+															onPageChange={handleReviewPageChange}
+														/>
+													</>
 												) : (
 													<div className='text-center py-5'>
 														<i className='fas fa-comments fa-3x text-muted mb-3'></i>
