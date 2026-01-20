@@ -83,9 +83,145 @@ window.initCarousels = window.initCarousels || {};
 		});
 	};
 
+	// Exposed function: Newest Products carousel
+	window.initCarousels.newest = function () {
+		const $el = $(".newest-carousel");
+		
+		if ($el.hasClass("owl-loaded")) {
+			$el.trigger("destroy.owl.carousel");
+			$el.removeClass("owl-loaded owl-drag owl-grab");
+			$el.find(".owl-stage-outer").children().unwrap();
+		}
+		
+		$el.owlCarousel({
+			autoplay: true,
+			smartSpeed: 1500,
+			dots: false,
+			loop: true,
+			margin: 25,
+			nav: true,
+			navText: [
+				'<i class="fas fa-chevron-left"></i>',
+				'<i class="fas fa-chevron-right"></i>',
+			],
+			responsiveClass: true,
+			responsive: {
+				0: { items: 1 },
+				576: { items: 1 },
+				768: { items: 2 },
+				992: { items: 3 },
+				1200: { items: 4 },
+			},
+		});
+	};
+
 	// Exposed function: Related Products carousel
 	window.initCarousels.related = function () {
-		$(".related-carousel").owlCarousel({
+		const $el = $(".related-carousel");
+		
+		if ($el.hasClass("owl-loaded")) {
+			$el.trigger("destroy.owl.carousel");
+			$el.removeClass("owl-loaded owl-drag owl-grab");
+			$el.find(".owl-stage-outer").children().unwrap();
+		}
+		
+		$el.owlCarousel({
+			autoplay: true,
+			smartSpeed: 1500,
+			dots: false,
+			loop: true,
+			margin: 25,
+			nav: true,
+			navText: [
+				'<i class="fas fa-chevron-left"></i>',
+				'<i class="fas fa-chevron-right"></i>',
+			],
+			responsiveClass: true,
+			responsive: {
+				0: { items: 1 },
+				576: { items: 1 },
+				768: { items: 2 },
+				992: { items: 3 },
+				1200: { items: 4 },
+			},
+		});
+	};
+
+	// Exposed function: Bestsellers carousel
+	window.initCarousels.bestsellers = function () {
+		const $el = $(".bestsellers-carousel");
+		
+		if ($el.hasClass("owl-loaded")) {
+			$el.trigger("destroy.owl.carousel");
+			$el.removeClass("owl-loaded owl-drag owl-grab");
+			$el.find(".owl-stage-outer").children().unwrap();
+		}
+		
+		$el.owlCarousel({
+			autoplay: true,
+			smartSpeed: 1500,
+			dots: false,
+			loop: true,
+			margin: 25,
+			nav: true,
+			navText: [
+				'<i class="fas fa-chevron-left"></i>',
+				'<i class="fas fa-chevron-right"></i>',
+			],
+			responsiveClass: true,
+			responsive: {
+				0: { items: 1 },
+				576: { items: 1 },
+				768: { items: 2 },
+				992: { items: 3 },
+				1200: { items: 4 },
+			},
+		});
+	};
+
+	// Exposed function: Featured carousel
+	window.initCarousels.featured = function () {
+		const $el = $(".featured-carousel");
+		
+		if ($el.hasClass("owl-loaded")) {
+			$el.trigger("destroy.owl.carousel");
+			$el.removeClass("owl-loaded owl-drag owl-grab");
+			$el.find(".owl-stage-outer").children().unwrap();
+		}
+		
+		$el.owlCarousel({
+			autoplay: true,
+			smartSpeed: 1500,
+			dots: false,
+			loop: true,
+			margin: 25,
+			nav: true,
+			navText: [
+				'<i class="fas fa-chevron-left"></i>',
+				'<i class="fas fa-chevron-right"></i>',
+			],
+			responsiveClass: true,
+			responsive: {
+				0: { items: 1 },
+				576: { items: 1 },
+				768: { items: 2 },
+				992: { items: 3 },
+				1200: { items: 4 },
+			},
+		});
+	};
+
+	// Generic function: Initialize any product carousel (fallback for custom carouselIds)
+	window.initCarousels.product = function () {
+		const $el = $(".product-carousel");
+		
+		if ($el.hasClass("owl-loaded")) {
+			$el.trigger("destroy.owl.carousel");
+			$el.removeClass("owl-loaded owl-drag owl-grab");
+			$el.find(".owl-stage-outer").children().unwrap();
+		}
+		
+		$el.owlCarousel({
 			autoplay: true,
 			smartSpeed: 1500,
 			dots: false,

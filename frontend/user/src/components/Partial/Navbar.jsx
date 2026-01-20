@@ -69,7 +69,7 @@ export default function Navbar() {
 							]
 								.filter(Boolean)
 								.join(" ")}>
-							<a className='vynx-catmenu-link' href={`/danh-muc/${cat.slug}`}>
+							<a className='vynx-catmenu-link' href={`/${cat.slug}`}>
 								<span className='vynx-catmenu-text'>{cat.name}</span>
 								{hasChildren ? (
 									<i
