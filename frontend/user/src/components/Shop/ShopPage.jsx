@@ -12,19 +12,49 @@ import { useToast } from "@shared/hooks/useToast.js";
 export default function ShopPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
+	const [categories, setCategories] = useState([]);
 	const { addToCart } = useCart();
 	const { toast, showSuccess, closeToast } = useToast();
 	const navigate = useNavigate();
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		lastPage: 1,
-		perPage: 9,
+		perPage: 6,
 		total: 0,
 	});
+	const [searchTerm, setSearchTerm] = useState("");
+	const [filters, setFilters] = useState({
+		keyword: "",
+		categoryId: "",
+		maxPrice: 0,
+	});
+	const [sortBy, setSortBy] = useState("default");
+	const [priceValue, setPriceValue] = useState(0);
+
+	useEffect(() => {
+		api
+			.get("/categories")
+			.then((res) => {
+				setCategories(res.data.data || []);
+			})
+			.catch((error) => {
+				console.error("Error fetching categories: ", error);
+			});
+	}, []);
 
 	useEffect(() => {
 		setLoading(true);
-		api.get(`/products?page=${pagination.currentPage}&per_page=${pagination.perPage}`)
+		api
+			.get("/products", {
+				params: {
+					page: pagination.currentPage,
+					per_page: pagination.perPage,
+					q: filters.keyword || undefined,
+					category_id: filters.categoryId || undefined,
+					max_price: filters.maxPrice > 0 ? filters.maxPrice : undefined,
+					sort: sortBy !== "default" ? sortBy : undefined,
+				},
+			})
 			.then((res) => {
 				setProducts(res.data.data || []);
 				setPagination((prev) => ({
@@ -40,11 +70,27 @@ export default function ShopPage() {
 			.finally(() => {
 				setLoading(false);
 			});
-	}, [pagination.currentPage]);
+	}, [pagination.currentPage, pagination.perPage, filters, sortBy]);
 
 	const handlePageChange = (page) => {
 		setPagination((prev) => ({ ...prev, currentPage: page }));
 		window.scrollTo({ top: 0, behavior: "smooth" });
+	};
+
+	const handleSearchSubmit = () => {
+		setFilters((prev) => ({ ...prev, keyword: searchTerm.trim() }));
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+	};
+
+	const handleCategoryChange = (categoryId) => {
+		setFilters((prev) => ({ ...prev, categoryId }));
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+	};
+
+	const handlePriceChange = (value) => {
+		setPriceValue(value);
+		setFilters((prev) => ({ ...prev, maxPrice: value }));
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
 	};
 
 	const handleAddToCart = (product) => {
@@ -67,51 +113,19 @@ export default function ShopPage() {
 						<div className='product-categories mb-4'>
 							<h4>Danh mục sản phẩm</h4>
 							<ul className='list-unstyled'>
-								<li>
-									<div className='categories-item'>
-										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Phụ kiện
-										</a>
-										<span>(3)</span>
-									</div>
-								</li>
-								<li>
-									<div className='categories-item'>
-										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Điện tử &amp; Máy tính
-										</a>
-										<span>(5)</span>
-									</div>
-								</li>
-								<li>
-									<div className='categories-item'>
-										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>
-											Laptop &amp; Máy tính để bàn
-										</a>
-										<span>(2)</span>
-									</div>
-								</li>
-								<li>
-									<div className='categories-item'>
-										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Điện thoại &amp; Máy tính bảng
-										</a>
-										<span>(8)</span>
-									</div>
-								</li>
-								<li>
-									<div className='categories-item'>
-										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
-											Điện thoại &amp; TV th?ng minh
-										</a>
-										<span>(5)</span>
-									</div>
-								</li>
+								{categories.map((category) => (
+									<li key={category.id}>
+										<div className='categories-item'>
+											<button
+												type='button'
+												className='text-dark bg-transparent border-0 p-0'
+												onClick={() => handleCategoryChange(String(category.id))}>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>
+												{category.name}
+											</button>
+										</div>
+									</li>
+								))}
 							</ul>
 						</div>
 
@@ -125,14 +139,11 @@ export default function ShopPage() {
 								name='rangeInput'
 								min='0'
 								max='500'
-								defaultValue='0'
-								onInput={(e) => {
-									const out = document.getElementById("amount");
-									if (out) out.value = e.target.value;
-								}}
+								value={priceValue}
+								onChange={(e) => handlePriceChange(Number(e.target.value))}
 							/>
 							<output id='amount' name='amount' min='0' max='500'>
-								0
+								{priceValue}
 							</output>
 						</div>
 
@@ -173,76 +184,22 @@ export default function ShopPage() {
 						{/* Chọn theo danh mục */}
 						<div className='additional-product mb-4'>
 							<h4>Chọn theo danh mục</h4>
-
-							<div className='additional-product-item'>
-								<input
-									type='radio'
-									className='me-2'
-									id='Categories-1'
-									name='Categories'
-									value='Phụ kiện'
-								/>
-								<label htmlFor='Categories-1' className='text-dark'>
-									{" "}
-									Phụ kiện
-								</label>
-							</div>
-
-							<div className='additional-product-item'>
-								<input
-									type='radio'
-									className='me-2'
-									id='Categories-2'
-									name='Categories'
-									value='Electronics & Computer'
-								/>
-								<label htmlFor='Categories-2' className='text-dark'>
-									{" "}
-									Điện tử &amp; Máy tính
-								</label>
-							</div>
-
-							<div className='additional-product-item'>
-								<input
-									type='radio'
-									className='me-2'
-									id='Categories-3'
-									name='Categories'
-									value='Laptops & Desktops'
-								/>
-								<label htmlFor='Categories-3' className='text-dark'>
-									{" "}
-									Laptop &amp; Máy tính để bàn
-								</label>
-							</div>
-
-							<div className='additional-product-item'>
-								<input
-									type='radio'
-									className='me-2'
-									id='Categories-4'
-									name='Categories'
-									value='Mobiles & Tablets'
-								/>
-								<label htmlFor='Categories-4' className='text-dark'>
-									{" "}
-									Điện thoại &amp; Máy tính bảng
-								</label>
-							</div>
-
-							<div className='additional-product-item'>
-								<input
-									type='radio'
-									className='me-2'
-									id='Categories-5'
-									name='Categories'
-									value='Điện thoại & TV th?ng minh'
-								/>
-								<label htmlFor='Categories-5' className='text-dark'>
-									{" "}
-									Điện thoại &amp; TV th?ng minh
-								</label>
-							</div>
+							{categories.map((category) => (
+								<div className='additional-product-item' key={`radio-${category.id}`}>
+									<input
+										type='radio'
+										className='me-2'
+										id={`Categories-${category.id}`}
+										name='Categories'
+										value={category.id}
+										checked={String(filters.categoryId) === String(category.id)}
+										onChange={() => handleCategoryChange(String(category.id))}
+									/>
+									<label htmlFor={`Categories-${category.id}`} className='text-dark'>
+										{" "}{category.name}
+									</label>
+								</div>
+							))}
 						</div>
 
 						{/* Featured Product */}
@@ -431,8 +388,28 @@ export default function ShopPage() {
 										className='form-control p-3'
 										placeholder='Từ khóa'
 										aria-describedby='search-icon-1'
+										value={searchTerm}
+										onChange={(e) => setSearchTerm(e.target.value)}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												e.preventDefault();
+												handleSearchSubmit();
+											}
+										}}
 									/>
-									<span id='search-icon-1' className='input-group-text p-3'>
+									<span
+										id='search-icon-1'
+										className='input-group-text p-3'
+										role='button'
+										tabIndex={0}
+										onClick={handleSearchSubmit}
+										onKeyDown={(e) => {
+											if (e.key === "Enter") {
+												e.preventDefault();
+												handleSearchSubmit();
+											}
+										}}
+										style={{ cursor: "pointer" }}>
 										<i className='fa fa-search'></i>
 									</span>
 								</div>
@@ -444,7 +421,13 @@ export default function ShopPage() {
 									<select
 										id='electronics'
 										name='electronicslist'
-										className='border-0 form-select-sm bg-light me-3'>
+										className='border-0 form-select-sm bg-light me-3'
+										value={sortBy}
+										onChange={(e) => {
+											setSortBy(e.target.value === "nothing" ? "default" : e.target.value);
+											setPagination((prev) => ({ ...prev, currentPage: 1 }));
+										}}
+									>
 										<option value='default'>Mặc định</option>
 										<option value='nothing'>Không sắp xếp</option>
 										<option value='popularity'>Phổ biến</option>

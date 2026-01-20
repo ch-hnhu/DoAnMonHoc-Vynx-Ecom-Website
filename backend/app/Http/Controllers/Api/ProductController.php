@@ -15,9 +15,57 @@ class ProductController extends Controller
     {
         try {
             $page = $request->input('page', 1);
-            $perPage = $request->input('per_page', 9);
+            $perPage = $request->input('per_page', 6);
+            $keyword = trim((string) $request->input('q', ''));
+            $categoryId = $request->input('category_id');
+            $minPrice = $request->input('min_price');
+            $maxPrice = $request->input('max_price');
+            $sort = $request->input('sort');
 
-            $products = Product::with(['category', 'brand', 'promotion'])->withAvg('product_reviews as rating_average', 'rating')->withCount('product_reviews as rating_count')->paginate($perPage);
+            $products = Product::with(['category', 'brand', 'promotion'])
+                ->withAvg('product_reviews as rating_average', 'rating')
+                ->withCount('product_reviews as rating_count')
+                ->when($keyword !== '', function ($query) use ($keyword) {
+                    $query->where(function ($subQuery) use ($keyword) {
+                        $subQuery->where('name', 'like', '%' . $keyword . '%')
+                            ->orWhere('description', 'like', '%' . $keyword . '%');
+                    });
+                })
+                ->when(!empty($categoryId), function ($query) use ($categoryId) {
+                    $query->where('category_id', $categoryId);
+                })
+                ->when(is_numeric($minPrice) || is_numeric($maxPrice), function ($query) use ($minPrice, $maxPrice) {
+                    $min = is_numeric($minPrice) ? (float) $minPrice : 0;
+                    $max = is_numeric($maxPrice) ? (float) $maxPrice : null;
+
+                    if ($max !== null) {
+                        $query->whereBetween('price', [$min, $max]);
+                    } else {
+                        $query->where('price', '>=', $min);
+                    }
+                })
+                ->when($sort, function ($query) use ($sort) {
+                    switch ($sort) {
+                        case 'newness':
+                            $query->orderByDesc('created_at');
+                            break;
+                        case 'rating':
+                            $query->orderByDesc('rating_average');
+                            break;
+                        case 'lowtohigh':
+                            $query->orderBy('price');
+                            break;
+                        case 'hightolow':
+                            $query->orderByDesc('price');
+                            break;
+                        case 'popularity':
+                            $query->orderByDesc('rating_count');
+                            break;
+                        default:
+                            break;
+                    }
+                })
+                ->paginate($perPage);
 
             return response()->json([
                 'success' => true,
