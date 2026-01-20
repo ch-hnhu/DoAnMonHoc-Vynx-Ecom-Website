@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 import api from "../services/api";
+import PageHeader from "../components/Partial/PageHeader";
 
 export default function ShippingPolicy() {
 	const [companyProfile, setCompanyProfile] = useState(null);
@@ -9,7 +10,7 @@ export default function ShippingPolicy() {
 	useEffect(() => {
 		let isMounted = true;
 
-		api.get("/configurations")
+		api.get("/configuration")
 			.then((response) => {
 				const configurations = response?.data?.data ?? [];
 				const activeConfig = configurations.find((item) => item.is_active);
@@ -105,7 +106,7 @@ export default function ShippingPolicy() {
 							<div className='bg-white rounded p-4 border'>
 								<h5 className='mb-3'>Theo dõi đơn hàng</h5>
 								<p className='mb-0'>
-									Bạn sẽ nhận mã vận đơn qua SMS/Email để theo dõi trạng thái.
+									Bạn sẽ nhận mã vận đơn qua Email để theo dõi trạng thái.
 								</p>
 							</div>
 						</div>
