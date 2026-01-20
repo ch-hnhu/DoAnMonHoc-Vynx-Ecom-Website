@@ -31,8 +31,9 @@ Route::post('/support-requests', [SupportRequestController::class, 'store']);
 Route::apiResource('support-requests', SupportRequestController::class)->only(['index', 'update', 'destroy']);
 
 // Authentication routes
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/dang-ky', [AuthController::class, 'register']);
+Route::post('/dang-nhap', [AuthController::class, 'login']);
+
 // Product routes
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
