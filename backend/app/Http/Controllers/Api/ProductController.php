@@ -56,7 +56,7 @@ class ProductController extends Controller
                 $query->whereNotNull('promotion_id');
             }
 
-            // tìm kiếm theo tên + mô tả
+            // tìm kiếm theo tên + mô tảlo
             $searchTerm = $request->input('search');
             if (!empty($searchTerm)) {
                 $query->where(function ($subQuery) use ($searchTerm) {

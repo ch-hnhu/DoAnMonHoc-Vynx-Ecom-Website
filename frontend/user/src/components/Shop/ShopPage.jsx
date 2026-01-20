@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Alert, Snackbar } from "@mui/material";
 import Pagination from "../Partial/Pagination";
 import ProductCardLarge from "../Partial/ProductCardLarge";
@@ -8,34 +8,41 @@ import Spinner from "../Partial/Spinner";
 import api from "../../services/api";
 import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
+import { getFinalPrice, getProductImage, hasDiscount } from "@shared/utils/productHelper.jsx";
+import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 
 export default function ShopPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [categories, setCategories] = useState([]);
 	const { addToCart } = useCart();
 	const { toast, showSuccess, closeToast } = useToast();
 	const navigate = useNavigate();
+	const [searchParams, setSearchParams] = useSearchParams();
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		lastPage: 1,
-		perPage: 3,
+		perPage: 6,
 		total: 0,
 	});
 	const [searchTerm, setSearchTerm] = useState("");
+	const [categories, setCategories] = useState([]);
+	const [featuredProducts, setFeaturedProducts] = useState([]);
+	const [featuredLoading, setFeaturedLoading] = useState(false);
 	const [filters, setFilters] = useState({
-		keyword: "",
-		categoryId: "",
-		maxPrice: 0,
+		categoryId: null,
 	});
-	const [sortBy, setSortBy] = useState("default");
-	const [priceValue, setPriceValue] = useState(0);
+	const [sortBy, setSortBy] = useState("newest");
+	const keyword = (searchParams.get("search") || "").trim();
 
 	useEffect(() => {
 		api
-			.get("/categories")
+			.get("/categories", { params: { flat: 1, per_page: 10000 } })
 			.then((res) => {
-				setCategories(res.data.data || []);
+				if (res?.data?.success) {
+					setCategories(res.data.data || []);
+				} else {
+					setCategories(res?.data?.data || []);
+				}
 			})
 			.catch((error) => {
 				console.error("Error fetching categories: ", error);
@@ -43,19 +50,22 @@ export default function ShopPage() {
 	}, []);
 
 	useEffect(() => {
-		setLoading(true);
-		api
-			.get("/products", {
-				params: {
-					page: pagination.currentPage,
-					per_page: pagination.perPage,
-					search: filters.keyword || undefined,
-					category_id: filters.categoryId || undefined,
-					max_price: filters.maxPrice > 0 ? filters.maxPrice : undefined,
-					sort: sortBy !== "default" ? sortBy : undefined,
-				},
-			})
-			.then((res) => {
+		setSearchTerm(keyword);
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+	}, [keyword]);
+
+	useEffect(() => {
+		const fetchProducts = async () => {
+			setLoading(true);
+			const params = {
+				page: pagination.currentPage,
+				per_page: pagination.perPage,
+				search: keyword || undefined,
+				sort: sortBy === "nothing" ? undefined : sortBy,
+				category_id: filters.categoryId || undefined,
+			};
+			try {
+				const res = await api.get("/products", { params });
 				setProducts(res.data.data || []);
 				setPagination((prev) => ({
 					...prev,
@@ -63,14 +73,38 @@ export default function ShopPage() {
 					lastPage: res.data.pagination.last_page,
 					total: res.data.pagination.total,
 				}));
-			})
-			.catch((error) => {
+			} catch (error) {
 				console.error("Error fetching products: ", error);
-			})
-			.finally(() => {
+			} finally {
 				setLoading(false);
-			});
-	}, [pagination.currentPage, pagination.perPage, filters, sortBy]);
+			}
+		};
+
+		fetchProducts();
+	}, [pagination.currentPage, pagination.perPage, filters.categoryId, sortBy, keyword]);
+
+	useEffect(() => {
+		const fetchFeaturedProducts = async () => {
+			setFeaturedLoading(true);
+			const params = {
+				page: 1,
+				per_page: 4,
+				featured: 1,
+				search: keyword || undefined,
+				category_id: filters.categoryId || undefined,
+			};
+			try {
+				const res = await api.get("/products", { params });
+				setFeaturedProducts(res.data.data || []);
+			} catch (error) {
+				console.error("Error fetching featured products: ", error);
+			} finally {
+				setFeaturedLoading(false);
+			}
+		};
+
+		fetchFeaturedProducts();
+	}, [filters.categoryId, keyword]);
 
 	const handlePageChange = (page) => {
 		setPagination((prev) => ({ ...prev, currentPage: page }));
@@ -78,18 +112,21 @@ export default function ShopPage() {
 	};
 
 	const handleSearchSubmit = () => {
-		setFilters((prev) => ({ ...prev, keyword: searchTerm.trim() }));
+		const nextKeyword = searchTerm.trim();
 		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			if (nextKeyword) {
+				next.set("search", nextKeyword);
+			} else {
+				next.delete("search");
+			}
+			return next;
+		});
 	};
 
 	const handleCategoryChange = (categoryId) => {
 		setFilters((prev) => ({ ...prev, categoryId }));
-		setPagination((prev) => ({ ...prev, currentPage: 1 }));
-	};
-
-	const handlePriceChange = (value) => {
-		setPriceValue(value);
-		setFilters((prev) => ({ ...prev, maxPrice: value }));
 		setPagination((prev) => ({ ...prev, currentPage: 1 }));
 	};
 
@@ -110,42 +147,44 @@ export default function ShopPage() {
 				<div className='row g-4'>
 					{/* Sidebar */}
 					<div className='col-lg-3 wow fadeInUp' data-wow-delay='0.1s'>
-						<div className='product-categories mb-4'>
+						{/* <div className='product-categories mb-4'>
 							<h4>Danh mục sản phẩm</h4>
 							<ul className='list-unstyled'>
+								<li>
+									<div className='categories-item'>
+										<a
+											href='#'
+											className={`text-dark ${!filters.categoryId ? "fw-bold text-primary" : ""}`}
+											onClick={(e) => {
+												e.preventDefault();
+												handleCategoryChange(null);
+											}}>
+											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
+											Tất cả
+										</a>
+									</div>
+								</li>
 								{categories.map((category) => (
 									<li key={category.id}>
 										<div className='categories-item'>
-											<button
-												type='button'
-												className='text-dark bg-transparent border-0 p-0'
-												onClick={() => handleCategoryChange(String(category.id))}>
-												<i className='fas fa-apple-alt text-secondary me-2'></i>
+											<a
+												href='#'
+												className={`text-dark ${filters.categoryId === category.id ? "fw-bold text-primary" : ""}`}
+												onClick={(e) => {
+													e.preventDefault();
+													handleCategoryChange(category.id);
+												}}>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
 												{category.name}
-											</button>
+											</a>
+											{typeof category.products_count === "number" && (
+												<span>({category.products_count})</span>
+											)}
 										</div>
 									</li>
 								))}
 							</ul>
-						</div>
-
-						{/* Gi? */}
-						<div className='price mb-4'>
-							<h4 className='mb-2'>Giá</h4>
-							<input
-								type='range'
-								className='form-range w-100'
-								id='rangeInput'
-								name='rangeInput'
-								min='0'
-								max='500'
-								value={priceValue}
-								onChange={(e) => handlePriceChange(Number(e.target.value))}
-							/>
-							<output id='amount' name='amount' min='0' max='500'>
-								{priceValue}
-							</output>
-						</div>
+						</div> */}
 
 						{/* Product Color */}
 						<div className='product-color mb-3'>
@@ -154,7 +193,10 @@ export default function ShopPage() {
 								<li>
 									<div className='product-color-item'>
 										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
+											<i
+												className='fas fa-circle me-2'
+												style={{ color: "#f4b400", border: "1px solid #000", borderRadius: "50%" }}
+											></i>{" "}
 											Vàng
 										</a>
 										<span>(1)</span>
@@ -163,7 +205,10 @@ export default function ShopPage() {
 								<li>
 									<div className='product-color-item'>
 										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
+											<i
+												className='fas fa-circle me-2'
+												style={{ color: "#34a853", border: "1px solid #000", borderRadius: "50%" }}
+											></i>{" "}
 											Xanh lá
 										</a>
 										<span>(1)</span>
@@ -172,7 +217,10 @@ export default function ShopPage() {
 								<li>
 									<div className='product-color-item'>
 										<a href='#' className='text-dark'>
-											<i className='fas fa-apple-alt text-secondary me-2'></i>{" "}
+											<i
+												className='fas fa-circle me-2'
+												style={{ color: "#ffffff", border: "1px solid #000", borderRadius: "50%" }}
+											></i>{" "}
 											Trắng
 										</a>
 										<span>(1)</span>
@@ -184,19 +232,35 @@ export default function ShopPage() {
 						{/* Chọn theo danh mục */}
 						<div className='additional-product mb-4'>
 							<h4>Chọn theo danh mục</h4>
+
+							<div className='additional-product-item'>
+								<input
+									type='radio'
+									className='me-2'
+									id='Categories-all'
+									name='Categories'
+									checked={!filters.categoryId}
+									onChange={() => handleCategoryChange(null)}
+								/>
+								<label htmlFor='Categories-all' className='text-dark'>
+									{" "}
+									Tất cả
+								</label>
+							</div>
+
 							{categories.map((category) => (
-								<div className='additional-product-item' key={`radio-${category.id}`}>
+								<div className='additional-product-item' key={category.id}>
 									<input
 										type='radio'
 										className='me-2'
 										id={`Categories-${category.id}`}
 										name='Categories'
-										value={category.id}
-										checked={String(filters.categoryId) === String(category.id)}
-										onChange={() => handleCategoryChange(String(category.id))}
+										checked={filters.categoryId === category.id}
+										onChange={() => handleCategoryChange(category.id)}
 									/>
 									<label htmlFor={`Categories-${category.id}`} className='text-dark'>
-										{" "}{category.name}
+										{" "}
+										{category.name}
 									</label>
 								</div>
 							))}
@@ -205,84 +269,62 @@ export default function ShopPage() {
 						{/* Featured Product */}
 						<div className='featured-product mb-4'>
 							<h4 className='mb-3'>Sản phẩm nổi bật</h4>
-
-							<div className='featured-product-item'>
-								<div className='rounded me-4' style={{ width: 100, height: 100 }}>
-									<img
-										src='/img/product-3.png'
-										className='img-fluid rounded'
-										alt='Image'
-									/>
+							{featuredLoading ? (
+								<div className='py-3'>
+									<Spinner />
 								</div>
-								<div>
-									<h6 className='mb-2'>Điện thoại</h6>
-									<div className='d-flex mb-2'>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star'></i>
+							) : featuredProducts.length > 0 ? (
+								featuredProducts.map((product) => (
+									<div className='featured-product-item' key={product.id}>
+										<div className='rounded me-4' style={{ width: 100, height: 100 }}>
+											<img
+												src={getProductImage(product.image_url)}
+												className='img-fluid rounded'
+												alt={product.name}
+												onError={(e) => {
+													e.target.src = "https://placehold.co/200x200";
+												}}
+											/>
+										</div>
+										<div>
+											<a
+												href='#'
+												className='text-dark'
+												onClick={(e) => {
+													e.preventDefault();
+													handleViewDetails(product);
+												}}>
+												<h6 className='mb-2'>{product.name}</h6>
+											</a>
+											<div className='d-flex mb-2'>
+												<i className='fa fa-star text-secondary'></i>
+												<i className='fa fa-star text-secondary'></i>
+												<i className='fa fa-star text-secondary'></i>
+												<i className='fa fa-star text-secondary'></i>
+												<i className='fa fa-star'></i>
+											</div>
+											<div className='d-flex mb-2'>
+												{hasDiscount(product) ? (
+													<>
+														<h5 className='fw-bold me-2'>
+															{formatCurrency(getFinalPrice(product))}
+														</h5>
+														<h5 className='text-danger text-decoration-line-through'>
+															{formatCurrency(product.price)}
+														</h5>
+													</>
+												) : (
+													<h5 className='fw-bold me-2'>
+														{formatCurrency(product.price)}
+													</h5>
+												)}
+											</div>
+										</div>
 									</div>
-									<div className='d-flex mb-2'>
-										<h5 className='fw-bold me-2'>2.99 $</h5>
-										<h5 className='text-danger text-decoration-line-through'>
-											4.11 $
-										</h5>
-									</div>
-								</div>
-							</div>
-
-							<div className='featured-product-item'>
-								<div className='rounded me-4' style={{ width: 100, height: 100 }}>
-									<img
-										src='/img/product-4.png'
-										className='img-fluid rounded'
-										alt='Image'
-									/>
-								</div>
-								<div>
-									<h6 className='mb-2'>Camera thông minh</h6>
-									<div className='d-flex mb-2'>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star'></i>
-									</div>
-									<div className='d-flex mb-2'>
-										<h5 className='fw-bold me-2'>2.99 $</h5>
-										<h5 className='text-danger text-decoration-line-through'>
-											4.11 $
-										</h5>
-									</div>
-								</div>
-							</div>
-
-							<div className='featured-product-item'>
-								<div className='rounded me-4' style={{ width: 100, height: 100 }}>
-									<img
-										src='/img/product-5.png'
-										className='img-fluid rounded'
-										alt='Image'
-									/>
-								</div>
-								<div>
-									<h6 className='mb-2'>Ống kính camera</h6>
-									<div className='d-flex mb-2'>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star text-secondary'></i>
-										<i className='fa fa-star'></i>
-									</div>
-									<div className='d-flex mb-2'>
-										<h5 className='fw-bold me-2'>2.99 $</h5>
-										<h5 className='text-danger text-decoration-line-through'>
-											4.11 $
-										</h5>
-									</div>
-								</div>
-							</div>
+								))
+							) : (
+								<p className='text-muted'>Không có sản phẩm nổi bật</p>
+							)}
 
 							<div className='d-flex justify-content-center my-4'>
 								<a
@@ -356,7 +398,7 @@ export default function ShopPage() {
 
 					{/* Main content */}
 					<div className='col-lg-9 wow fadeInUp' data-wow-delay='0.1s'>
-						<div className='rounded mb-4 position-relative'>
+						{/* <div className='rounded mb-4 position-relative'>
 							<img
 								src='/img/product-banner-3.jpg'
 								className='img-fluid rounded w-100'
@@ -378,7 +420,7 @@ export default function ShopPage() {
 									Mua ngay
 								</a>
 							</div>
-						</div>
+						</div> */}
 
 						<div className='row g-4'>
 							<div className='col-xl-7'>
@@ -424,17 +466,17 @@ export default function ShopPage() {
 										className='border-0 form-select-sm bg-light me-3'
 										value={sortBy}
 										onChange={(e) => {
-											setSortBy(e.target.value === "nothing" ? "default" : e.target.value);
+											setSortBy(e.target.value);
 											setPagination((prev) => ({ ...prev, currentPage: 1 }));
 										}}
 									>
-										<option value='default'>Mặc định</option>
+										<option value='newest'>Mặc định</option>
 										<option value='nothing'>Không sắp xếp</option>
-										<option value='popularity'>Phổ biến</option>
-										<option value='newness'>Mới nh?t</option>
+										<option value='bestseller'>Phổ biến</option>
+										<option value='newest'>Mới nhất</option>
 										<option value='rating'>Đánh giá</option>
-										<option value='lowtohigh'>Giá tăng dần</option>
-										<option value='hightolow'>Giá giảm dần</option>
+										<option value='price_asc'>Giá tăng dần</option>
+										<option value='price_desc'>Giá giảm dần</option>
 									</select>
 								</div>
 							</div>
@@ -524,7 +566,7 @@ export default function ShopPage() {
 				open={toast.open}
 				autoHideDuration={2500}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>
@@ -532,4 +574,3 @@ export default function ShopPage() {
 		</div>
 	);
 }
-
