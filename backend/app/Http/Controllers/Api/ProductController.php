@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -34,8 +36,11 @@ class ProductController extends Controller
             // bắt đầu lọc danh sách sản phẩm đã lấy
 
             // lọc theo danh mục
-            if ($request->has('category_id')) {
-                $query->where('category_id', $request->category_id);
+            if ($request->has('category_slug')) {
+                $query->whereHas('category', function ($query) use ($request) {
+                    $query->where('slug', $request->category_slug)
+                        ->orWhere('parent_id', Category::where('slug', $request->category_slug)->value('id'));
+                });
             }
 
             // lọc theo thương hiệu
@@ -52,7 +57,7 @@ class ProductController extends Controller
             }
 
             // lọc theo sản phẩm có khuyến mãi
-            if ($request->input('featured') == 1) {
+            if ($request->input('has_promotion') == 1) {
                 $query->whereNotNull('promotion_id');
             }
 
@@ -70,7 +75,7 @@ class ProductController extends Controller
             switch ($sort) {
                 case 'newest':
                     // sắp xếp theo ngày tạo mới nhất
-                    $query->orderBy('created_at', 'desc');
+                    $query->where('created_at', '>=', now()->subDays(30));
                     break;
 
                 case 'oldest':
@@ -79,8 +84,8 @@ class ProductController extends Controller
                     break;
 
                 case 'bestseller':
-                    // sắp xếp theo số lượng review nhiều nhất
-                    $query->orderBy('rating_count', 'desc');
+                    // sắp xếp theo sản phẩm xuất hiện trong nhiều đơn hàng nhất
+                    $query->withCount('order_items')->orderBy('order_items_count', 'desc');
                     break;
 
                 case 'price_asc':
@@ -129,7 +134,7 @@ class ProductController extends Controller
                     'to' => $products->lastItem(),
                 ],
                 'filters' => [
-                    'category_id' => $request->input('category_id'),
+                    'category_slug' => $request->input('category_slug'),
                     'brand_id' => $request->input('brand_id'),
                     'sort' => $sort,
                     'featured' => $request->input('featured'),
