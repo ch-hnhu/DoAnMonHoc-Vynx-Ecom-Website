@@ -10,11 +10,13 @@ import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
 import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
+import { isAuthenticated } from "../../services/authService";
 import api from "../../services/api";
 
 export default function SingleProduct({ product }) {
 	const [reviews, setReviews] = useState([]);
 	const [isInWishlist, setIsInWishlist] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const { addToCart } = useCart();
 	const { toast, showSuccess, showError, closeToast } = useToast();
 	const [quantity, setQuantity] = useState(1);
@@ -37,8 +39,15 @@ export default function SingleProduct({ product }) {
 	};
 
 	useEffect(() => {
+		const loggedIn = isAuthenticated();
+		setIsLoggedIn(loggedIn);
+
 		fetchReviews();
-		checkInWishlist();
+
+		if (loggedIn) {
+			checkInWishlist();
+		}
+
 		if (window.initCarousels?.single) {
 			window.initCarousels.single();
 		}
@@ -515,14 +524,16 @@ export default function SingleProduct({ product }) {
 											className='btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2'>
 											<i className='fa fa-link me-1'></i> Sao chép liên kết
 										</button>
-										<button
-											type='button'
-											onClick={handleToggleWishlist}
-											className={`btn ${isInWishlist ? "btn-danger" : "btn-outline-danger"} d-inline-block rounded py-1 px-4`}>
-											<i
-												className={`fa${isInWishlist ? "s" : "r"} fa-heart me-1`}></i>
-											{isInWishlist ? "Đã yêu thích" : "Yêu thích"}
-										</button>
+										{isLoggedIn && (
+											<button
+												type='button'
+												onClick={handleToggleWishlist}
+												className={`btn ${isInWishlist ? "btn-danger" : "btn-outline-danger"} d-inline-block rounded py-1 px-4`}>
+												<i
+													className={`fa${isInWishlist ? "s" : "r"} fa-heart me-1`}></i>
+												{isInWishlist ? "Đã yêu thích" : "Yêu thích"}
+											</button>
+										)}
 									</div>
 									<div className='d-flex flex-column mb-3'>
 										<small>
