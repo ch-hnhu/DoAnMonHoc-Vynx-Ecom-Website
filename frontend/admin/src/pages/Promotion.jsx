@@ -8,8 +8,11 @@ import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function PromotionPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ KHUYẾN MÃI");
+	
 	const [promotions, setPromotions] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const discountTypeColor = {
@@ -137,7 +140,7 @@ export default function PromotionPage() {
 			columns={columns}
 			rows={promotions}
 			loading={loading}
-			title='Quản lý khuyến mãi'
+			title='Quản lý mã khuyến mãi'
 			breadcrumbs={breadcrumbs}
 			pageSize={25}
 			checkboxSelection={true}

@@ -13,8 +13,7 @@ html,
 body {
 	height: 100%;
 	margin: 0;
-	overflow: hidden; /* body không scroll, chỉ app-main scroll */
-	overflow-x: hidden;
+	overflow: hidden; /* body không scroll */
 }
 
 #root,
@@ -22,12 +21,12 @@ body {
 	height: 100%;
 }
 
-/* Tắt layout grid mặc định của AdminLTE để tránh bị "double offset" (grid + margin-left) */
+/* Tắt layout grid mặc định của AdminLTE */
 .app-wrapper {
 	display: block !important;
 }
 
-/* Header fixed */
+/* ============== HEADER ============== */
 .app-header {
 	position: fixed;
 	top: 0;
@@ -39,7 +38,7 @@ body {
 	will-change: left;
 }
 
-/* Sidebar fixed + animate */
+/* ============== SIDEBAR ============== */
 .app-sidebar {
 	position: fixed;
 	top: 0;
@@ -47,13 +46,37 @@ body {
 	width: var(--admin-sidebar-width);
 	height: 100vh;
 	overflow-y: auto;
+	overflow-x: hidden;
 	z-index: 900;
 	transform: translateX(0);
 	transition: transform var(--admin-transition);
 	will-change: transform;
 }
 
-/* CHỈ app-main được scroll */
+/* Custom scrollbar cho sidebar */
+.app-sidebar::-webkit-scrollbar {
+	width: 6px;
+}
+
+.app-sidebar::-webkit-scrollbar-track {
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.app-sidebar::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.2);
+	border-radius: 3px;
+}
+
+.app-sidebar::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.3);
+}
+
+.app-sidebar {
+	scrollbar-width: thin;
+	scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+/* ============== MAIN CONTENT ============== */
 .app-main {
 	position: fixed;
 	top: var(--admin-header-height);
@@ -64,9 +87,15 @@ body {
 	overflow-x: hidden;
 	transition: left var(--admin-transition);
 	will-change: left;
+	scroll-behavior: smooth;
 }
 
-/* Desktop: collapse */
+/* Ngăn scroll jump khi chuyển trang */
+.app-main > * {
+	overflow-anchor: none;
+}
+
+/* ============== DESKTOP: COLLAPSE SIDEBAR ============== */
 body.sidebar-collapse .app-header {
 	left: 0;
 }
@@ -79,6 +108,7 @@ body.sidebar-collapse .app-sidebar {
 	transform: translateX(calc(-1 * var(--admin-sidebar-width)));
 }
 
+/* ============== MOBILE RESPONSIVE ============== */
 /* Backdrop cho mobile off-canvas */
 .sidebar-backdrop {
 	position: fixed;
@@ -90,34 +120,36 @@ body.sidebar-collapse .app-sidebar {
 	z-index: 1040;
 }
 
-/* Mobile: off-canvas */
 @media (max-width: 992px) {
+	/* Header full width trên mobile */
 	.app-header {
 		left: 0;
 	}
 
+	/* Main content full width trên mobile */
 	.app-main {
 		left: 0;
 	}
 
-	/* Mobile mặc định ẩn sidebar */
+	/* Sidebar ẩn mặc định trên mobile */
 	.app-sidebar {
 		z-index: 1050;
 		transform: translateX(calc(-1 * var(--admin-sidebar-width)));
 	}
 
-	/* Mở sidebar bằng class sidebar-open */
+	/* Hiện sidebar khi có class sidebar-open */
 	body.sidebar-open .app-sidebar {
 		transform: translateX(0);
 	}
 
+	/* Hiện backdrop khi sidebar mở */
 	body.sidebar-open .sidebar-backdrop {
 		opacity: 1;
 		pointer-events: auto;
 	}
 }
 
-/* ============== User dropdown (match overall theme) ============== */
+/* ============== USER DROPDOWN STYLING ============== */
 .app-header .admin-user-menu {
 	border: 1px solid var(--admin-border);
 	border-radius: 14px;
@@ -190,4 +222,12 @@ body.sidebar-collapse .app-sidebar {
 
 .app-header .admin-user-menu .user-footer .btn {
 	border-radius: 10px;
+}
+
+/* ============== TOAST NOTIFICATIONS ============== */
+.MuiSnackbar-anchorOriginTopRight,
+.MuiSnackbar-anchorOriginTopCenter,
+.MuiSnackbar-anchorOriginTopLeft {
+	top: calc(var(--admin-header-height) + 12px) !important;
+	z-index: 2000;
 }

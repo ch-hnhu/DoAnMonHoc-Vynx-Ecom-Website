@@ -44,7 +44,7 @@ export const register = async (
  */
 export const login = async (username, password) => {
   try {
-    const response = await api.post("/login", {
+    const response = await api.post("/dang-nhap", {
       username,
       password,
     });
@@ -72,7 +72,7 @@ export const logout = async () => {
     const token = localStorage.getItem(TOKEN_KEY);
     if (token) {
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      await api.post("/logout");
+      await api.post("/dang-xuat");
     }
   } catch (error) {
     console.error("Logout error:", error);

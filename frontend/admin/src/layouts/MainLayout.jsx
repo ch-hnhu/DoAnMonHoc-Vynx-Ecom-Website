@@ -1,10 +1,20 @@
 import { useEffect } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import Header from "../components/Partial/Header";
 import Sidebar from "../components/Partial/Sidebar";
 import Footer from "../components/Partial/Footer";
 
 export default function MainLayout() {
+	const location = useLocation();
+
+	// Reset scroll position về top khi chuyển trang
+	useEffect(() => {
+		const appMain = document.querySelector(".app-main");
+		if (appMain) {
+			appMain.scrollTop = 0;
+		}
+	}, [location.pathname]);
+
 	useEffect(() => {
 		const SELECTOR_SIDEBAR_WRAPPER = ".sidebar-wrapper";
 		const sidebarWrapper = document.querySelector(SELECTOR_SIDEBAR_WRAPPER);

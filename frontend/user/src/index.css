@@ -114,6 +114,212 @@ a.text-primary:focus {
 	color: #456882 !important;
 }
 
+/* Category dropdown (multi-level) - cap 2+ hover to show (desktop) */
+/* Override global `.bg-primary *:not(.btn):not(a)` which makes dropdown text too light */
+.bg-primary .dropdown-menu,
+.bg-secondary .dropdown-menu {
+	color: #1b3c53 !important;
+}
+
+/* ===== All Categories panel (desktop) - collapse #allCat =====
+   NOTE: Bootstrap dùng `.collapsing{overflow:hidden}` để animate height.
+   Nếu ép `overflow:visible` trong lúc đang collapsing sẽ bị "nháy/glitch".
+   Giữ hidden khi collapsing, chỉ bật visible khi đã show xong. */
+#allCat.collapse {
+	overflow: visible !important;
+	/* Tắt animation height của Bootstrap collapse để tránh nháy "khung trắng" */
+	transition: none !important;
+}
+
+#allCat.collapsing {
+	overflow: hidden !important;
+	transition: none !important;
+}
+
+/* Ensure the collapsing container itself doesn't paint a white block */
+#allCat,
+#allCat .navbar-nav {
+	background: transparent !important;
+}
+
+/* Make the panel look like a surface (similar to dropdown-menu) */
+#allCat .vynx-catmenu-root {
+	min-width: 250px;
+	padding: 8px;
+	background: #ffffff;
+	border: 1px solid rgba(27, 60, 83, 0.12);
+	border-top: 0;
+	border-bottom-left-radius: 14px;
+	border-bottom-right-radius: 14px;
+	box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14);
+	/* Prevent "flash/glitch" during Bootstrap collapse animation */
+	opacity: 0;
+	transform: translateY(-4px);
+}
+
+/* Only fade in once the collapse is fully shown */
+#allCat.show .vynx-catmenu-root {
+	opacity: 1;
+	transform: translateY(0);
+	transition: opacity 140ms ease, transform 140ms ease;
+}
+
+/* While collapsing/expanding, keep content hidden to avoid flicker */
+#allCat.collapsing .vynx-catmenu-root {
+	opacity: 0 !important;
+	transform: translateY(-4px) !important;
+	transition: none !important;
+}
+
+/* Ensure link color is readable on this panel (not affected by .bg-primary rules) */
+#allCat .vynx-catmenu-link,
+#allCat .vynx-catmenu-link * {
+	color: #1b3c53 !important;
+}
+
+/* Hover state for #allCat panel (not inside .dropdown-menu) */
+#allCat .vynx-catmenu-link:hover {
+	background: rgba(27, 60, 83, 0.12) !important;
+	color: #0f172a !important;
+}
+
+#allCat .vynx-catmenu-link:hover * {
+	color: #0f172a !important;
+}
+
+/* Keep submenu above other content */
+#allCat .vynx-catmenu-submenu {
+	z-index: 1060;
+}
+
+.vynx-catmenu {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* Root list inside dropdown-menu */
+.dropdown-menu .vynx-catmenu-root {
+	min-width: 280px;
+	padding: 8px;
+}
+
+.vynx-catmenu-item {
+	position: relative;
+}
+
+.vynx-catmenu-link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	width: 100%;
+	padding: 10px 12px;
+	border-radius: 10px;
+	color: #1b3c53 !important;
+	text-decoration: none;
+	font-weight: 600;
+	line-height: 1.2;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.dropdown-menu .vynx-catmenu-link,
+.dropdown-menu .vynx-catmenu-link * {
+	/* Override `.bg-primary *:not(a)` which makes text too light */
+	color: #1b3c53 !important;
+}
+
+.bg-primary .dropdown-menu .vynx-catmenu-link,
+.bg-primary .dropdown-menu .vynx-catmenu-link *,
+.bg-secondary .dropdown-menu .vynx-catmenu-link,
+.bg-secondary .dropdown-menu .vynx-catmenu-link * {
+	/* Stronger specificity than `.bg-primary *:not(.btn):not(a)` */
+	color: #1b3c53 !important;
+}
+
+.dropdown-menu .vynx-catmenu-link:hover {
+	background: rgba(27, 60, 83, 0.12) !important;
+	color: #0f172a !important;
+}
+
+.dropdown-menu .vynx-catmenu-link:hover *,
+.bg-primary .dropdown-menu .vynx-catmenu-link:hover *,
+.bg-secondary .dropdown-menu .vynx-catmenu-link:hover * {
+	color: #0f172a !important;
+}
+
+.vynx-catmenu-caret {
+	opacity: 0.65;
+}
+
+/* Submenu: hidden by default, shown on hover (desktop) */
+.vynx-catmenu-submenu {
+	position: absolute;
+	top: 0;
+	left: 100%;
+	min-width: 280px;
+	background: #fff;
+	border: 1px solid rgba(27, 60, 83, 0.12);
+	border-radius: 14px;
+	box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+	padding: 8px;
+	z-index: 1051;
+	margin-left: 8px;
+
+	/* Smooth show/hide (avoid shadow popping) */
+	opacity: 0;
+	visibility: hidden;
+	transform: translateX(6px);
+	pointer-events: none;
+	transition: opacity 160ms ease, transform 160ms ease, visibility 0ms linear 160ms;
+}
+
+/* Hover bridge: tránh khoảng hở giữa menu cha và submenu mà KHÔNG phá shadow */
+.vynx-catmenu-submenu::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -12px;
+	width: 12px;
+	height: 100%;
+	background: transparent;
+}
+
+/* Tu cap 2 (level >= 1) tro di: hover moi mo submenu */
+.vynx-catmenu-item.has-children:hover > .vynx-catmenu-submenu {
+	opacity: 1;
+	visibility: visible;
+	transform: translateX(0);
+	pointer-events: auto;
+	transition: opacity 160ms ease, transform 160ms ease, visibility 0ms;
+}
+
+/* Make deeper levels slightly lighter */
+.vynx-catmenu.level-1 .vynx-catmenu-link,
+.vynx-catmenu.level-2 .vynx-catmenu-link,
+.vynx-catmenu.level-3 .vynx-catmenu-link,
+.vynx-catmenu.level-4 .vynx-catmenu-link {
+	font-weight: 500;
+	padding: 9px 10px;
+	border-radius: 10px;
+}
+
+/* Mobile/tablet: no hover -> show submenus as inline blocks */
+@media (max-width: 991.98px) {
+	.vynx-catmenu-submenu {
+		position: static;
+		opacity: 1;
+		visibility: visible;
+		transform: none;
+		pointer-events: auto;
+		transition: none;
+		margin-left: 12px;
+		margin-top: 6px;
+		border-radius: 12px;
+		box-shadow: none;
+	}
+}
+
 /* Footer specific styles - ensure high contrast */
 .footer,
 .footer .footer-item {

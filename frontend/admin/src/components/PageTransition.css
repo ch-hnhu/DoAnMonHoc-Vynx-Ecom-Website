@@ -1,0 +1,36 @@
+.page-transition {
+	width: 100%;
+	height: 100%;
+	overflow: hidden; /* Ngăn scrollbar xuất hiện khi animation */
+	position: relative;
+}
+
+.page-transition.fadeOut {
+	animation: slideOutLeft 0.3s ease-in-out forwards;
+}
+
+.page-transition.fadeIn {
+	animation: slideInRight 0.3s ease-in-out forwards;
+}
+
+@keyframes slideOutLeft {
+	from {
+		transform: translateX(0);
+		opacity: 1;
+	}
+	to {
+		transform: translateX(-20px); /* Giảm từ 30px xuống 20px */
+		opacity: 0;
+	}
+}
+
+@keyframes slideInRight {
+	from {
+		transform: translateX(20px); /* Giảm từ 30px xuống 20px */
+		opacity: 0;
+	}
+	to {
+		transform: translateX(0);
+		opacity: 1;
+	}
+}

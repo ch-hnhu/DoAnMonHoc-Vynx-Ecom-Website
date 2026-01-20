@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -20,10 +20,11 @@ import Grid from "@mui/material/Grid";
 import api from "../../services/api";
 import { formatSlug } from "../../../../shared/utils/formatHelper";
 
-export default function AddCategory({
+export default function EditCategory({
 	open,
 	onClose,
-	onCreated,
+	category,
+	onUpdated,
 	showSuccess,
 	showError,
 }) {
@@ -32,11 +33,12 @@ export default function AddCategory({
 		parent_id: "",
 		description: "",
 	});
+	const [categories, setCategories] = useState([]);
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
-	const [categories, setCategories] = useState([]);
 
-	const fetchCategories = async () => {
+
+    const fetchCategories = async () => {
         const res = await api.get("/categories", {
             params: {
                 flat: 1,
@@ -54,6 +56,17 @@ export default function AddCategory({
         fetchCategories();
         console.log("categories: ", categories);
     }, []);
+
+	useEffect(() => {
+		if (category) {
+			setFormData({
+				name: category.name || "",
+				parent_id: category.parent_id ?? "",
+				description: category.description || "",
+			});
+			setErrors({});
+		}
+	}, [category, open]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -86,7 +99,7 @@ export default function AddCategory({
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
-		if (!validate()) {
+		if (!validate() || !category) {
 			return;
 		}
 
@@ -98,14 +111,14 @@ export default function AddCategory({
 			parent_id: formData.parent_id ? Number(formData.parent_id) : null,
 		};
 
-		api.post("/categories", payload)
+		api.put(`/categories/${category.id}`, payload)
 			.then((response) => {
-				const created = response?.data?.data ?? response?.data;
-				showSuccess("Thêm danh mục thành công!");
-				// Gọi callback để refetch data
-				onCreated?.(created);
-				// Delay close để toast kịp hiển thị
-				handleClose();
+				const updated = response?.data?.data ?? response?.data;
+				showSuccess?.("Cập nhật thành công!");
+				onUpdated?.(updated);
+				setTimeout(() => {
+					handleClose();
+				}, 1500);
 			})
 			.catch((error) => {
 				if (error?.response?.status === 422) {
@@ -120,11 +133,11 @@ export default function AddCategory({
 					setErrors((prev) => ({ ...prev, ...nextErrors }));
 					const firstError = Object.values(nextErrors)[0];
 					if (firstError) {
-						showError(firstError);
+						showError?.(firstError);
 					}
 				} else {
-					console.error("Error creating category:", error);
-					showError("Thêm danh mục thất bại!");
+					console.error("Error updating category:", error);
+					showError?.("Cập nhật thất bại!");
 				}
 			})
 			.finally(() => {
@@ -143,12 +156,14 @@ export default function AddCategory({
 		onClose();
 	};
 
+	const parentOptions = categories?.filter((item) => item.id !== category?.id) || [];
+
 	return (
 		<Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
 			<DialogTitle>
 				<Box display="flex" alignItems="center" justifyContent="space-between">
 					<Typography variant="h6" component="div">
-						THÊM DANH MỤC MỚI
+						EDIT CATEGORY
 					</Typography>
 					<IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
 						<CloseIcon />
@@ -174,7 +189,7 @@ export default function AddCategory({
 							align="center"
 							sx={{ color: "white", letterSpacing: 1 }}
 						>
-							THÔNG TIN DANH MỤC
+							CATEGORY INFORMATION
 						</Typography>
 					</Box>
 
@@ -205,9 +220,9 @@ export default function AddCategory({
 									<MenuItem value="">
 										<em>None</em>
 									</MenuItem>
-									{categories?.map((category) => (
-										<MenuItem key={category.id} value={category.id}>
-											{category.name}
+									{parentOptions.map((item) => (
+										<MenuItem key={item.id} value={item.id}>
+											{item.name}
 										</MenuItem>
 									))}
 								</Select>
@@ -257,10 +272,9 @@ export default function AddCategory({
 						"&:hover": { backgroundColor: "#1B3C53" },
 					}}
 				>
-					{submitting ? "Saving..." : "Save Category"}
+					{submitting ? "Saving..." : "Save Changes"}
 				</Button>
 			</DialogActions>
-
 		</Dialog>
 	);
 }

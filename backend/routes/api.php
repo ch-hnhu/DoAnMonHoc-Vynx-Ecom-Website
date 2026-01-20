@@ -36,7 +36,9 @@ Route::post('/login', [AuthController::class, 'login']);
 // Product routes
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/paginated', [ProductController::class, 'paginated']);
+    Route::get('/trashed', [ProductController::class, 'trashed']);
+    Route::post('/{id}/restore', [ProductController::class, 'restore']);
+    Route::delete('/{id}/force', [ProductController::class, 'forceDelete']);
     Route::get('/{slug}', [ProductController::class, 'show']);
     Route::post('/', [ProductController::class, 'store']);
     Route::put('/{id}', [ProductController::class, 'update']);
@@ -75,4 +77,5 @@ Route::middleware('auth:sanctum')->group(function () {
     });
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+    Route::post('/profile/update', [AuthController::class, 'updateProfile']);
 });

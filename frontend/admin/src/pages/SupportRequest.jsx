@@ -21,8 +21,10 @@ import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 export default function SupportRequestPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ LIÊN HỆ");
 	const [supportRequests, setSupportRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [statusDialogOpen, setStatusDialogOpen] = useState(false);

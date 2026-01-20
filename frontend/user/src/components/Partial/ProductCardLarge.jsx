@@ -32,16 +32,16 @@ export default function ProductCardLarge({ product, onAddToCart, onViewDetails }
 						/>
 						{product.is_new && <div className='product-new'>New</div>}
 						<div className='product-details'>
-							<a href='#' onClick={handleViewDetails}>
+							<a href={`/${product.slug}`} onClick={handleViewDetails}>
 								<i className='fa fa-eye fa-1x'></i>
 							</a>
 						</div>
 					</div>
 					<div className='text-center rounded-bottom p-4'>
-						<a href='#' className='d-block mb-2'>
+						<a href={`/${product.slug}`} className='d-block mb-2'>
 							{product.category?.name || "Uncategorized"}
 						</a>
-						<a href='#' className='d-block h4' onClick={handleViewDetails}>
+						<a href={`/${product.slug}`} className='d-block h4' onClick={handleViewDetails}>
 							{product.name}
 						</a>
 						{hasDiscount(product) ? (

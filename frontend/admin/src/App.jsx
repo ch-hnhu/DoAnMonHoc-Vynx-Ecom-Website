@@ -3,8 +3,9 @@ import MainLayout from "./layouts/MainLayout";
 import DashboardPage from "./pages/DashboardPage";
 import Table from "./pages/Table";
 import Product from "./pages/Product/Product";
+import ProductTrash from "./pages/Product/ProductTrash";
 import AddProduct from "./pages/Product/AddProduct";
-import Order from "./pages/Order";
+import Order from "./pages/Order/Order";
 import User from "./pages/User";
 import Brand from "./pages/Brand";
 import Category from "./pages/Category/Category";
@@ -36,6 +37,7 @@ export default function App() {
 				<Route index element={<DashboardPage />} />
 				<Route path='table' element={<Table />} />
 				<Route path='products' element={<Product />} />
+				<Route path='products/trash' element={<ProductTrash />} />
 				<Route path='product/add' element={<AddProduct />} />
 				<Route path='orders' element={<Order />} />
 				<Route path='users' element={<User />} />

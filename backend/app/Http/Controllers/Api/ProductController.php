@@ -11,43 +11,13 @@ class ProductController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $products = Product::with(['category', 'brand', 'promotion'])
-                ->withAvg('product_reviews as rating_average', 'rating')
-                ->withCount('product_reviews as rating_count')
-                ->get();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Lay danh sach san pham thanh cong',
-                'data' => $products,
-                'error' => null,
-                'timestamp' => now(),
-            ]);
-        } catch (\Throwable $th) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Loi khi lay danh sach san pham',
-                'data' => null,
-                'error' => $th->getMessage(),
-                'timestamp' => now(),
-            ]);
-        }
-    }
-
-    /**
-     * Display a paginated listing of the resource.
-     */
-    public function paginated(Request $request)
-    {
-        try {
+            $page = $request->input('page', 1);
             $perPage = $request->input('per_page', 9);
-            $products = Product::with(['category', 'brand', 'promotion'])
-                ->withAvg('product_reviews as rating_average', 'rating')
-                ->withCount('product_reviews as rating_count')
-                ->paginate($perPage);
+
+            $products = Product::with(['category', 'brand', 'promotion'])->withAvg('product_reviews as rating_average', 'rating')->withCount('product_reviews as rating_count')->paginate($perPage);
 
             return response()->json([
                 'success' => true,
@@ -64,12 +34,12 @@ class ProductController extends Controller
                 ],
                 'timestamp' => now(),
             ]);
-        } catch (\Throwable $th) {
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Loi khi lay danh sach san pham',
                 'data' => null,
-                'error' => $th->getMessage(),
+                'error' => $e->getMessage(),
                 'timestamp' => now(),
             ]);
         }
@@ -277,13 +247,104 @@ class ProductController extends Controller
                 'error' => null,
                 'timestamp' => now(),
             ]);
-
         } catch (\Throwable $th) {
             return response()->json([
                 'success' => false,
                 'message' => 'Loi khi xoa san pham',
                 'data' => null,
                 'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Display a listing of trashed products.
+     */
+    public function trashed(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 25);
+
+            $products = Product::onlyTrashed()
+                ->with(['category', 'brand', 'promotion'])
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach san pham da xoa thanh cong',
+                'data' => $products->items(),
+                'error' => null,
+                'pagination' => [
+                    'total' => $products->total(),
+                    'per_page' => $products->perPage(),
+                    'current_page' => $products->currentPage(),
+                    'last_page' => $products->lastPage(),
+                    'from' => $products->firstItem(),
+                    'to' => $products->lastItem(),
+                ],
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay danh sach san pham da xoa',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Restore a trashed product.
+     */
+    public function restore(string $id)
+    {
+        try {
+            $product = Product::onlyTrashed()->findOrFail($id);
+            $product->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Khoi phuc san pham thanh cong',
+                'data' => $product,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi khoi phuc san pham',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Permanently delete a trashed product.
+     */
+    public function forceDelete(string $id)
+    {
+        try {
+            $product = Product::onlyTrashed()->findOrFail($id);
+            $product->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xoa vinh vien san pham thanh cong',
+                'data' => null,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi xoa vinh vien san pham',
+                'data' => null,
+                'error' => $e->getMessage(),
                 'timestamp' => now(),
             ]);
         }

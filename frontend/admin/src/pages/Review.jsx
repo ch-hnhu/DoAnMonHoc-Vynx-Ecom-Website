@@ -22,6 +22,7 @@ import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
+import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 
 const renderStars = (rating) => {
 	const stars = [];
@@ -45,6 +46,8 @@ const renderStars = (rating) => {
 };
 
 export default function ReviewPage() {
+	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐÁNH GIÁ");
+	
 	const [reviews, setReviews] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openReplyDialog, setOpenReplyDialog] = useState(false);
