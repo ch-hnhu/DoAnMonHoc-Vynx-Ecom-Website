@@ -26,13 +26,18 @@ export default function ShopPage() {
 	});
 	const [searchTerm, setSearchTerm] = useState("");
 	const [categories, setCategories] = useState([]);
+	const [brands, setBrands] = useState([]);
 	const [featuredProducts, setFeaturedProducts] = useState([]);
 	const [featuredLoading, setFeaturedLoading] = useState(false);
 	const [filters, setFilters] = useState({
 		categoryId: null,
+		brandId: null,
+		maxPrice: null,
 	});
 	const [sortBy, setSortBy] = useState("newest");
 	const keyword = (searchParams.get("search") || "").trim();
+	const [priceValue, setPriceValue] = useState(0);
+	const priceMax = 100000000;
 
 	useEffect(() => {
 		api
@@ -46,6 +51,19 @@ export default function ShopPage() {
 			})
 			.catch((error) => {
 				console.error("Error fetching categories: ", error);
+			});
+
+		api
+			.get("/brands", { params: { per_page: 10000 } })
+			.then((res) => {
+				if (res?.data?.success) {
+					setBrands(res.data.data || []);
+				} else {
+					setBrands(res?.data?.data || []);
+				}
+			})
+			.catch((error) => {
+				console.error("Error fetching brands: ", error);
 			});
 	}, []);
 
@@ -63,6 +81,8 @@ export default function ShopPage() {
 				search: keyword || undefined,
 				sort: sortBy === "nothing" ? undefined : sortBy,
 				category_id: filters.categoryId || undefined,
+				brand_id: filters.brandId || undefined,
+				max_price: filters.maxPrice || undefined,
 			};
 			try {
 				const res = await api.get("/products", { params });
@@ -81,7 +101,7 @@ export default function ShopPage() {
 		};
 
 		fetchProducts();
-	}, [pagination.currentPage, pagination.perPage, filters.categoryId, sortBy, keyword]);
+	}, [pagination.currentPage, pagination.perPage, filters.categoryId, filters.brandId, filters.maxPrice, sortBy, keyword]);
 
 	useEffect(() => {
 		const fetchFeaturedProducts = async () => {
@@ -92,6 +112,8 @@ export default function ShopPage() {
 				featured: 1,
 				search: keyword || undefined,
 				category_id: filters.categoryId || undefined,
+				brand_id: filters.brandId || undefined,
+				max_price: filters.maxPrice || undefined,
 			};
 			try {
 				const res = await api.get("/products", { params });
@@ -104,7 +126,7 @@ export default function ShopPage() {
 		};
 
 		fetchFeaturedProducts();
-	}, [filters.categoryId, keyword]);
+	}, [filters.categoryId, filters.brandId, filters.maxPrice, keyword]);
 
 	const handlePageChange = (page) => {
 		setPagination((prev) => ({ ...prev, currentPage: page }));
@@ -126,7 +148,36 @@ export default function ShopPage() {
 	};
 
 	const handleCategoryChange = (categoryId) => {
-		setFilters((prev) => ({ ...prev, categoryId }));
+		setFilters((prev) => ({
+			...prev,
+			categoryId,
+			brandId: categoryId === null ? null : prev.brandId,
+		}));
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+		if (categoryId === null) {
+			setSearchTerm("");
+			setSearchParams((prev) => {
+				const next = new URLSearchParams(prev);
+				next.delete("search");
+				return next;
+			});
+		}
+	};
+
+	const handleBrandChange = (brandId) => {
+		setFilters((prev) => ({ ...prev, brandId }));
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+	};
+
+	const handlePriceChange = (value) => {
+		setPriceValue(value);
+	};
+
+	const handleApplyPrice = () => {
+		setFilters((prev) => ({
+			...prev,
+			maxPrice: priceValue > 0 ? priceValue : null,
+		}));
 		setPagination((prev) => ({ ...prev, currentPage: 1 }));
 	};
 
@@ -187,7 +238,7 @@ export default function ShopPage() {
 						</div> */}
 
 						{/* Product Color */}
-						<div className='product-color mb-3'>
+						{/* <div className='product-color mb-3'>
 							<h4>Chọn theo màu</h4>
 							<ul className='list-unstyled'>
 								<li>
@@ -227,7 +278,7 @@ export default function ShopPage() {
 									</div>
 								</li>
 							</ul>
-						</div>
+						</div> */}
 
 						{/* Chọn theo danh mục */}
 						<div className='additional-product mb-4'>
@@ -264,6 +315,30 @@ export default function ShopPage() {
 									</label>
 								</div>
 							))}
+						</div>
+						
+						{/* Giá */}
+						<div className='price mb-4'>
+							<h4 className='mb-2'>Giá</h4>
+							<input
+								type='range'
+								className='form-range w-100'
+								id='rangeInput'
+								name='rangeInput'
+								min='0'
+								max={priceMax}
+								value={priceValue}
+								onChange={(e) => handlePriceChange(Number(e.target.value))}
+							/>
+							<output id='amount' name='amount' min='0' max={priceMax}>
+								{formatCurrency(priceValue)}
+							</output>
+							<button
+								type='button'
+								className='btn btn-primary w-100 mt-2'
+								onClick={handleApplyPrice}>
+								Áp dụng
+							</button>
 						</div>
 
 						{/* Featured Product */}
@@ -362,36 +437,27 @@ export default function ShopPage() {
 						<div className='product-tags py-4'>
 							<h4 className='mb-3'>TỪ KHÓA</h4>
 							<div className='product-tags-items bg-light rounded p-3'>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									Mới
+								<a
+									href='#'
+									className='border rounded py-1 px-2 mb-2'
+									onClick={(e) => {
+										e.preventDefault();
+										handleBrandChange(null);
+									}}>
+									Tất cả
 								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									thương hiệu
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									đen
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									trắng
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									máy tính bảng
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									Điện thoại
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									camera
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									drone
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									tivi
-								</a>
-								<a href='#' className='border rounded py-1 px-2 mb-2'>
-									giảm giá
-								</a>
+								{brands.map((brand) => (
+									<a
+										key={brand.id}
+										href='#'
+										className='border rounded py-1 px-2 mb-2'
+										onClick={(e) => {
+											e.preventDefault();
+											handleBrandChange(brand.id);
+										}}>
+										{brand.name}
+									</a>
+								))}
 							</div>
 						</div>
 					</div>
