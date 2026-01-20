@@ -3,6 +3,15 @@ import api from "./api";
 const TOKEN_KEY = "auth_token";
 const USER_KEY = "user_data";
 
+const CART_RESET_KEY = "cart_reset";
+
+const notifyAuthChange = () => {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("auth:changed"));
+  }
+};
+
+
 /**
  * Đăng ký người dùng mới
  */
@@ -29,6 +38,7 @@ export const register = async (
     // Lưu token và thông tin user vào localStorage
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    notifyAuthChange();
 
     // Thêm token vào header mặc định của axios
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -54,6 +64,7 @@ export const login = async (username, password) => {
     // Lưu token và thông tin user vào localStorage
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    notifyAuthChange();
 
     // Thêm token vào header mặc định của axios
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -81,6 +92,8 @@ export const logout = async () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
     delete api.defaults.headers.common["Authorization"];
+    localStorage.setItem(CART_RESET_KEY, "1");
+    notifyAuthChange();
   }
 };
 
@@ -126,6 +139,7 @@ export const getCurrentUser = async () => {
 
     // Cập nhật user data trong localStorage
     localStorage.setItem(USER_KEY, JSON.stringify(user));
+    notifyAuthChange();
 
     return user;
   } catch (error) {

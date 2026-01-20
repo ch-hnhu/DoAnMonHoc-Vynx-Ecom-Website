@@ -32,10 +32,13 @@ export default function Header() {
 
     checkAuth();
 
-    // Lắng nghe sự kiện storage để cập nhật khi đăng nhập/đăng xuất
-    window.addEventListener("storage", checkAuth);
-    return () => window.removeEventListener("storage", checkAuth);
-  }, []);
+		// Lắng nghe sự kiện storage để cập nhật khi đăng nhập/đăng xuất
+		window.addEventListener("storage", checkAuth);
+		return () => {
+			window.removeEventListener("auth:changed", checkAuth);
+			window.removeEventListener("storage", checkAuth);
+		};
+	}, []);
 
   const handleLogout = async () => {
     try {

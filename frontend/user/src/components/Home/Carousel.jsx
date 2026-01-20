@@ -115,38 +115,16 @@ export default function Carousel() {
 			<div className='container-fluid carousel bg-light px-0'>
 				<div className='row g-0 justify-content-end'>
 					<div className='col-12 col-lg-7 col-xl-9'>
-						<div className='header-carousel owl-carousel bg-light py-5'>
+						<div className='header-carousel owl-carousel bg-light'>
 							{slides.map((slide) => (
-								<div
-									key={slide.title}
-									className='row g-0 header-carousel-item align-items-center'>
-									<div
-										className='col-xl-6 carousel-img wow fadeInLeft'
-										data-wow-delay='0.1s'>
-										<a href={slide.link} className='d-block'>
-											<img
-												src={slide.image}
-												className='img-fluid w-100'
-												alt={slide.title}
-											/>
-										</a>
-									</div>
-									<div className='col-xl-6 carousel-content p-4'>
-										<h1
-											className='display-3 text-capitalize mb-3 wow fadeInRight'
-											data-wow-delay='0.3s'>
-											{slide.title}
-										</h1>
-										<p className='text-dark wow fadeInRight' data-wow-delay='0.5s'>
-											{slide.description}
-										</p>
-										<a
-											className='btn btn-primary rounded-pill py-3 px-5 wow fadeInRight'
-											data-wow-delay='0.7s'
-											href={slide.link}>
-											{slide.cta}
-										</a>
-									</div>
+								<div key={slide.title} className='header-carousel-item'>
+									<a href={slide.link} className='d-block'>
+										<img
+											src={slide.image}
+											className='img-fluid w-100'
+											alt={slide.title}
+										/>
+									</a>
 								</div>
 							))}
 						</div>

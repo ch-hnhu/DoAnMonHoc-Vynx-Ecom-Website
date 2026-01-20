@@ -26,19 +26,51 @@ export default function SingleProduct({ product }) {
 		}
 	}, [images.length]);
 
+	const getMaxQuantity = () => {
+		const stock = Number(product?.stock_quantity ?? 0);
+		return stock > 0 ? stock : 1;
+	};
+
 	const handleDecrease = () => {
+		if (quantity <= 1) return;
 		setQuantity((prev) => Math.max(1, prev - 1));
 	};
 
+
+	const handleQuantityChange = (e) => {
+		const raw = Number(e.target.value);
+		if (!Number.isFinite(raw)) return;
+		const nextQty = Math.min(Math.max(raw, 1), getMaxQuantity());
+		setQuantity(nextQty);
+	};
+
 	const handleIncrease = () => {
-		setQuantity((prev) => prev + 1);
+		const maxQty = getMaxQuantity();
+		setQuantity((prev) => Math.min(maxQty, prev + 1));
 	};
 
 	const handleAddToCart = (e) => {
 		e.preventDefault();
 		if (isInStock(product)) {
-			addToCart(product, quantity);
+			const nextQty = Math.min(Math.max(quantity, 1), getMaxQuantity());
+			setQuantity(nextQty);
+			addToCart(product, nextQty);
 			showSuccess("Đã thêm vào giỏ hàng");
+		}
+	};
+
+	const handleCopyLink = async () => {
+		try {
+			await navigator.clipboard.writeText(window.location.href);
+			showSuccess("\u0110\u00e3 sao ch\u00e9p \u0111\u01b0\u1eddng link s\u1ea3n ph\u1ea9m");
+		} catch {
+			const tempInput = document.createElement("input");
+			tempInput.value = window.location.href;
+			document.body.appendChild(tempInput);
+			tempInput.select();
+			document.execCommand("copy");
+			document.body.removeChild(tempInput);
+			showSuccess("\u0110\u00e3 sao ch\u00e9p \u0111\u01b0\u1eddng link s\u1ea3n ph\u1ea9m");
 		}
 	};
 
@@ -406,9 +438,6 @@ export default function SingleProduct({ product }) {
 								</div>
 								<div className='col-xl-6'>
 									<h4 className='fw-bold mb-3'>{product.name}</h4>
-									<p className='mb-3'>
-										Danh mục: {product.category?.name || "Chưa phân loại"}
-									</p>
 									<h5 className='fw-bold mb-3'>
 										{hasDiscount(product) ? (
 											<>
@@ -425,12 +454,12 @@ export default function SingleProduct({ product }) {
 										{renderRating(product.rating_average || 0)}
 									</div>
 									<div className='mb-3'>
-										<div className='btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2'>
-											<i className='fab fa-facebook-f me-1'></i> Chia sẻ
-										</div>
-										<div className='btn btn-secondary d-inline-block rounded text-white py-1 px-4 ms-2'>
-											<i className='fab fa-twitter ms-1'></i> Chia sẻ
-										</div>
+										<button
+											type='button'
+											onClick={handleCopyLink}
+											className='btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2'>
+											<i className='fa fa-link me-1'></i> Sao chép liên kết
+										</button>
 									</div>
 									<div className='d-flex flex-column mb-3'>
 										<small>Thương hiệu: {product.brand?.name || "Chưa rõ"}</small>
@@ -442,39 +471,39 @@ export default function SingleProduct({ product }) {
 													: "Hết hàng"}
 											</strong>
 										</small>
+									<small>Số lượng tồn kho: {product.stock_quantity ?? 0}</small>
 									</div>
-									<p className='mb-4'>
-										{product.short_description ||
-											product.description ||
-											"Chưa có mô tả ngắn."}
-									</p>
-									
-									<div
-										className='input-group quantity mb-5'
-										style={{ width: "100px" }}>
-										<div className='input-group-btn'>
-											<button
-												className='btn btn-sm btn-minus rounded-circle bg-light border'
-												type='button'
-												onClick={handleDecrease}>
-												<i className='fa fa-minus'></i>
-											</button>
-										</div>
-										<input
-											type='text'
-											className='form-control form-control-sm text-center border-0'
-											value={quantity}
-											readOnly
-										/>
-										<div className='input-group-btn'>
-											<button
-												className='btn btn-sm btn-plus rounded-circle bg-light border'
-												type='button'
-												onClick={handleIncrease}>
-												<i className='fa fa-plus'></i>
-											</button>
-										</div>
-									</div>
+								<div
+								className='input-group quantity mb-5'
+								style={{ width: "140px" }}>
+								<div className='input-group-btn'>
+									<button
+										className='btn btn-sm btn-minus rounded-circle bg-light border'
+										type='button'
+									disabled={quantity <= 1}
+										onClick={handleDecrease}>
+										<i className='fa fa-minus'></i>
+									</button>
+								</div>
+								<input
+									type='number'
+									min={1}
+									max={getMaxQuantity()}
+									className='form-control form-control-sm text-center border-0'
+									style={{ height: "40px", padding: "0 8px" }}
+									value={quantity}
+									onChange={handleQuantityChange}
+								/>
+								<div className='input-group-btn'>
+									<button
+										className='btn btn-sm btn-plus rounded-circle bg-light border'
+										type='button'
+										disabled={quantity >= getMaxQuantity()}
+										onClick={handleIncrease}>
+										<i className='fa fa-plus'></i>
+									</button>
+								</div>
+								</div>
 									<a
 										href='#'
 										onClick={handleAddToCart}
@@ -483,63 +512,158 @@ export default function SingleProduct({ product }) {
 									</a>
 								</div>
 								<div className='col-lg-12'>
-									<nav>
-										<div className='nav nav-tabs mb-3'>
-											<button
-												className='nav-link active border-white border-bottom-0'
-												type='button'
-												role='tab'
-												id='nav-about-tab'
-												data-bs-toggle='tab'
-												data-bs-target='#nav-about'
-												aria-controls='nav-about'
-												aria-selected='true'>
-												Thông số kỹ thuật
-											</button>
-										</div>
-									</nav>
-									<div className='tab-content mb-5'>
-										<div
-											className='tab-pane active'
-											id='nav-about'
-											role='tabpanel'
-											aria-labelledby='nav-about-tab'>
-											<ul className='list-unstyled mb-0'>
-												<li>
-													<strong>Thương hiệu:</strong>{" "}
-													{product.brand?.name || "Chưa rõ"}
-												</li>
-												<li>
-													<strong>Danh mục:</strong>{" "}
-													{product.category?.name || "Chưa phân loại"}
-												</li>
-												<li>
-													<strong>Giá:</strong>{" "}
-													{formatCurrency(getFinalPrice(product))}
-												</li>
-												<li>
-													<strong>Tồn kho:</strong>{" "}
-													{product.stock_quantity ?? 0}
-												</li>
-												<li>
-													<strong>Đánh giá:</strong>{" "}
-													{product.rating_average
-														? `${product.rating_average}/5`
-														: "Chưa có"}
-												</li>
-											</ul>
-										</div>
-										<div className='tab-pane' id='nav-vision' role='tabpanel'>
-											<p className='text-dark'>
-												Tempor erat elitr rebum at clita. Diam dolor diam ipsum
-												et tempor sit. Aliqu diam amet diam et eos labore. 3
+							<nav>
+								<div className='nav nav-tabs mb-3'>
+									<button
+										className='nav-link active border-white border-bottom-0'
+										type='button'
+										role='tab'
+										id='nav-desc-tab'
+										data-bs-toggle='tab'
+										data-bs-target='#nav-desc'
+										aria-controls='nav-desc'
+										aria-selected='true'>
+										Mô tả sản phẩm
+									</button>
+									<button
+										className='nav-link border-white border-bottom-0'
+										type='button'
+										role='tab'
+										id='nav-about-tab'
+										data-bs-toggle='tab'
+										data-bs-target='#nav-about'
+										aria-controls='nav-about'
+										aria-selected='false'>
+										Thông số kỹ thuật
+									</button>
+									<button
+										className='nav-link border-white border-bottom-0'
+										type='button'
+										role='tab'
+										id='nav-review-tab'
+										data-bs-toggle='tab'
+										data-bs-target='#nav-review'
+										aria-controls='nav-review'
+										aria-selected='false'>
+										Đánh giá
+									</button>
+								</div>
+							</nav>
+							<div className='tab-content mb-5'>
+								<div
+									className='tab-pane active'
+									id='nav-desc'
+									role='tabpanel'
+									aria-labelledby='nav-desc-tab'>
+									<p className='mb-0'>
+										{product.description ||
+											product.short_description ||
+											"Chưa có mô tả sản phẩm."}
+									</p>
+								</div>
+								<div
+									className='tab-pane'
+									id='nav-about'
+									role='tabpanel'
+									aria-labelledby='nav-about-tab'>
+									<div className='table-responsive'>
+										<table className='table table-bordered mb-0'>
+											<tbody>
+									{(product.specifications && product.specifications.length > 0) ? (
+										product.specifications.map((spec) => (
+											<tr key={spec.id || spec.name}>
+												<th scope='row'>{spec.name}</th>
+												<td>{spec.value}{spec.unit ? ` ${spec.unit}` : ""}</td>
+											</tr>
+										))
+									) : (
+										<tr>
+											<td colSpan='2'>Chưa có thông số kỹ thuật.</td>
+										</tr>
+									)}
+								</tbody>
+										</table>
+									</div>
+								</div>
+								<div
+									className='tab-pane'
+									id='nav-review'
+									role='tabpanel'
+									aria-labelledby='nav-review-tab'>
+									<div className='d-flex'>
+										<img
+											src='/img/avatar.jpg'
+											className='img-fluid rounded-circle p-3'
+											style={{ width: "100px", height: "100px" }}
+											alt=''
+										/>
+										<div className=''>
+											<p
+												className='mb-2'
+												style={{ fontSize: "14px" }}>
+												April 12, 2024
 											</p>
-											<p className='mb-0'>
-												Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam
-												et eos labore. Clita erat ipsum et lorem et sit
+											<div className='d-flex justify-content-between'>
+												<h5>Jason Smith</h5>
+												<div className='d-flex mb-3'>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star'></i>
+												</div>
+											</div>
+											<p>
+												The generated Lorem Ipsum is therefore always free
+												from repetition injected humour, or non-characteristic
+												words etc. Susp endisse ultricies nisi vel quam
+												suscipit{" "}
 											</p>
 										</div>
 									</div>
+									<div className='d-flex'>
+										<img
+											src='/img/avatar.jpg'
+											className='img-fluid rounded-circle p-3'
+											style={{ width: "100px", height: "100px" }}
+											alt=''
+										/>
+										<div className=''>
+											<p
+												className='mb-2'
+												style={{ fontSize: "14px" }}>
+												April 12, 2024
+											</p>
+											<div className='d-flex justify-content-between'>
+												<h5>Sam Peters</h5>
+												<div className='d-flex mb-3'>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star text-secondary'></i>
+													<i className='fa fa-star'></i>
+													<i className='fa fa-star'></i>
+												</div>
+											</div>
+											<p className='text-dark'>
+												The generated Lorem Ipsum is therefore always free
+												from repetition injected humour, or non-characteristic
+												words etc. Susp endisse ultricies nisi vel quam
+												suscipit{" "}
+											</p>
+										</div>
+									</div>
+								</div>
+								<div className='tab-pane' id='nav-vision' role='tabpanel'>
+									<p className='text-dark'>
+										Tempor erat elitr rebum at clita. Diam dolor diam ipsum
+										et tempor sit. Aliqu diam amet diam et eos labore. 3
+									</p> 
+									<p className='mb-0'>
+										Diam dolor diam ipsum et tempor sit. Aliqu diam amet diam
+										et eos labore. Clita erat ipsum et lorem et sit
+									</p>
+								</div>
+							</div>
 								</div>
 							</div>
 						</div>
@@ -550,7 +674,7 @@ export default function SingleProduct({ product }) {
 				open={toast.open}
 				autoHideDuration={2500}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>

@@ -289,6 +289,7 @@ export default function Signup() {
             autoHideDuration={3000}
             onClose={closeToast}
             anchorOrigin={{ vertical: "top", horizontal: "right" }}
+            anchorOrigin={{ vertical: "top", horizontal: "right" }}
           >
             <Alert
               onClose={closeToast}
