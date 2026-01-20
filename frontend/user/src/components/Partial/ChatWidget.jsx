@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import api from "../../services/api";
 
 export default function ChatWidget() {
 	const [isOpen, setIsOpen] = useState(false);
+	const [configuration, setConfiguration] = useState(null);
 	const [messages, setMessages] = useState([
 		{
 			from: "support",
@@ -9,6 +11,35 @@ export default function ChatWidget() {
 		},
 	]);
 	const [draft, setDraft] = useState("");
+
+	useEffect(() => {
+		let isMounted = true;
+
+		api.get("/configuration")
+			.then((response) => {
+				const configurations = response?.data?.data ?? [];
+				const activeConfig =
+					configurations.find((item) => item.is_active) || configurations[0];
+
+				if (isMounted) {
+					setConfiguration(activeConfig || null);
+				}
+			})
+			.catch(() => {
+				if (isMounted) {
+					setConfiguration(null);
+				}
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	const zaloPhone = configuration?.zalo || configuration?.phone || "";
+	const zaloId = String(zaloPhone).replace(/[^\d]/g, "");
+	const zaloLink = zaloId ? `https://zalo.me/${zaloId}` : "https://zalo.me";
+	const zaloLabel = zaloId ? `Zalo ${configuration?.phone || ""}` : "Zalo support";
 
 	const handleSend = (event) => {
 		event.preventDefault();
@@ -21,14 +52,24 @@ export default function ChatWidget() {
 
 	return (
 		<div className={`chat-widget ${isOpen ? "is-open" : ""}`}>
-			<button
-				type='button'
-				className='chat-toggle'
-				aria-expanded={isOpen}
-				onClick={() => setIsOpen((prev) => !prev)}>
-				<span className='chat-toggle-label'>Chat</span>
-				<i className='fas fa-comments'></i>
-			</button>
+			<div className='chat-actions'>
+				<a
+					className='zalo-toggle'
+					href={zaloLink}
+					target='_blank'
+					rel='noreferrer'
+					aria-label={zaloLabel}>
+					<span className='zalo-icon'>Zalo</span>
+				</a>
+				<button
+					type='button'
+					className='chat-toggle'
+					aria-expanded={isOpen}
+					onClick={() => setIsOpen((prev) => !prev)}>
+					<span className='chat-toggle-label'>Chat</span>
+					<i className='fas fa-comments'></i>
+				</button>
+			</div>
 
 			<div className='chat-panel' role='dialog' aria-label='Live chat'>
 				<div className='chat-header'>
