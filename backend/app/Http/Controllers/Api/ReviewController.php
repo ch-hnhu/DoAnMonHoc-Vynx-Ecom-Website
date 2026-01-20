@@ -12,12 +12,62 @@ class ReviewController extends Controller
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index()
+	public function index(Request $request)
 	{
-		return response()->json([
-			'message' => 'Goi den api review thanh cong',
-			'data' => ProductReview::with(['product', 'user'])->get(),
-		]);
+		try {
+			$perPage = $request->input('per_page', 25);
+			$query = ProductReview::with(['product', 'user']);
+			if ($request->has('product_id')) {
+				$query->where('product_id', $request->product_id);
+			}
+			if ($request->has('user_id')) {
+				$query->where('user_id', $request->user_id);
+			}
+			$sort = $request->input('sort', 'rating_desc');
+			switch ($sort) {
+				case 'newest':
+					$query->orderBy('created_at', 'desc');
+					break;
+				case 'oldest':
+					$query->orderBy('created_at', 'asc');
+					break;
+				case 'rating_desc':
+					$query->orderBy('rating', 'desc');
+					break;
+				case 'rating_asc':
+					$query->orderBy('rating', 'asc');
+					break;
+			}
+			$reviews = $query->paginate($perPage);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Lay danh sach review thanh cong',
+				'data' => $reviews->items(),
+				'error' => null,
+				'pagination' => [
+					'total' => $reviews->total(),
+					'per_page' => $reviews->perPage(),
+					'current_page' => $reviews->currentPage(),
+					'last_page' => $reviews->lastPage(),
+					'from' => $reviews->firstItem(),
+					'to' => $reviews->lastItem(),
+				],
+				'filters' => [
+					'product_id' => $request->input('product_id'),
+					'user_id' => $request->input('user_id'),
+				],
+				'timestamp' => now(),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi lay danh sach review',
+				'data' => [],
+				'error' => $e->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
 	}
 
 	/**

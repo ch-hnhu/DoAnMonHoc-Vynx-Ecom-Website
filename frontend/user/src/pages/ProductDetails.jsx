@@ -15,6 +15,11 @@ export default function ProductDetails() {
 	const [notFound, setNotFound] = useState(false);
 	const [loading, setLoading] = useState(true);
 
+	// Scroll to top when component mounts or slug changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: "smooth" });
+	}, [slug]);
+
 	useEffect(() => {
 		let isActive = true;
 		setLoading(true);
