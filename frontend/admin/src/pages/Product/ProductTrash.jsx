@@ -113,7 +113,6 @@ export default function ProductTrashPage() {
 							height: "50px",
 							objectFit: "cover",
 							borderRadius: "4px",
-							opacity: 0.6,
 						}}
 						onError={(e) => {
 							e.target.src = "https://placehold.co/600x400";
