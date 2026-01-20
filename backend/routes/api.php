@@ -52,6 +52,8 @@ Route::prefix('orders')->group(function () {
 
 Route::prefix('configuration')->group(function () {
     Route::get('/', [ConfigurationController::class, 'index']);
+    Route::get('/active', [ConfigurationController::class, 'active']);
+    Route::get('/all', [ConfigurationController::class, 'all']);
     Route::get('/{id}', [ConfigurationController::class, 'show']);
     Route::post('/', [ConfigurationController::class, 'store']);
     Route::put('/{id}', [ConfigurationController::class, 'update']);

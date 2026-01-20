@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	Button,
 	Box,
@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
@@ -38,9 +39,14 @@ export default function ConfigurationPage() {
 		address: "",
 		is_active: false,
 	});
+	const [logoFile, setLogoFile] = useState(null);
+	const [logoPreview, setLogoPreview] = useState("");
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
+	const [togglingId, setTogglingId] = useState(null);
+	const [showAllConfigurations, setShowAllConfigurations] = useState(false);
 	const { toast, showSuccess, showError, closeToast } = useToast();
+	const logoInputRef = useRef(null);
 	const statusColor = {
 		Active: "success",
 		Inactive: "default",
@@ -48,7 +54,8 @@ export default function ConfigurationPage() {
 
 	const fetchConfigurations = () => {
 		setLoading(true);
-		api.get("/configuration")
+		const endpoint = showAllConfigurations ? "/configuration/all" : "/configuration";
+		api.get(endpoint)
 			.then((response) => {
 				setConfigurations(response.data.data || []);
 			})
@@ -63,7 +70,11 @@ export default function ConfigurationPage() {
 
 	useEffect(() => {
 		fetchConfigurations();
-	}, []);
+	}, [showAllConfigurations]);
+
+	const handleToggleShowAll = () => {
+		setShowAllConfigurations((prev) => !prev);
+	};
 
 	const handleCreate = () => {
 		setSelectedConfig(null);
@@ -76,6 +87,8 @@ export default function ConfigurationPage() {
 			address: "",
 			is_active: false,
 		});
+		setLogoFile(null);
+		setLogoPreview("");
 		setErrors({});
 		setOpenEditDialog(true);
 	};
@@ -91,6 +104,8 @@ export default function ConfigurationPage() {
 			address: row.address || "",
 			is_active: !!row.is_active,
 		});
+		setLogoFile(null);
+		setLogoPreview(row.logo || "");
 		setErrors({});
 		setOpenEditDialog(true);
 	};
@@ -129,6 +144,26 @@ export default function ConfigurationPage() {
 		}));
 	};
 
+	const handleLogoChange = (e) => {
+		const file = e.target.files?.[0];
+		if (file && file.type.startsWith("image/")) {
+			setLogoFile(file);
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setLogoPreview(reader.result);
+			};
+			reader.readAsDataURL(file);
+			setFormData((prev) => ({ ...prev, logo: "" }));
+		}
+		e.target.value = "";
+	};
+
+	const handleRemoveLogo = () => {
+		setLogoFile(null);
+		setLogoPreview("");
+		setFormData((prev) => ({ ...prev, logo: "" }));
+	};
+
 	const validate = () => {
 		const nextErrors = {};
 		if (!formData.name.trim()) nextErrors.name = "Vui lòng nhập tên cấu hình";
@@ -148,31 +183,54 @@ export default function ConfigurationPage() {
 		if (!validate()) return;
 
 		setSubmitting(true);
-		const payload = {
-			logo: formData.logo.trim() || null,
-			name: formData.name.trim(),
-			email: formData.email.trim(),
-			phone: formData.phone.trim(),
-			address: formData.address.trim(),
-			is_active: !!formData.is_active,
-		};
+		const formDataToSend = new FormData();
+		formDataToSend.append("name", formData.name.trim());
+		formDataToSend.append("email", formData.email.trim());
+		formDataToSend.append("phone", formData.phone.trim());
+		formDataToSend.append("address", formData.address.trim());
+		formDataToSend.append("is_active", formData.is_active ? 1 : 0);
+
+		if (logoFile) {
+			formDataToSend.append("logo", logoFile);
+		} else if (formData.logo?.trim()) {
+			formDataToSend.append("logo", formData.logo.trim());
+		}
+
+		if (!isCreateMode) {
+			formDataToSend.append("_method", "PUT");
+		}
 
 		const request = isCreateMode
-			? api.post("/configuration", payload)
-			: api.put(`/configuration/${selectedConfig?.id}`, payload);
+			? api.post("/configuration", formDataToSend, {
+					headers: { "Content-Type": "multipart/form-data" },
+			  })
+			: api.post(`/configuration/${selectedConfig?.id}`, formDataToSend, {
+					headers: { "Content-Type": "multipart/form-data" },
+			  });
 
 		request
 			.then((response) => {
-				const updated = response?.data?.data ?? payload;
+				const updated = response?.data?.data ?? {};
 				if (isCreateMode) {
 					showSuccess("Tạo cấu hình thành công!");
-					setConfigurations((prev) => [updated, ...prev]);
+					setConfigurations((prev) => {
+						const next = updated.is_active
+							? prev.map((item) => ({ ...item, is_active: false }))
+							: prev;
+						return [updated, ...next];
+					});
 				} else {
 					showSuccess("Cập nhật cấu hình thành công!");
 					setConfigurations((prev) =>
-						prev.map((item) =>
-							item.id === selectedConfig.id ? { ...item, ...updated } : item
-						)
+						prev.map((item) => {
+							if (item.id === selectedConfig.id) {
+								return { ...item, ...updated };
+							}
+							if (updated.is_active) {
+								return { ...item, is_active: false };
+							}
+							return item;
+						})
 					);
 				}
 				setTimeout(() => {
@@ -198,9 +256,52 @@ export default function ConfigurationPage() {
 			address: "",
 			is_active: false,
 		});
+		setLogoFile(null);
+		setLogoPreview("");
 		setErrors({});
 		setSubmitting(false);
 		closeToast();
+	};
+
+	const handleToggleRowActive = (row, nextActive) => {
+		if (row.is_active && !nextActive) {
+			const currentActiveCount = configurations.filter((item) => item.is_active).length;
+			if (currentActiveCount <= 1) {
+				showError("Không thể tắt cấu hình active cuối cùng!");
+				return;
+			}
+		}
+		setTogglingId(row.id);
+		api
+			.put(`/configuration/${row.id}`, {
+				name: row.name,
+				email: row.email,
+				phone: row.phone,
+				address: row.address,
+				is_active: nextActive,
+			})
+			.then((response) => {
+				const updated = response?.data?.data ?? {};
+				setConfigurations((prev) =>
+					prev.map((item) => {
+						if (item.id === row.id) {
+							return { ...item, ...updated };
+						}
+						if (updated.is_active) {
+							return { ...item, is_active: false };
+						}
+						return item;
+					})
+				);
+				showSuccess(nextActive ? "Đã kích hoạt cấu hình!" : "Đã tắt cấu hình!");
+			})
+			.catch((error) => {
+				console.error("Error toggling configuration:", error);
+				showError("Thao tác thất bại!");
+			})
+			.finally(() => {
+				setTogglingId(null);
+			});
 	};
 
 	const columns = [
@@ -209,7 +310,25 @@ export default function ConfigurationPage() {
 		{ field: "email", headerName: "Email", width: 200 },
 		{ field: "phone", headerName: "Số điện thoại", width: 150 },
 		{ field: "address", headerName: "Địa chỉ", width: 240 },
-		{ field: "logo", headerName: "Logo", width: 200 },
+		{
+			field: "logo",
+			headerName: "Logo",
+			width: 120,
+			renderCell: (params) => {
+				return params.value ? (
+					<Box
+						component='img'
+						src={params.value}
+						alt='Logo'
+						sx={{ width: 48, height: 48, objectFit: "contain", borderRadius: 1 }}
+					/>
+				) : (
+					<Typography variant='body2' color='text.secondary'>
+						—
+					</Typography>
+				);
+			},
+		},
 		{
 			field: "is_active",
 			headerName: "Trạng thái",
@@ -231,11 +350,22 @@ export default function ConfigurationPage() {
 		{
 			field: "actions",
 			headerName: "Thao tác",
-			width: 200,
+			width: 300,
 			sortable: false,
 			renderCell: (params) => {
+				const isActive = !!params.row.is_active;
+				const isToggling = togglingId === params.row.id;
+				const isLastActive = isActive && activeCount <= 1;
 				return (
 					<Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
+						<Button
+							variant='outlined'
+							color={isActive ? "warning" : "success"}
+							size='small'
+							disabled={isToggling || isLastActive}
+							onClick={() => handleToggleRowActive(params.row, !isActive)}>
+							{isToggling ? "Đang xử lý..." : isActive ? "Tắt" : "Kích hoạt"}
+						</Button>
 						<Button
 							variant='outlined'
 							color='primary'
@@ -263,8 +393,16 @@ export default function ConfigurationPage() {
 		{ label: "Cấu hình", active: true },
 	];
 
+	const activeCount = configurations.filter((item) => item.is_active).length;
+
 	return (
 		<>
+			{activeCount > 1 && (
+				<Alert severity='warning' sx={{ mb: 2 }}>
+					Có {activeCount} cấu hình đang được kích hoạt. Vui lòng tắt bớt để chỉ còn 1
+					 cấu hình active.
+				</Alert>
+			)}
 			<DataTable
 				columns={columns}
 				rows={configurations}
@@ -274,16 +412,33 @@ export default function ConfigurationPage() {
 				pageSize={25}
 				checkboxSelection={true}
 				actions={
-					<Button
-						variant='contained'
-						startIcon={<AddIcon />}
-						onClick={handleCreate}
-						sx={{
-							backgroundColor: "#234C6A",
-							"&:hover": { backgroundColor: "#1B3C53" },
-						}}>
-						Thêm cấu hình
-					</Button>
+					<Box sx={{ display: "flex", gap: 1 }}>
+						<Button
+							variant='contained'
+							startIcon={<AddIcon />}
+							onClick={handleCreate}
+							sx={{
+								backgroundColor: "#234C6A",
+								"&:hover": { backgroundColor: "#1B3C53" },
+							}}>
+							Thêm cấu hình
+						</Button>
+						<Button
+							variant={showAllConfigurations ? "outlined" : "contained"}
+							onClick={handleToggleShowAll}
+							sx={{
+								borderColor: showAllConfigurations ? "#e5e7eb" : "#16a34a",
+								color: showAllConfigurations ? "#234C6A" : "#ffffff",
+								backgroundColor: showAllConfigurations ? "#ffffff" : "#16a34a",
+								"&:hover": {
+									borderColor: showAllConfigurations ? "#cbd5f5" : "#15803d",
+									color: showAllConfigurations ? "#1B3C53" : "#ffffff",
+									backgroundColor: showAllConfigurations ? "#ffffff" : "#15803d",
+								},
+							}}>
+							{showAllConfigurations ? "Chỉ hiển thị active" : "Hiển thị tất cả"}
+						</Button>
+					</Box>
 				}
 			/>
 
@@ -300,14 +455,59 @@ export default function ConfigurationPage() {
 				</DialogTitle>
 				<DialogContent dividers>
 					<Box component='form' onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-						<TextField
-							fullWidth
-							label='Logo (URL)'
-							name='logo'
-							value={formData.logo}
-							onChange={handleChange}
-							margin='normal'
-						/>
+						<Box sx={{ mt: 1 }}>
+							<Typography variant='subtitle2' sx={{ mb: 1 }}>
+								Logo
+							</Typography>
+							<input
+								ref={logoInputRef}
+								hidden
+								type='file'
+								accept='image/*'
+								onChange={handleLogoChange}
+							/>
+							<Button
+								variant='outlined'
+								startIcon={<CloudUploadIcon />}
+								onClick={() => logoInputRef.current?.click()}>
+								Chọn logo
+							</Button>
+							{logoPreview ? (
+								<Box
+									sx={{
+										mt: 2,
+										width: 120,
+										height: 120,
+										border: "1px solid #e5e7eb",
+										borderRadius: 2,
+										overflow: "hidden",
+										position: "relative",
+										backgroundColor: "#fff",
+									}}>
+									<Box
+										component='img'
+										src={logoPreview}
+										alt='Logo preview'
+										sx={{ width: "100%", height: "100%", objectFit: "contain" }}
+									/>
+									<IconButton
+										size='small'
+										onClick={handleRemoveLogo}
+										sx={{
+											position: "absolute",
+											top: 6,
+											right: 6,
+											bgcolor: "rgba(255,255,255,0.9)",
+										}}>
+										<DeleteIcon fontSize='small' />
+									</IconButton>
+								</Box>
+							) : (
+								<Typography variant='caption' color='text.secondary' sx={{ mt: 1 }}>
+									Chưa có logo
+								</Typography>
+							)}
+						</Box>
 						<TextField
 							fullWidth
 							label='Tên cấu hình'
