@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
+import { getUser } from "../services/authService";
 import { useToast } from "@shared/hooks/useToast";
 import { Snackbar, Alert } from "@mui/material";
+import OrderDetailModal from "../components/Order/OrderDetailModal";
 
 // Danh sách trạng thái đơn hàng
 const ORDER_STATUSES = [
@@ -21,6 +23,9 @@ export default function Orders() {
   // State quản lý trạng thái đang chọn
   const [activeStatus, setActiveStatus] = useState("pending");
 
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   // State quản lý danh sách đơn hàng
   const [orders, setOrders] = useState([]);
 
@@ -33,7 +38,13 @@ export default function Orders() {
   const fetchOrders = async (status) => {
     try {
       setLoading(true);
-      const response = await api.get(`/orders?status=${status}`);
+      const user = getUser();
+      const response = await api.get("/orders", {
+        params: {
+          delivery_status: status,
+          user_id: user?.id,
+        },
+      });
       setOrders(response.data.data || []);
     } catch (err) {
       console.error("Error fetching orders:", err);
@@ -50,6 +61,16 @@ export default function Orders() {
   const handleStatusChange = (status) => {
     setActiveStatus(status);
     fetchOrders(status);
+  };
+
+  const handleOpenModal = (order) => {
+    setSelectedOrder(order);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedOrder(null);
+    setIsModalOpen(false);
   };
 
   /**
@@ -73,6 +94,8 @@ export default function Orders() {
 
       // Hiển thị thông báo thành công
       showSuccess("Hủy đơn hàng thành công!");
+
+      handleCloseModal(); // Đóng modal nếu đang mở
 
       // Refresh lại danh sách đơn hàng
       await fetchOrders(activeStatus);
@@ -158,6 +181,13 @@ export default function Orders() {
         </Alert>
       </Snackbar>
 
+      <OrderDetailModal
+        order={selectedOrder}
+        open={isModalOpen}
+        onClose={handleCloseModal}
+        onCancel={handleCancelOrder}
+      />
+
       <div className="card border-0 shadow-sm">
         <div className="card-body p-0">
           {/* Header */}
@@ -236,8 +266,8 @@ export default function Orders() {
 
                     {/* Danh sách sản phẩm */}
                     <div className="card-body">
-                      {order.items && order.items.length > 0 ? (
-                        order.items.map((item, index) => (
+                      {order.order_items && order.order_items.length > 0 ? (
+                        order.order_items.slice(0, 2).map((item, index) => (
                           <div
                             key={index}
                             className="d-flex align-items-center mb-3 pb-3 border-bottom"
@@ -245,11 +275,11 @@ export default function Orders() {
                             {/* Ảnh sản phẩm */}
                             <img
                               src={
-                                item.product_image ||
+                                item.product?.image ||
                                 "https://placehold.co/80?text=No+Image"
                               }
                               alt={item.product_name}
-                              className="rounded me-3"
+                              className="rounded me-3 border"
                               style={{
                                 width: "80px",
                                 height: "80px",
@@ -272,28 +302,32 @@ export default function Orders() {
                       ) : (
                         <p className="text-muted">Không có sản phẩm</p>
                       )}
+                      {/* Hiển thị thêm nếu có nhiều hơn 2 sp */}
+                      {order.order_items && order.order_items.length > 2 && (
+                        <div className="text-center text-muted fst-italic">
+                          ... và {order.order_items.length - 2} sản phẩm khác
+                        </div>
+                      )}
                     </div>
 
                     {/* Footer đơn hàng */}
                     <div className="card-footer bg-white d-flex justify-content-between align-items-center">
                       <div>
                         <strong>Tổng tiền:</strong>
-                        <span className="text-danger fs-5 ms-2">
+                        <span className="text-danger fs-5 ms-2 fw-bold">
                           {formatPrice(order.total_amount)}
                         </span>
                       </div>
 
-                      {/* Nút hủy đơn hàng - chỉ hiển thị nếu trạng thái là "Đang chờ xử lý" */}
-                      {canCancelOrder(order.status) && (
+                      <div className="d-flex gap-2">
                         <button
-                          className="btn btn-outline-danger"
-                          onClick={() => handleCancelOrder(order.id)}
-                          disabled={loading}
+                          className="btn btn-outline-primary"
+                          onClick={() => handleOpenModal(order)}
                         >
-                          <i className="fas fa-times me-2"></i>
-                          Hủy đơn hàng
+                          <i className="fas fa-eye me-2"></i>
+                          Xem chi tiết
                         </button>
-                      )}
+                      </div>
                     </div>
                   </div>
                 ))}
