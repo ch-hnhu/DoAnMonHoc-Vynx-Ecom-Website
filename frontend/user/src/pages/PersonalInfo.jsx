@@ -139,15 +139,27 @@ export default function PersonalInfo() {
   const handleSave = async (e) => {
     e.preventDefault();
 
-    // Validate
+    // Validate họ và tên
     if (!formData.full_name.trim()) {
       showError("Họ và tên không được để trống");
       return;
     }
 
+    // Validate email
     if (!formData.email.trim()) {
       showError("Email không được để trống");
       return;
+    }
+
+    // Validate số điện thoại (nếu có nhập)
+    if (formData.phone && formData.phone.trim() !== "") {
+      const phoneRegex = /^0\d{9}$/;
+
+      // Kiểm tra định dạng: bắt đầu bằng 0 và có đủ 10 chữ số
+      if (!phoneRegex.test(formData.phone.trim())) {
+        showError("Vui lòng nhập đủ 10 chữ số");
+        return;
+      }
     }
 
     try {
@@ -215,7 +227,6 @@ export default function PersonalInfo() {
         open={toast.open}
         autoHideDuration={toast.duration}
         onClose={closeToast}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
       >
         <Alert
@@ -358,6 +369,8 @@ export default function PersonalInfo() {
                     value={formData.phone}
                     onChange={handleInputChange}
                     placeholder="Nhập số điện thoại"
+                    pattern="0\d{9}"
+                    maxLength="10"
                   />
                 </div>
 
