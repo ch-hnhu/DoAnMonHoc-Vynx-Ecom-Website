@@ -145,7 +145,7 @@ export default function RelatedProducts({ products = [] }) {
 				open={toast.open}
 				autoHideDuration={2500}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>
@@ -153,3 +153,4 @@ export default function RelatedProducts({ products = [] }) {
 		</>
 	);
 }
+
