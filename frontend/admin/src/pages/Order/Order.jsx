@@ -30,13 +30,16 @@ export default function OrderPage() {
 	const [openEditDialog, setOpenEditDialog] = useState(false);
 	const [openViewDialog, setOpenViewDialog] = useState(false);
 	const [loading, setLoading] = useState(true);
+	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
+	const [rowCount, setRowCount] = useState(0);
 	const { toast, showSuccess, showError, showInfo, closeToast } = useToast();
 
-	const fetchOrders = () => {
+	const fetchOrders = (model = paginationModel) => {
 		setLoading(true);
-		api.get("/orders")
-			.then((response) => {
-				setOrders(response.data.data || []);
+		api.get("/orders", { params: { page: model.page + 1, per_page: model.pageSize } })
+			.then((res) => {
+				setOrders(res.data.data || []);
+				setRowCount(res.data.pagination?.total ?? 0);
 			})
 			.catch((error) => {
 				console.error("Error fetching orders: ", error);
@@ -48,7 +51,7 @@ export default function OrderPage() {
 
 	useEffect(() => {
 		fetchOrders();
-	}, []);
+	}, [paginationModel.page, paginationModel.pageSize]);
 
 	const handleCreate = () => {
 		console.log("Create order");
@@ -109,20 +112,18 @@ export default function OrderPage() {
 				delivery_status: getDeliveryStatusId(newRow.delivery_status),
 			});
 
-			// Kiểm tra success từ API response
 			if (response.data.success) {
-				// Cập nhật state local
 				setOrders((prev) => prev.map((order) => (order.id === newRow.id ? newRow : order)));
-				showSuccess(response.data.message || "Cập nhật thành công!");
+				showSuccess("Cập nhật đơn hàng thành công!");
 				return newRow;
 			} else {
-				showError(response.data.message || "Cập nhật thất bại");
+				showError("Cập nhật đơn hàng thất bại");
 				return oldRow;
 			}
 		} catch (error) {
 			console.error("Error updating order:", error);
-			showError(error.response?.data?.message || error.message || "Cập nhật thất bại");
-			return oldRow; // Rollback về giá trị cũ
+			showError("Cập nhật đơn hàng thất bại");
+			return oldRow;
 		}
 	};
 
@@ -232,7 +233,10 @@ export default function OrderPage() {
 				loading={loading}
 				title='Quản lý đơn hàng'
 				breadcrumbs={breadcrumbs}
-				pageSize={25}
+				pageSize={paginationModel.pageSize}
+				page={paginationModel.page}
+				onPageChange={setPaginationModel}
+				rowCount={rowCount}
 				checkboxSelection={true}
 				processRowUpdate={processRowUpdate}
 				actions={
