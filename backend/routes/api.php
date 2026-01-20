@@ -84,12 +84,12 @@ Route::middleware('auth:sanctum')->group(function () {
 	Route::get('/me', [AuthController::class, 'me']);
 	Route::post('/profile/update', [AuthController::class, 'updateProfile']);
 
-	// Review routes for authenticated users
+	// Review routes
 	Route::get('/reviews/reviewed-orders', [ReviewController::class, 'getReviewedOrders']);
 	Route::get('/reviews/pending-orders', [ReviewController::class, 'getPendingReviewOrders']);
 	Route::post('/reviews', [ReviewController::class, 'store']);
 
-	// Wishlist routes for authenticated users
+	// Wishlist routes
 	Route::prefix('wishlists')->group(function () {
 		Route::get('/', [WishlistController::class, 'index']);
 		Route::get('/count', [WishlistController::class, 'count']);

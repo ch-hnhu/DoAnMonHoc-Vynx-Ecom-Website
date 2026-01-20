@@ -61,24 +61,53 @@ class WishlistController extends Controller
 
 			$userId = Auth::id();
 
-			// Kiểm tra xem sản phẩm đã có trong wishlist chưa
-			$exists = Wishlist::where('user_id', $userId)
+			// Kiểm tra xem sản phẩm đã có trong wishlist chưa (bao gồm cả soft deleted)
+			$wishlist = Wishlist::withTrashed()
+				->where('user_id', $userId)
 				->where('product_id', $validated['product_id'])
-				->exists();
+				->first();
 
-			if ($exists) {
-				return response()->json([
-					'success' => false,
-					'message' => 'San pham da co trong wishlist',
-					'data' => null,
-					'error' => 'Duplicate entry',
-					'timestamp' => now(),
+			if ($wishlist) {
+				if (!$wishlist->trashed()) {
+					return response()->json([
+						'success' => false,
+						'message' => 'San pham da co trong wishlist',
+						'data' => null,
+						'error' => 'Duplicate entry',
+						'timestamp' => now(),
+					], 409);
+				}
+
+				// Nếu đã bị soft delete, restore lại
+				$wishlist->restore();
+				$wishlist->load([
+					'product' => function ($query) {
+						$query->with(['category', 'brand', 'promotion'])
+							->withAvg('product_reviews as rating_average', 'rating')
+							->withCount('product_reviews as rating_count');
+					}
 				]);
+
+				return response()->json([
+					'success' => true,
+					'message' => 'Them san pham vao wishlist thanh cong',
+					'data' => $wishlist,
+					'error' => null,
+					'timestamp' => now(),
+				], 201);
 			}
 
 			$wishlist = Wishlist::create([
 				'user_id' => $userId,
 				'product_id' => $validated['product_id'],
+			]);
+
+			$wishlist->load([
+				'product' => function ($query) {
+					$query->with(['category', 'brand', 'promotion'])
+						->withAvg('product_reviews as rating_average', 'rating')
+						->withCount('product_reviews as rating_count');
+				}
 			]);
 
 			return response()->json([
@@ -131,12 +160,12 @@ class WishlistController extends Controller
 				'error' => null,
 				'timestamp' => now(),
 			]);
-		} catch (\Exception $e) {
+		} catch (\Throwable $th) {
 			return response()->json([
 				'success' => false,
 				'message' => 'Loi khi xoa san pham khoi wishlist',
 				'data' => null,
-				'error' => $e->getMessage(),
+				'error' => $th->getMessage(),
 				'timestamp' => now(),
 			], 500);
 		}

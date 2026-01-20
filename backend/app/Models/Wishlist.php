@@ -28,6 +28,10 @@ class Wishlist extends Model
 
 	protected $table = 'wishlists';
 
+	protected $primaryKey = ['user_id', 'product_id'];
+	public $incrementing = false;
+	protected $keyType = 'int';
+
 	protected $casts = [
 		'user_id' => 'int',
 		'product_id' => 'int',
@@ -37,6 +41,51 @@ class Wishlist extends Model
 		'user_id',
 		'product_id'
 	];
+
+	/**
+	 * Set the keys for a save update query.
+	 */
+	protected function setKeysForSaveQuery($query)
+	{
+		$keys = $this->getKeyName();
+		if (!is_array($keys)) {
+			return parent::setKeysForSaveQuery($query);
+		}
+
+		foreach ($keys as $keyName) {
+			$query->where($keyName, '=', $this->getKeyForSaveQuery($keyName));
+		}
+
+		return $query;
+	}
+
+	/**
+	 * Get the value for a given key.
+	 */
+	protected function getKeyForSaveQuery($keyName = null)
+	{
+		if (is_null($keyName)) {
+			$keyName = $this->getKeyName();
+		}
+
+		if (isset($this->original[$keyName])) {
+			return $this->original[$keyName];
+		}
+
+		return $this->getAttribute($keyName);
+	}
+
+	/**
+	 * Perform the actual delete query on this model instance.
+	 */
+	protected function performDeleteOnModel()
+	{
+		if ($this->forceDeleting) {
+			return $this->newModelQuery()->where($this->getKeyName(), $this->getKey())->forceDelete();
+		}
+
+		return $this->runSoftDelete();
+	}
 
 	/**
 	 * Get the user that owns the wishlist item
