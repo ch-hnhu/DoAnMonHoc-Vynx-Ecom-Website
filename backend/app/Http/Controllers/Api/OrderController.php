@@ -11,16 +11,56 @@ class OrderController extends Controller
 	/**
 	 * Display a listing of the resource.
 	 */
-	public function index()
+	public function index(Request $request)
 	{
 		try {
-			$orders = Order::with(['user', 'user_address', 'order_items.product', 'promotion'])->get();
+			$perPage = $request->input('per_page', 10);
+
+			$query = Order::with(['user', 'user_address', 'order_items.product', 'promotion']);
+
+			if ($request->has('user_id')) {
+				$query->where('user_id', $request->user_id);
+			}
+
+			if ($request->has('payment_status')) {
+				$query->where('payment_status', $request->payment_status);
+			}
+
+			if ($request->has('delivery_status')) {
+				$query->where('delivery_status', $request->delivery_status);
+			}
+
+			$sort = $request->input('sort', 'newest');
+			switch ($sort) {
+				case 'newest':
+					$query->orderBy('created_at', 'desc');
+					break;
+				case 'oldest':
+					$query->orderBy('created_at', 'asc');
+					break;
+			}
+
+			$orders = $query->paginate($perPage);
 
 			return response()->json([
 				'success' => true,
 				'message' => 'Lay danh sach don hang thanh cong',
-				'data' => $orders,
+				'data' => $orders->items(),
 				'error' => null,
+				'pagination' => [
+					'total' => $orders->total(),
+					'per_page' => $orders->perPage(),
+					'current_page' => $orders->currentPage(),
+					'last_page' => $orders->lastPage(),
+					'from' => $orders->firstItem(),
+					'to' => $orders->lastItem(),
+				],
+				'filters' => [
+					'user_id' => $request->input('user_id'),
+					'payment_status' => $request->input('payment_status'),
+					'delivery_status' => $request->input('delivery_status'),
+					'sort' => $sort,
+				],
 				'timestamp' => now(),
 			]);
 		} catch (\Exception $e) {
