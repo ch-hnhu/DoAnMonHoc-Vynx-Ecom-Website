@@ -33,7 +33,7 @@ export default function ProductDetails() {
 								? item.category_id === currentProduct.category_id
 								: true
 						)
-						.slice(0, 8);
+						.slice(0, 5);
 
 					setProduct(currentProduct);
 					setRelatedProducts(filteredRelated);
