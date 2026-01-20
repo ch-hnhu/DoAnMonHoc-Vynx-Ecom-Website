@@ -19,7 +19,7 @@ export default function ShopPage() {
 	const [pagination, setPagination] = useState({
 		currentPage: 1,
 		lastPage: 1,
-		perPage: 2,
+		perPage: 3,
 		total: 0,
 	});
 	const [searchTerm, setSearchTerm] = useState("");
@@ -49,7 +49,7 @@ export default function ShopPage() {
 				params: {
 					page: pagination.currentPage,
 					per_page: pagination.perPage,
-					q: filters.keyword || undefined,
+					search: filters.keyword || undefined,
 					category_id: filters.categoryId || undefined,
 					max_price: filters.maxPrice > 0 ? filters.maxPrice : undefined,
 					sort: sortBy !== "default" ? sortBy : undefined,
