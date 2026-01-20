@@ -3,6 +3,7 @@ import api from "../../services/api";
 import { API_BASE_URL } from "../../config/api";
 
 export default function Carousel() {
+	const baseUrl = API_BASE_URL.replace(/\/api\/?$/, "");
 	const defaultSlides = [
 		{
 			tag: "Sản phẩm nổi bật",
@@ -131,33 +132,14 @@ export default function Carousel() {
 					</div>
 					<div className='col-12 col-lg-5 col-xl-3 wow fadeInRight' data-wow-delay='0.1s'>
 						<div className='carousel-header-banner h-100'>
-							<img
-								src='/img/header-img.jpg'
-								className='img-fluid w-100 h-100'
-								style={{ objectFit: "cover" }}
-								alt='Image'
-							/>
-							<div className='carousel-banner-offer'>
-								<p className='bg-primary text-white rounded fs-5 py-2 px-4 mb-0 me-3'>
-									Save $48.00
-								</p>
-								<p className='text-primary fs-5 fw-bold mb-0'>Special Offer</p>
-							</div>
-							<div className='carousel-banner'>
-								<div className='carousel-banner-content text-center p-4'>
-									<a href='#' className='d-block mb-2'>
-										SmartPhone
-									</a>
-									<a href='#' className='d-block text-white fs-3'>
-										Apple iPad Mini <br /> G2356
-									</a>
-									<del className='me-2 text-white fs-5'>$1,250.00</del>
-									<span className='text-primary fs-5'>$1,050.00</span>
-								</div>
-								<a href='#' className='btn btn-primary rounded-pill py-2 px-4'>
-									<i className='fas fa-shopping-cart me-2'></i> Add To Cart
-								</a>
-							</div>
+							<a href='/san-pham' className='d-block h-100'>
+								<img
+									src={`${baseUrl}/storage/slideshows/banner-doc.png`}
+									className='img-fluid w-100 h-100'
+									style={{ objectFit: "cover" }}
+									alt='banner-doc'
+								/>
+							</a>
 						</div>
 					</div>
 				</div>

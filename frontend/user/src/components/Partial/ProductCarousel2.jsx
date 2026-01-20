@@ -25,7 +25,7 @@ export default function ProductCarousel2({
 }) {
 	const navigate = useNavigate();
 	const { addToCart } = useCart();
-	const { toast, showSuccess, closeToast } = useToast();
+	const { toast, showSuccess, showError, closeToast } = useToast();
 	
 	const carouselClass = `${carouselId}-carousel`;
 
@@ -57,7 +57,12 @@ export default function ProductCarousel2({
 
 	const handleAddToCart = (product, event) => {
 		if (event) event.preventDefault();
-		addToCart(product, 1);
+		const added = addToCart(product, 1);
+		if (!added) {
+			showError("Vui lòng đăng nhập để thêm vào giỏ hàng");
+			navigate("/dang-nhap");
+			return;
+		}
 		showSuccess("Đã thêm vào giỏ hàng");
 	};
 

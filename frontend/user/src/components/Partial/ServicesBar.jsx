@@ -11,8 +11,8 @@ export default function ServicesBar() {
 							<div className='d-inline-flex align-items-center'>
 								<i className='fa fa-sync-alt fa-2x text-primary'></i>
 								<div className='ms-4'>
-									<h6 className='text-uppercase mb-2'>Free Return</h6>
-									<p className='mb-0'>30 days money back guarantee!</p>
+									<h6 className='text-uppercase mb-2'>Đổi trả miễn phí</h6>
+									<p className='mb-0'>Hoàn tiền trong 30 ngày</p>
 								</div>
 							</div>
 						</div>
@@ -24,8 +24,8 @@ export default function ServicesBar() {
 							<div className='d-flex align-items-center'>
 								<i className='fab fa-telegram-plane fa-2x text-primary'></i>
 								<div className='ms-4'>
-									<h6 className='text-uppercase mb-2'>Free Shipping</h6>
-									<p className='mb-0'>Free shipping on all order</p>
+									<h6 className='text-uppercase mb-2'>Miễn phí vận chuyển</h6>
+									<p className='mb-0'>Miễn phí vận chuyển mọi đơn</p>
 								</div>
 							</div>
 						</div>
@@ -37,8 +37,8 @@ export default function ServicesBar() {
 							<div className='d-flex align-items-center'>
 								<i className='fas fa-life-ring fa-2x text-primary'></i>
 								<div className='ms-4'>
-									<h6 className='text-uppercase mb-2'>Support 24/7</h6>
-									<p className='mb-0'>We support online 24 hrs a day</p>
+									<h6 className='text-uppercase mb-2'>Hỗ trợ 24/7</h6>
+									<p className='mb-0'>Hỗ trợ trực tuyến 24/7</p>
 								</div>
 							</div>
 						</div>
@@ -50,8 +50,8 @@ export default function ServicesBar() {
 							<div className='d-flex align-items-center'>
 								<i className='fas fa-credit-card fa-2x text-primary'></i>
 								<div className='ms-4'>
-									<h6 className='text-uppercase mb-2'>Receive Gift Card</h6>
-									<p className='mb-0'>Recieve gift all over oder $50</p>
+									<h6 className='text-uppercase mb-2'>Nhận quà tặng</h6>
+									<p className='mb-0'>Tặng quà cho đơn từ 5.000.000đ</p>
 								</div>
 							</div>
 						</div>
@@ -63,8 +63,8 @@ export default function ServicesBar() {
 							<div className='d-flex align-items-center'>
 								<i className='fas fa-lock fa-2x text-primary'></i>
 								<div className='ms-4'>
-									<h6 className='text-uppercase mb-2'>Secure Payment</h6>
-									<p className='mb-0'>We Value Your Security</p>
+									<h6 className='text-uppercase mb-2'>Thanh toán an toàn</h6>
+									<p className='mb-0'>Thanh toán an toàn, bảo mật</p>
 								</div>
 							</div>
 						</div>
@@ -76,8 +76,8 @@ export default function ServicesBar() {
 							<div className='d-flex align-items-center'>
 								<i className='fas fa-blog fa-2x text-primary'></i>
 								<div className='ms-4'>
-									<h6 className='text-uppercase mb-2'>Online Service</h6>
-									<p className='mb-0'>Free return products in 30 days</p>
+									<h6 className='text-uppercase mb-2'>Dịch vụ trực tuyến</h6>
+									<p className='mb-0'>Đổi trả miễn phí trong 30 ngày</p>
 								</div>
 							</div>
 						</div>

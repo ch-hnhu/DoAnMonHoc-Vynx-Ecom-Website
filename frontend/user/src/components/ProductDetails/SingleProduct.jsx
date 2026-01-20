@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Alert, Snackbar } from "@mui/material";
 import {
 	getAllProductImages,
@@ -13,7 +14,8 @@ import { useToast } from "@shared/hooks/useToast.js";
 
 export default function SingleProduct({ product }) {
 	const { addToCart } = useCart();
-	const { toast, showSuccess, closeToast } = useToast();
+	const { toast, showSuccess, showError, closeToast } = useToast();
+	const navigate = useNavigate();
 	const [quantity, setQuantity] = useState(1);
 	const images = useMemo(
 		() => getAllProductImages(product?.image_url),
@@ -54,7 +56,12 @@ export default function SingleProduct({ product }) {
 		if (isInStock(product)) {
 			const nextQty = Math.min(Math.max(quantity, 1), getMaxQuantity());
 			setQuantity(nextQty);
-			addToCart(product, nextQty);
+			const added = addToCart(product, nextQty);
+			if (!added) {
+				showError("Vui lòng đăng nhập để thêm vào giỏ hàng");
+				navigate("/dang-nhap");
+				return;
+			}
 			showSuccess("Đã thêm vào giỏ hàng");
 		}
 	};
@@ -507,7 +514,7 @@ export default function SingleProduct({ product }) {
 									<a
 										href='#'
 										onClick={handleAddToCart}
-										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary'>
+										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-white'>
 										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm vào giỏ hàng
 									</a>
 								</div>

@@ -135,14 +135,14 @@ export default function Footer() {
 									</div>
 									<div className='d-flex align-items-center gap-3 mt-3'>
 										<a
-											href='#'
+											href='https://www.facebook.com/dinhnguyenbatai'
 											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
 											style={{ width: 36, height: 36 }}
 											aria-label='Facebook'>
 											<i className='fab fa-facebook-f' style={{ color: '#1877f2' }}></i>
 										</a>
 										<a
-											href='#'
+											href='https://zalo.me/0777365083'
 											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
 											style={{ width: 36, height: 36 }}
 											aria-label='Zalo'>
@@ -151,7 +151,7 @@ export default function Footer() {
 											</span>
 										</a>
 										<a
-											href='#'
+											href='https://youtube.com/@lctgroup1108?si=XMQ47H0t4tO5e3FZ'
 											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
 											style={{ width: 36, height: 36 }}
 											aria-label='YouTube'>
