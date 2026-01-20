@@ -35,7 +35,9 @@ export default function ProductPage() {
 	const fetchProducts = (model = paginationModel) => {
 		setLoading(true);
 		Promise.all([
-			api.get("/products", { params: { page: model.page + 1, per_page: model.pageSize } }),
+			api.get("/products", {
+				params: { page: model.page + 1, per_page: model.pageSize, sort: "name_asc" },
+			}),
 			api.get("/brands"),
 			api.get("/promotions"),
 		])
