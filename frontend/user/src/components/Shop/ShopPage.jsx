@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Alert, Snackbar } from "@mui/material";
 import Pagination from "../Partial/Pagination";
@@ -30,7 +30,7 @@ export default function ShopPage() {
 	const [featuredProducts, setFeaturedProducts] = useState([]);
 	const [featuredLoading, setFeaturedLoading] = useState(false);
 	const [filters, setFilters] = useState({
-		categoryId: null,
+		categorySlug: null,
 		brandId: null,
 		maxPrice: null,
 	});
@@ -38,6 +38,7 @@ export default function ShopPage() {
 	const keyword = (searchParams.get("search") || "").trim();
 	const [priceValue, setPriceValue] = useState(0);
 	const priceMax = 100000000;
+	const searchInputRef = useRef(null);
 
 	useEffect(() => {
 		api
@@ -80,7 +81,7 @@ export default function ShopPage() {
 				per_page: pagination.perPage,
 				search: keyword || undefined,
 				sort: sortBy === "nothing" ? undefined : sortBy,
-				category_id: filters.categoryId || undefined,
+				category_slug: filters.categorySlug || undefined,
 				brand_id: filters.brandId || undefined,
 				max_price: filters.maxPrice || undefined,
 			};
@@ -101,7 +102,7 @@ export default function ShopPage() {
 		};
 
 		fetchProducts();
-	}, [pagination.currentPage, pagination.perPage, filters.categoryId, filters.brandId, filters.maxPrice, sortBy, keyword]);
+	}, [pagination.currentPage, pagination.perPage, filters.categorySlug, filters.brandId, filters.maxPrice, sortBy, keyword]);
 
 	useEffect(() => {
 		const fetchFeaturedProducts = async () => {
@@ -111,7 +112,7 @@ export default function ShopPage() {
 				per_page: 4,
 				featured: 1,
 				search: keyword || undefined,
-				category_id: filters.categoryId || undefined,
+				category_slug: filters.categorySlug || undefined,
 				brand_id: filters.brandId || undefined,
 				max_price: filters.maxPrice || undefined,
 			};
@@ -126,7 +127,7 @@ export default function ShopPage() {
 		};
 
 		fetchFeaturedProducts();
-	}, [filters.categoryId, filters.brandId, filters.maxPrice, keyword]);
+	}, [filters.categorySlug, filters.brandId, filters.maxPrice, keyword]);
 
 	const handlePageChange = (page) => {
 		setPagination((prev) => ({ ...prev, currentPage: page }));
@@ -147,14 +148,33 @@ export default function ShopPage() {
 		});
 	};
 
-	const handleCategoryChange = (categoryId) => {
+	const handleTagSearch = (term) => {
+		const nextKeyword = (term || "").trim();
+		setSearchTerm(nextKeyword);
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			if (nextKeyword) {
+				next.set("search", nextKeyword);
+			} else {
+				next.delete("search");
+			}
+			return next;
+		});
+		if (searchInputRef.current) {
+			searchInputRef.current.focus();
+			searchInputRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+		}
+	};
+
+	const handleCategoryChange = (categorySlug) => {
 		setFilters((prev) => ({
 			...prev,
-			categoryId,
-			brandId: categoryId === null ? null : prev.brandId,
+			categorySlug,
+			brandId: categorySlug === null ? null : prev.brandId,
 		}));
 		setPagination((prev) => ({ ...prev, currentPage: 1 }));
-		if (categoryId === null) {
+		if (categorySlug === null) {
 			setSearchTerm("");
 			setSearchParams((prev) => {
 				const next = new URLSearchParams(prev);
@@ -164,10 +184,7 @@ export default function ShopPage() {
 		}
 	};
 
-	const handleBrandChange = (brandId) => {
-		setFilters((prev) => ({ ...prev, brandId }));
-		setPagination((prev) => ({ ...prev, currentPage: 1 }));
-	};
+	
 
 	const handlePriceChange = (value) => {
 		setPriceValue(value);
@@ -290,7 +307,7 @@ export default function ShopPage() {
 									className='me-2'
 									id='Categories-all'
 									name='Categories'
-									checked={!filters.categoryId}
+									checked={!filters.categorySlug}
 									onChange={() => handleCategoryChange(null)}
 								/>
 								<label htmlFor='Categories-all' className='text-dark'>
@@ -306,8 +323,8 @@ export default function ShopPage() {
 										className='me-2'
 										id={`Categories-${category.id}`}
 										name='Categories'
-										checked={filters.categoryId === category.id}
-										onChange={() => handleCategoryChange(category.id)}
+										checked={filters.categorySlug === category.slug}
+										onChange={() => handleCategoryChange(category.slug)}
 									/>
 									<label htmlFor={`Categories-${category.id}`} className='text-dark'>
 										{" "}
@@ -442,7 +459,7 @@ export default function ShopPage() {
 									className='border rounded py-1 px-2 mb-2'
 									onClick={(e) => {
 										e.preventDefault();
-										handleBrandChange(null);
+										handleTagSearch("");
 									}}>
 									Tất cả
 								</a>
@@ -453,7 +470,7 @@ export default function ShopPage() {
 										className='border rounded py-1 px-2 mb-2'
 										onClick={(e) => {
 											e.preventDefault();
-											handleBrandChange(brand.id);
+											handleTagSearch(brand.name);
 										}}>
 										{brand.name}
 									</a>
@@ -496,6 +513,7 @@ export default function ShopPage() {
 										className='form-control p-3'
 										placeholder='Từ khóa'
 										aria-describedby='search-icon-1'
+										ref={searchInputRef}
 										value={searchTerm}
 										onChange={(e) => setSearchTerm(e.target.value)}
 										onKeyDown={(e) => {
