@@ -21,13 +21,18 @@ export default function Blog() {
 	const pageParam = Number(searchParams.get("page") || 1);
 
 	useEffect(() => {
-		setSearchTerm(keyword);
-		setPagination((prev) => ({ ...prev, currentPage: pageParam || 1 }));
+		queueMicrotask(() => {
+			setSearchTerm(keyword);
+			setPagination((prev) => ({ ...prev, currentPage: pageParam || 1 }));
+		});
 	}, [keyword, pageParam]);
 
 	useEffect(() => {
 		let isActive = true;
-		setLoading(true);
+		queueMicrotask(() => {
+			if (!isActive) return;
+			setLoading(true);
+		});
 		api.get("/blogs", {
 			params: {
 				page: pagination.currentPage,

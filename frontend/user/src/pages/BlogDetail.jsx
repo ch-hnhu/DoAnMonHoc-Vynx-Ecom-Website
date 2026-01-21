@@ -11,7 +11,10 @@ export default function BlogDetail() {
 
 	useEffect(() => {
 		let isActive = true;
-		setLoading(true);
+		queueMicrotask(() => {
+			if (!isActive) return;
+			setLoading(true);
+		});
 		api.get(`/blogs/${id}`)
 			.then((res) => {
 				if (!isActive) return;

@@ -4,6 +4,7 @@ import { Alert, Snackbar } from "@mui/material";
 import {
 	getAllProductImages,
 	getFinalPrice,
+	getProductImage,
 	hasDiscount,
 	isInStock,
 } from "@shared/utils/productHelper.jsx";
@@ -11,17 +12,27 @@ import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
 import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
-import { isAuthenticated } from "../../services/authService";
+import Spinner from "../Partial/Spinner";
 import api from "../../services/api";
 
 export default function SingleProduct({ product }) {
+	const navigate = useNavigate();
 	const [reviews, setReviews] = useState([]);
-	const [isInWishlist, setIsInWishlist] = useState(false);
-	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const { addToCart } = useCart();
-	const { toast, showSuccess, showError, closeToast } = useToast();
+	const { toast, showSuccess, closeToast } = useToast();
 	const [quantity, setQuantity] = useState(1);
-	const images = useMemo(() => getAllProductImages(product?.image_url), [product?.image_url]);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [categories, setCategories] = useState([]);
+	const [brands, setBrands] = useState([]);
+	const [featuredProducts, setFeaturedProducts] = useState([]);
+	const [featuredLoading, setFeaturedLoading] = useState(false);
+	const [categorySlug, setCategorySlug] = useState(null);
+	const [priceValue, setPriceValue] = useState(0);
+	const priceMax = 100000000;
+	const images = useMemo(
+		() => getAllProductImages(product?.image_url),
+		[product?.image_url]
+	);
 	const DEFAULT_AVATAR = "https://placehold.co/400?text=Chưa+có+ảnh";
 	const getAvatarSrc = () => {
 		const raw = reviews.user?.image;
@@ -40,56 +51,64 @@ export default function SingleProduct({ product }) {
 	};
 
 	useEffect(() => {
-		const loggedIn = isAuthenticated();
-		setIsLoggedIn(loggedIn);
-
 		fetchReviews();
-
-		if (loggedIn) {
-			checkInWishlist();
-		}
-
 		if (window.initCarousels?.single) {
 			window.initCarousels.single();
 		}
 	}, [images.length, product.id]);
 
-	const handleToggleWishlist = () => {
-		if (isInWishlist) {
-			// Xóa khỏi wishlist
-			api.delete(`/wishlists/${product.id}`)
-				.then((response) => {
-					setIsInWishlist(false);
-					showSuccess("Đã xóa khỏi danh sách yêu thích");
-				})
-				.catch((error) => {
-					console.error("Error removing from wishlist:", error);
-					showError("Lỗi khi xóa khỏi danh sách yêu thích");
-				});
-		} else {
-			// Thêm vào wishlist
-			api.post(`/wishlists/`, { product_id: product.id })
-				.then((response) => {
-					setIsInWishlist(true);
-					showSuccess("Đã thêm vào danh sách yêu thích");
-				})
-				.catch((error) => {
-					console.error("Error adding to wishlist:", error);
-					showError("Lỗi khi thêm vào danh sách yêu thích");
-				});
-		}
-	};
-
-	const checkInWishlist = () => {
-		api.get(`/wishlists/check/${product.id}`)
-			.then((response) => {
-				setIsInWishlist(response.data.data.is_in_wishlist);
+	useEffect(() => {
+		api
+			.get("/categories", { params: { flat: 1, per_page: 10000 } })
+			.then((res) => {
+				if (res?.data?.success) {
+					setCategories(res.data.data || []);
+				} else {
+					setCategories(res?.data?.data || []);
+				}
 			})
 			.catch((error) => {
-				console.error("Error fetching wishlist:", error);
-				setIsInWishlist(false);
+				console.error("Error fetching categories: ", error);
 			});
-	};
+
+		api
+			.get("/brands", { params: { per_page: 10000 } })
+			.then((res) => {
+				if (res?.data?.success) {
+					setBrands(res.data.data || []);
+				} else {
+					setBrands(res?.data?.data || []);
+				}
+			})
+			.catch((error) => {
+				console.error("Error fetching brands: ", error);
+			});
+	}, []);
+
+	useEffect(() => {
+		let isActive = true;
+		queueMicrotask(() => {
+			if (!isActive) return;
+			setFeaturedLoading(true);
+		});
+		api
+			.get("/products", { params: { page: 1, per_page: 4, featured: 1 } })
+			.then((res) => {
+				if (!isActive) return;
+				setFeaturedProducts(res.data.data || []);
+			})
+			.catch((error) => {
+				if (!isActive) return;
+				console.error("Error fetching featured products: ", error);
+			})
+			.finally(() => {
+				if (isActive) setFeaturedLoading(false);
+			});
+
+		return () => {
+			isActive = false;
+		};
+	}, []);
 
 	const getMaxQuantity = () => {
 		const stock = Number(product?.stock_quantity ?? 0);
@@ -100,6 +119,7 @@ export default function SingleProduct({ product }) {
 		if (quantity <= 1) return;
 		setQuantity((prev) => Math.max(1, prev - 1));
 	};
+
 
 	const handleQuantityChange = (e) => {
 		const raw = Number(e.target.value);
@@ -118,14 +138,55 @@ export default function SingleProduct({ product }) {
 		if (isInStock(product)) {
 			const nextQty = Math.min(Math.max(quantity, 1), getMaxQuantity());
 			setQuantity(nextQty);
-			const added = addToCart(product, nextQty);
-			if (!added) {
-				showError("Vui lòng đăng nhập để thêm vào giỏ hàng");
-				navigate("/dang-nhap");
-				return;
-			}
+			addToCart(product, nextQty);
 			showSuccess("Đã thêm vào giỏ hàng");
 		}
+	};
+
+	const handleViewDetails = (item) => {
+		if (item?.slug) {
+			navigate(`/${item.slug}`);
+		}
+	};
+
+	const handleSearchSubmit = () => {
+		const keyword = searchTerm.trim();
+		if (keyword) {
+			navigate(`/san-pham?search=${encodeURIComponent(keyword)}`);
+			return;
+		}
+		navigate("/san-pham");
+	};
+
+	const handleCategoryChange = (slug) => {
+		setCategorySlug(slug);
+		if (slug) {
+			navigate(`/san-pham?category=${slug}`);
+			return;
+		}
+		navigate("/san-pham");
+	};
+
+	const handleTagSearch = (term) => {
+		const keyword = (term || "").trim();
+		setSearchTerm(keyword);
+		if (keyword) {
+			navigate(`/san-pham?search=${encodeURIComponent(keyword)}`);
+			return;
+		}
+		navigate("/san-pham");
+	};
+
+	const handlePriceChange = (value) => {
+		setPriceValue(value);
+	};
+
+	const handleApplyPrice = () => {
+		if (priceValue > 0) {
+			navigate(`/san-pham?max_price=${priceValue}`);
+			return;
+		}
+		navigate("/san-pham");
 	};
 
 	const handleCopyLink = async () => {
@@ -155,333 +216,201 @@ export default function SingleProduct({ product }) {
 									className='form-control p-3'
 									placeholder='Từ khóa'
 									aria-describedby='search-icon-1'
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											handleSearchSubmit();
+										}
+									}}
 								/>
-								<span id='search-icon-1' className='input-group-text p-3'>
+								<span
+									id='search-icon-1'
+									className='input-group-text p-3'
+									role='button'
+									tabIndex={0}
+									onClick={handleSearchSubmit}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											handleSearchSubmit();
+										}
+									}}
+									style={{ cursor: "pointer" }}>
 									<i className='fa fa-search'></i>
 								</span>
 							</div>
-							<div className='product-categories mb-4'>
-								<h4>Danh mục sản phẩm</h4>
-								<ul className='list-unstyled'>
-									<li>
-										<div className='categories-item'>
-											<a href='#' className='text-dark'>
-												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Phụ kiện
-											</a>
-											<span>(3)</span>
+							{/* Sidebar */}
+								<div className='additional-product mb-4'>
+									<h4>Chọn theo danh mục</h4>
+									<div className='additional-product-item'>
+										<input
+											type='radio'
+											className='me-2'
+											id='Categories-all'
+											name='Categories'
+											checked={!categorySlug}
+											onChange={() => handleCategoryChange(null)}
+										/>
+										<label htmlFor='Categories-all' className='text-dark'>
+											{" "}Tất cả
+										</label>
+									</div>
+									{categories.map((category) => (
+										<div className='additional-product-item' key={category.id}>
+											<input
+												type='radio'
+												className='me-2'
+												id={`Categories-${category.id}`}
+												name='Categories'
+												checked={categorySlug === category.slug}
+												onChange={() => handleCategoryChange(category.slug)}
+											/>
+											<label htmlFor={`Categories-${category.id}`} className='text-dark'>
+												{" "}{category.name}
+											</label>
 										</div>
-									</li>
-									<li>
-										<div className='categories-item'>
-											<a href='#' className='text-dark'>
-												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Đồ điện tử
-											</a>
-											<span>(5)</span>
-										</div>
-									</li>
-									<li>
-										<div className='categories-item'>
-											<a href='#' className='text-dark'>
-												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Laptop & Máy tính để bàn
-											</a>
-											<span>(2)</span>
-										</div>
-									</li>
-									<li>
-										<div className='categories-item'>
-											<a href='#' className='text-dark'>
-												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Điện thoại & Máy tính bảng
-											</a>
-											<span>(8)</span>
-										</div>
-									</li>
-									<li>
-										<div className='categories-item'>
-											<a href='#' className='text-dark'>
-												<i className='fas fa-apple-alt text-secondary me-2'></i>
-												Smart TV
-											</a>
-											<span>(5)</span>
-										</div>
-									</li>
-								</ul>
-							</div>
-							<div className='additional-product mb-4'>
-								<h4>Lọc theo màu</h4>
-								<div className='additional-product-item'>
+									))}
+								</div>
+
+								<div className='price mb-4'>
+									<h4 className='mb-2'>Giá</h4>
 									<input
-										type='radio'
-										className='me-2'
-										id='Categories-1'
-										name='Categories-1'
-										value='Beverages'
+										type='range'
+										className='form-range w-100'
+										id='rangeInput'
+										name='rangeInput'
+										min='0'
+										max={priceMax}
+										value={priceValue}
+										onChange={(e) => handlePriceChange(Number(e.target.value))}
 									/>
-									<label htmlFor='Categories-1' className='text-dark'>
-										{" "}
-										Vàng
-									</label>
+									<output id='amount' name='amount' min='0' max={priceMax}>
+										{formatCurrency(priceValue)}
+									</output>
+									<button
+										type='button'
+										className='btn btn-primary w-100 mt-2'
+										onClick={handleApplyPrice}>
+										Áp dụng
+									</button>
 								</div>
-								<div className='additional-product-item'>
-									<input
-										type='radio'
-										className='me-2'
-										id='Categories-2'
-										name='Categories-1'
-										value='Beverages'
+
+								<div className='featured-product mb-4'>
+									<h4 className='mb-3'>Sản phẩm nổi bật</h4>
+									{featuredLoading ? (
+										<div className='py-3'>
+											<Spinner />
+										</div>
+									) : featuredProducts.length > 0 ? (
+										featuredProducts.map((item) => (
+											<div className='featured-product-item' key={item.id}>
+												<div className='rounded me-4' style={{ width: 100, height: 100 }}>
+													<img
+														src={getProductImage(item.image_url)}
+														className='img-fluid rounded'
+														alt={item.name}
+														onError={(e) => {
+														e.target.src = "https://placehold.co/200x200";
+													}}
+													/>
+												</div>
+												<div>
+													<a
+														href='#'
+														className='text-dark'
+														onClick={(e) => {
+														e.preventDefault();
+														handleViewDetails(item);
+													}}>
+														<h6 className='mb-2'>{item.name}</h6>
+													</a>
+													<div className='d-flex mb-2'>
+														<i className='fa fa-star text-secondary'></i>
+														<i className='fa fa-star text-secondary'></i>
+														<i className='fa fa-star text-secondary'></i>
+														<i className='fa fa-star text-secondary'></i>
+														<i className='fa fa-star'></i>
+													</div>
+													<div className='d-flex mb-2'>
+														{hasDiscount(item) ? (
+															<>
+																<h5 className='fw-bold me-2'>
+																	{formatCurrency(getFinalPrice(item))}
+																</h5>
+																<h5 className='text-danger text-decoration-line-through'>
+																	{formatCurrency(item.price)}
+																</h5>
+															</>
+														) : (
+															<h5 className='fw-bold me-2'>
+																{formatCurrency(item.price)}
+															</h5>
+														)}
+													</div>
+												</div>
+											</div>
+										))
+									) : (
+										<p className='text-muted'>Không có sản phẩm nổi bật</p>
+									)}
+									<div className='d-flex justify-content-center my-4'>
+										<a href='/san-pham' className='btn btn-primary px-4 py-3 rounded-pill w-100'>
+											Xem thêm
+										</a>
+									</div>
+								</div>
+
+								<div className='position-relative'>
+									<img
+										src='/img/product-banner-2.jpg'
+										className='img-fluid w-100 rounded'
+										alt='Image'
 									/>
-									<label htmlFor='Categories-2' className='text-dark'>
-										{" "}
-										Xanh lá
-									</label>
+									<div
+										className='text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4'
+										style={{
+											width: "100%",
+											height: "100%",
+											top: 0,
+											right: 0,
+											background: "rgba(242, 139, 0, 0.3)",
+										}}>
+										<h5 className='display-6 text-primary'>GIẢM GIÁ</h5>
+										<h4 className='text-secondary'>Giảm đến 50%</h4>
+										<a href='/san-pham' className='btn btn-primary rounded-pill px-4'>
+											Mua ngay
+										</a>
+									</div>
 								</div>
-								<div className='additional-product-item'>
-									<input
-										type='radio'
-										className='me-2'
-										id='Categories-3'
-										name='Categories-1'
-										value='Beverages'
-									/>
-									<label htmlFor='Categories-3' className='text-dark'>
-										{" "}
-										Trắng
-									</label>
+								<div className='product-tags py-4'>
+									<h4 className='mb-3'>TỪ KHÓA</h4>
+									<div className='product-tags-items bg-light rounded p-3'>
+										<a
+											href='#'
+											className='border rounded py-1 px-2 mb-2'
+											onClick={(e) => {
+												e.preventDefault();
+												handleTagSearch("");
+											}}>
+											Tất cả
+										</a>
+										{brands.map((brand) => (
+											<a
+												key={brand.id}
+												href='#'
+												className='border rounded py-1 px-2 mb-2'
+												onClick={(e) => {
+													e.preventDefault();
+													handleTagSearch(brand.name);
+												}}>
+												{brand.name}
+											</a>
+										))}
+									</div>
 								</div>
 							</div>
-							<div className='featured-product mb-4'>
-								<h4 className='mb-3'>Sản phẩm nổi bật</h4>
-								<div className='featured-product-item'>
-									<div
-										className='rounded me-4'
-										style={{ width: "100px", height: "100px" }}>
-										<img
-											src='/img/product-3.png'
-											className='img-fluid rounded'
-											alt='Image'
-										/>
-									</div>
-									<div>
-										<h6 className='mb-2'>SmartPhone</h6>
-										<div className='d-flex mb-2'>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star'></i>
-										</div>
-										<div className='d-flex mb-2'>
-											<h5 className='fw-bold me-2'>2.99 $</h5>
-											<h5 className='text-danger text-decoration-line-through'>
-												4.11 $
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div className='featured-product-item'>
-									<div
-										className='rounded me-4'
-										style={{ width: "100px", height: "100px" }}>
-										<img
-											src='/img/product-4.png'
-											className='img-fluid rounded'
-											alt='Image'
-										/>
-									</div>
-									<div>
-										<h6 className='mb-2'>Smart Camera</h6>
-										<div className='d-flex mb-2'>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star'></i>
-										</div>
-										<div className='d-flex mb-2'>
-											<h5 className='fw-bold me-2'>2.99 $</h5>
-											<h5 className='text-danger text-decoration-line-through'>
-												4.11 $
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div className='featured-product-item'>
-									<div
-										className='rounded me-4'
-										style={{ width: "100px", height: "100px" }}>
-										<img
-											src='/img/product-5.png'
-											className='img-fluid rounded'
-											alt='Image'
-										/>
-									</div>
-									<div>
-										<h6 className='mb-2'>Smart Camera</h6>
-										<div className='d-flex mb-2'>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star'></i>
-										</div>
-										<div className='d-flex mb-2'>
-											<h5 className='fw-bold me-2'>2.99 $</h5>
-											<h5 className='text-danger text-decoration-line-through'>
-												4.11 $
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div className='featured-product-item'>
-									<div
-										className='rounded me-4'
-										style={{ width: "100px", height: "100px" }}>
-										<img
-											src='/img/product-6.png'
-											className='img-fluid rounded'
-											alt='Image'
-										/>
-									</div>
-									<div>
-										<h6 className='mb-2'>Smart Camera</h6>
-										<div className='d-flex mb-2'>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star'></i>
-										</div>
-										<div className='d-flex mb-2'>
-											<h5 className='fw-bold me-2'>2.99 $</h5>
-											<h5 className='text-danger text-decoration-line-through'>
-												4.11 $
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div className='featured-product-item'>
-									<div
-										className='rounded me-4'
-										style={{ width: "100px", height: "100px" }}>
-										<img
-											src='/img/product-7.png'
-											className='img-fluid rounded'
-											alt='Image'
-										/>
-									</div>
-									<div>
-										<h6 className='mb-2'>Camera Leance</h6>
-										<div className='d-flex mb-2'>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star'></i>
-										</div>
-										<div className='d-flex mb-2'>
-											<h5 className='fw-bold me-2'>2.99 $</h5>
-											<h5 className='text-danger text-decoration-line-through'>
-												4.11 $
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div className='featured-product-item'>
-									<div
-										className='rounded me-4'
-										style={{ width: "100px", height: "100px" }}>
-										<img
-											src='/img/product-8.png'
-											className='img-fluid rounded'
-											alt='Image'
-										/>
-									</div>
-									<div>
-										<h6 className='mb-2'>Smart Camera</h6>
-										<div className='d-flex mb-2'>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star text-secondary'></i>
-											<i className='fa fa-star'></i>
-										</div>
-										<div className='d-flex mb-2'>
-											<h5 className='fw-bold me-2'>2.99 $</h5>
-											<h5 className='text-danger text-decoration-line-through'>
-												4.11 $
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div className='d-flex justify-content-center my-4'>
-									<a
-										href='#'
-										className='btn btn-primary px-4 py-3 rounded-pill w-100'>
-										Xem thêm
-									</a>
-								</div>
-							</div>
-							<div className='w-100 position-relative'>
-								<img
-									src='/img/product-banner-2.jpg'
-									className='img-fluid w-100 rounded'
-									alt='Image'
-								/>
-								<div
-									className='text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4'
-									style={{
-										width: "100%",
-										height: "100%",
-										top: 0,
-										right: 0,
-										background: "rgba(242, 139, 0, 0.3)",
-									}}>
-									<h5 className='display-6 text-primary'>Giảm giá</h5>
-									<h4 className='text-secondary'>Giảm đến 50%</h4>
-									<a href='#' className='btn btn-primary rounded-pill px-4'>
-										Mua ngay
-									</a>
-								</div>
-							</div>
-							<div className='product-tags my-4'>
-								<h4 className='mb-3'>Từ khóa sản phẩm</h4>
-								<div className='product-tags-items bg-light rounded p-3'>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										New
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										brand
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										black
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										white
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										tablats
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										phone
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										camera
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										drone
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										talevision
-									</a>
-									<a href='#' className='border rounded py-1 px-2 mb-2'>
-										slaes
-									</a>
-								</div>
-							</div>
-						</div>
 						<div className='col-lg-7 col-xl-9 wow fadeInUp' data-wow-delay='0.1s'>
 							<div className='row g-4 single-product'>
 								<div className='col-xl-6'>
@@ -497,8 +426,7 @@ export default function SingleProduct({ product }) {
 														className='img-fluid rounded'
 														alt={`${product.name} ${index + 1}`}
 														onError={(e) => {
-															e.target.src =
-																"https://placehold.co/600x400";
+															e.target.src = "https://placehold.co/600x400";
 														}}
 													/>
 												</div>
@@ -530,30 +458,18 @@ export default function SingleProduct({ product }) {
 											className='btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2'>
 											<i className='fa fa-link me-1'></i> Sao chép liên kết
 										</button>
-										{isLoggedIn && (
-											<button
-												type='button'
-												onClick={handleToggleWishlist}
-												className={`btn ${isInWishlist ? "btn-danger" : "btn-outline-danger"} d-inline-block rounded py-1 px-4`}>
-												<i
-													className={`fa${isInWishlist ? "s" : "r"} fa-heart me-1`}></i>
-												{isInWishlist ? "Đã yêu thích" : "Yêu thích"}
-											</button>
-										)}
 									</div>
 									<div className='d-flex flex-column mb-3'>
-										<small>
-											Thương hiệu: {product.brand?.name || "Chưa rõ"}
-										</small>
+										<small>Thương hiệu: {product.brand?.name || "Chưa rõ"}</small>
 										<small>
 											Tình trạng:{" "}
 											<strong className='text-primary'>
-												{isInStock(product) ? `Còn hàng` : "Hết hàng"}
+												{isInStock(product)
+													? `Còn hàng`
+													: "Hết hàng"}
 											</strong>
 										</small>
-										<small>
-											Số lượng tồn kho: {product.stock_quantity ?? 0}
-										</small>
+										<small>Số lượng tồn kho: {product.stock_quantity ?? 0}</small>
 									</div>
 									<div
 										className='input-group quantity mb-5'
@@ -590,8 +506,7 @@ export default function SingleProduct({ product }) {
 										href='#'
 										onClick={handleAddToCart}
 										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary'>
-										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm
-										vào giỏ hàng
+										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm vào giỏ hàng
 									</a>
 								</div>
 								<div className='col-lg-12'>
@@ -652,24 +567,16 @@ export default function SingleProduct({ product }) {
 											<div className='table-responsive'>
 												<table className='table table-bordered mb-0'>
 													<tbody>
-														{product.specifications &&
-														product.specifications.length > 0 ? (
+														{(product.specifications && product.specifications.length > 0) ? (
 															product.specifications.map((spec) => (
 																<tr key={spec.id || spec.name}>
 																	<th scope='row'>{spec.name}</th>
-																	<td>
-																		{spec.value}
-																		{spec.unit
-																			? ` ${spec.unit}`
-																			: ""}
-																	</td>
+																	<td>{spec.value}{spec.unit ? ` ${spec.unit}` : ""}</td>
 																</tr>
 															))
 														) : (
 															<tr>
-																<td colSpan='2'>
-																	Chưa có thông số kỹ thuật.
-																</td>
+																<td colSpan='2'>Chưa có thông số kỹ thuật.</td>
 															</tr>
 														)}
 													</tbody>
@@ -686,16 +593,10 @@ export default function SingleProduct({ product }) {
 												<div className='col-lg-4'>
 													<div className='bg-light rounded p-4 text-center'>
 														<h1 className='display-4 fw-bold text-primary mb-2'>
-															{product.rating_average
-																? Number(
-																		product.rating_average,
-																	).toFixed(1)
-																: "0.0"}
+															{product.rating_average ? Number(product.rating_average).toFixed(1) : '0.0'}
 														</h1>
 														<div className='d-flex justify-content-center mb-2'>
-															{renderRating(
-																product.rating_average || 0,
-															)}
+															{renderRating(product.rating_average || 0)}
 														</div>
 														<p className='mb-0 text-muted'>
 															{product.rating_count || 0} đánh giá
@@ -705,52 +606,26 @@ export default function SingleProduct({ product }) {
 												<div className='col-lg-8'>
 													<div className='p-3'>
 														{[5, 4, 3, 2, 1].map((star) => {
-															const ratingDist =
-																product.rating_distribution || {};
+															const ratingDist = product.rating_distribution || {};
 															const count = ratingDist[star] || 0;
-															const totalReviews =
-																product.rating_count || 0;
-															const percentage =
-																totalReviews > 0
-																	? (count / totalReviews) * 100
-																	: 0;
+															const totalReviews = product.rating_count || 0;
+															const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
 
 															return (
-																<div
-																	key={star}
-																	className='d-flex align-items-center mb-2'>
-																	<span
-																		className='me-2'
-																		style={{
-																			minWidth: "60px",
-																		}}>
-																		{star}{" "}
-																		<i className='fa fa-star text-warning'></i>
+																<div key={star} className='d-flex align-items-center mb-2'>
+																	<span className='me-2' style={{ minWidth: '60px' }}>
+																		{star} <i className='fa fa-star text-warning'></i>
 																	</span>
-																	<div
-																		className='progress flex-grow-1 me-2'
-																		style={{ height: "8px" }}>
+																	<div className='progress flex-grow-1 me-2' style={{ height: '8px' }}>
 																		<div
 																			className='progress-bar bg-warning'
 																			role='progressbar'
-																			style={{
-																				width: `${percentage}%`,
-																			}}
-																			aria-valuenow={
-																				percentage
-																			}
+																			style={{ width: `${percentage}%` }}
+																			aria-valuenow={percentage}
 																			aria-valuemin={0}
-																			aria-valuemax={
-																				100
-																			}></div>
+																			aria-valuemax={100}></div>
 																	</div>
-																	<span
-																		className='text-muted'
-																		style={{
-																			minWidth: "40px",
-																		}}>
-																		{count}
-																	</span>
+																	<span className='text-muted' style={{ minWidth: '40px' }}>{count}</span>
 																</div>
 															);
 														})}
@@ -766,38 +641,26 @@ export default function SingleProduct({ product }) {
 
 												{reviews.length > 0 ? (
 													reviews.map((review) => (
-														<div
-															key={review.id}
-															className='review-item border rounded p-3 mb-3'>
+														<div key={review.id} className='review-item border rounded p-3 mb-3'>
 															<div className='d-flex'>
 																<img
 																	src={getAvatarSrc()}
 																	className='rounded-circle me-3'
-																	style={{
-																		width: "60px",
-																		height: "60px",
-																		objectFit: "cover",
-																	}}
+																	style={{ width: "60px", height: "60px", objectFit: "cover" }}
 																	alt='Avatar'
 																/>
 																<div className='flex-grow-1'>
 																	<div className='d-flex justify-content-between align-items-start mb-2'>
 																		<div>
 																			<h6 className='mb-1 fw-bold'>
-																				{review.user
-																					?.full_name ||
-																					"Khách hàng"}
+																				{review.user?.full_name || 'Khách hàng'}
 																			</h6>
 																			<div className='d-flex align-items-center mb-1'>
 																				<div className='d-flex me-3'>
-																					{renderRating(
-																						review.rating,
-																					)}
+																					{renderRating(review.rating)}
 																				</div>
 																				<small className='text-muted'>
-																					{formatDate(
-																						review.created_at,
-																					)}
+																					{formatDate(review.created_at)}
 																				</small>
 																			</div>
 																		</div>
@@ -813,21 +676,13 @@ export default function SingleProduct({ product }) {
 																				<i className='fas fa-reply text-primary me-2 mt-1'></i>
 																				<div className='flex-grow-1'>
 																					<p className='mb-1'>
-																						<strong className='text-primary'>
-																							VYNX
-																							Store
-																						</strong>
+																						<strong className='text-primary'>VYNX Store</strong>
 																						<small className='text-muted ms-2'>
-																							{review.updated_at &&
-																								formatDate(
-																									review.updated_at,
-																								)}
+																							{review.updated_at && formatDate(review.updated_at)}
 																						</small>
 																					</p>
 																					<p className='mb-0'>
-																						{
-																							review.review_reply
-																						}
+																						{review.review_reply}
 																					</p>
 																				</div>
 																			</div>

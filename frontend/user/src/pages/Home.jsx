@@ -54,7 +54,10 @@ export default function Home() {
 
 	useEffect(() => {
 		let isActive = true;
-		setBlogsLoading(true);
+		queueMicrotask(() => {
+			if (!isActive) return;
+			setBlogsLoading(true);
+		});
 		api.get("/blogs", { params: { per_page: 10 } })
 			.then((res) => {
 				if (!isActive) return;
