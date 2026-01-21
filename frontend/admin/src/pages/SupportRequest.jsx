@@ -18,6 +18,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
+import { getUser } from "../services/authService";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
@@ -73,8 +74,14 @@ export default function SupportRequestPage() {
 	const handleSubmitStatus = () => {
 		if (!activeRow) return;
 
+		const currentUser = getUser();
+		const payload = {
+			status: statusValue,
+			...(currentUser?.id ? { supported_by: currentUser.id } : {}),
+		};
+
 		setUpdating(true);
-		api.put(`/support-requests/${activeRow.id}`, { status: statusValue })
+		api.put(`/support-requests/${activeRow.id}`, payload)
 			.then(() => {
 				showSuccess("Cập nhật trạng thái thành công!");
 				fetchSupportRequests();
@@ -117,7 +124,7 @@ export default function SupportRequestPage() {
 			field: "supported_by",
 			headerName: "Nhân viên hỗ trợ",
 			width: 150,
-			valueGetter: (params, row) => row.supported_by ?? "-",
+			valueGetter: (params, row) => row.user?.email || row.supported_by || "-",
 		},
 		{
 			field: "created_at",
@@ -213,9 +220,9 @@ export default function SupportRequestPage() {
 							value={statusValue}
 							label='Trang thai'
 							onChange={(event) => setStatusValue(event.target.value)}>
-							<MenuItem value='pending'>Pending</MenuItem>
-							<MenuItem value='processing'>Processing</MenuItem>
-							<MenuItem value='resolved'>Resolved</MenuItem>
+							<MenuItem value='pending'>Chờ xử lý</MenuItem>
+							<MenuItem value='processing'>Đang xử lý</MenuItem>
+							<MenuItem value='resolved'>Đã xử lý</MenuItem>
 						</Select>
 						<FormHelperText>Chọn trạng thái hỗ trợ mới</FormHelperText>
 					</FormControl>
@@ -225,10 +232,10 @@ export default function SupportRequestPage() {
 						onClick={handleCloseStatusDialog}
 						variant='outlined'
 						disabled={updating}>
-						Huy
+						Hủy
 					</Button>
 					<Button onClick={handleSubmitStatus} variant='contained' disabled={updating}>
-						{updating ? "Dang luu..." : "Luu"}
+						{updating ? "Đang lưu..." : "Lưu"}
 					</Button>
 				</DialogActions>
 			</Dialog>

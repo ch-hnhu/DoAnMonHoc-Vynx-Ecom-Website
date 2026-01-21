@@ -2,8 +2,19 @@ import { Link } from "react-router-dom";
 import { getProductImage, getFinalPrice, hasDiscount } from "@shared/utils/productHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
+import { useWishList } from "../../hooks/useWishList";
+import { useToast } from "@shared/hooks/useToast";
+import { Snackbar } from "@mui/material";
+import { Alert } from "@mui/material";
 
 export default function ProductCardGrid({ product, onAddToCart, onViewDetails }) {
+	const { toast, showSuccess, showError, closeToast } = useToast();
+	const { isInWishlist, isLoggedIn, handleToggleWishlist } = useWishList(
+		product?.id,
+		showSuccess,
+		showError,
+	);
+
 	const handleAddToCart = (e) => {
 		e.preventDefault();
 		if (onAddToCart) {
@@ -39,12 +50,12 @@ export default function ProductCardGrid({ product, onAddToCart, onViewDetails })
 						</div>
 					</div>
 					<div className='text-center rounded-bottom p-4'>
-						<a href='#' className='d-block mb-2'>
+						<Link to={`/${product.slug}`} className='d-block mb-2'>
 							{product.category?.name || "Uncategorized"}
-						</a>
-						<a href='#' className='d-block h4' onClick={handleViewDetails}>
+						</Link>
+						<Link to={`/${product.slug}`} className='d-block h4' onClick={handleViewDetails}>
 							{product.name}
-						</a>
+						</Link>
 						{hasDiscount(product) ? (
 							<>
 								<del className='me-2 fs-5'>{formatCurrency(product.price)}</del>
@@ -76,17 +87,39 @@ export default function ProductCardGrid({ product, onAddToCart, onViewDetails })
 									<i className='fas fa-random'></i>
 								</span>
 							</a>
-							<a
-								href='#'
-								className='text-primary d-flex align-items-center justify-content-center me-0'>
-								<span className='rounded-circle btn-sm-square border'>
-									<i className='fas fa-heart'></i>
-								</span>
-							</a>
+							{isLoggedIn && (
+								<a
+									href='#'
+									onClick={handleToggleWishlist}
+									className='text-primary d-flex align-items-center justify-content-center me-0'>
+									<span
+										className={
+											isInWishlist
+												? "rounded-circle btn-sm-square border bg-danger text-white"
+												: "rounded-circle btn-sm-square border"
+										}>
+										<i
+											className={
+												isInWishlist ? "fas fa-heart" : "far fa-heart"
+											}></i>
+									</span>
+								</a>
+							)}
 						</div>
 					</div>
 				</div>
 			</div>
+
+			{/* Toast notification */}
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={2500}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</div>
 	);
 }

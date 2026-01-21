@@ -26,14 +26,7 @@ import api from "../../services/api";
 import { useToast } from "@shared/hooks/useToast";
 import { formatSlug } from "../../../../shared/utils/formatHelper";
 
-export default function EditProduct({
-	open,
-	onClose,
-	onSuccess,
-	product,
-	brands,
-	promotions,
-}) {
+export default function EditProduct({ open, onClose, onSuccess, product, brands, promotions }) {
 	const [formData, setFormData] = useState({
 		name: "",
 		price: "",
@@ -57,10 +50,9 @@ export default function EditProduct({
 
 	const fetchCategories = async () => {
 		const res = await api.get("/categories", { params: { flat: 1, per_page: 10000 } });
-		if(res.data.success) {
+		if (res.data.success) {
 			setCategories(res.data.data || []);
-		}
-		else {
+		} else {
 			console.log("Error fetching categories: ", res.data.error);
 		}
 	};
@@ -68,6 +60,35 @@ export default function EditProduct({
 	useEffect(() => {
 		fetchCategories();
 	}, []);
+
+	useEffect(() => {
+		if (open) {
+			const timer = setTimeout(() => {
+				if (window.CKEDITOR) {
+					// Check and destroy existing instance
+					if (window.CKEDITOR.instances["edit-description"]) {
+						window.CKEDITOR.instances["edit-description"].destroy(true);
+					}
+
+					const editor = window.CKEDITOR.replace("edit-description");
+
+					editor.on("change", () => {
+						const data = editor.getData();
+						setFormData((prev) => ({ ...prev, description: data }));
+					});
+
+					// Set initial data
+					// We use product.description here because formData might not be updated yet in this render cycle
+					// if they run interleaved, but usually product is stable when opening.
+					// Or wait, EditProduct receives `product` prop.
+					if (product) {
+						editor.setData(product.description || "");
+					}
+				}
+			}, 100);
+			return () => clearTimeout(timer);
+		}
+	}, [open, product]);
 
 	// Update form khi product thay đổi
 	useEffect(() => {
@@ -631,16 +652,14 @@ export default function EditProduct({
 
 						{/* Description */}
 						<Grid size={12}>
-							<TextField
-								fullWidth
-								multiline
-								rows={4}
-								label='Mô tả sản phẩm'
+							<Typography variant='body2' gutterBottom>
+								Mô tả sản phẩm
+							</Typography>
+							<textarea
 								name='description'
-								value={formData.description}
-								onChange={handleChange}
-								placeholder='Nhập mô tả sản phẩm...'
-							/>
+								id='edit-description'
+								rows='10'
+								style={{ width: "100%" }}></textarea>
 						</Grid>
 					</Grid>
 				</Box>

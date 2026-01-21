@@ -68,7 +68,7 @@ export default function CartContent() {
 				if (!selectedIds.has(item.product.id)) return sum;
 				return sum + getFinalPrice(item.product) * item.quantity;
 			}, 0),
-		[items, selectedIds]
+		[items, selectedIds],
 	);
 
 	useEffect(() => {
@@ -108,9 +108,9 @@ export default function CartContent() {
 			<div className='container-fluid py-5'>
 				<div className='container py-5 text-center'>
 					<h4 className='mb-3'>Giỏ hàng đang trống</h4>
-					<a href='/san-pham' className='btn btn-primary rounded-pill px-4 py-3'>
+					<Link to='/san-pham' className='btn btn-primary rounded-pill px-4 py-3'>
 						Tiếp tục mua sắm
-					</a>
+					</Link>
 				</div>
 			</div>
 		);

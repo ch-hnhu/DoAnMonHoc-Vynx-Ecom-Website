@@ -10,6 +10,10 @@ export default function ChatWidget() {
 	]);
 	const [draft, setDraft] = useState("");
 
+	const zaloPhone = "0777365083";
+	const zaloLink = `https://zalo.me/${zaloPhone}`;
+	const zaloLabel = `Zalo ${zaloPhone}`;
+
 	const handleSend = (event) => {
 		event.preventDefault();
 		const text = draft.trim();
@@ -21,14 +25,24 @@ export default function ChatWidget() {
 
 	return (
 		<div className={`chat-widget ${isOpen ? "is-open" : ""}`}>
-			<button
-				type='button'
-				className='chat-toggle'
-				aria-expanded={isOpen}
-				onClick={() => setIsOpen((prev) => !prev)}>
-				<span className='chat-toggle-label'>Chat</span>
-				<i className='fas fa-comments'></i>
-			</button>
+			<div className='chat-actions'>
+				<button
+					type='button'
+					className='chat-toggle'
+					aria-expanded={isOpen}
+					onClick={() => setIsOpen((prev) => !prev)}>
+					<span className='chat-toggle-label'>Chat</span>
+					<i className='fas fa-comments'></i>
+				</button>
+				<a
+					className='zalo-toggle'
+					href={zaloLink}
+					target='_blank'
+					rel='noreferrer'
+					aria-label={zaloLabel}>
+					<span className='zalo-icon'>Zalo</span>
+				</a>
+			</div>
 
 			<div className='chat-panel' role='dialog' aria-label='Live chat'>
 				<div className='chat-header'>

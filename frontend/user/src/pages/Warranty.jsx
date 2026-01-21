@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 
 export default function Warranty() {
@@ -44,10 +45,10 @@ export default function Warranty() {
 					className='breadcrumb justify-content-center mb-0 wow fadeInUp'
 					data-wow-delay='0.3s'>
 					<li className='breadcrumb-item'>
-						<a href='/'>Trang chủ</a>
+						<Link to='/'>Trang chủ</Link>
 					</li>
 					<li className='breadcrumb-item'>
-						<a href='/'>Trang</a>
+						<Link to='/'>Trang</Link>
 					</li>
 					<li className='breadcrumb-item active text-white'>Bảo hành</li>
 				</ol>

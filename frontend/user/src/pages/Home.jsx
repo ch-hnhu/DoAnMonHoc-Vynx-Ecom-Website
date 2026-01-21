@@ -12,33 +12,45 @@ import ProductCarousel2 from "../components/Partial/ProductCarousel2";
 
 export default function Home() {
 	const title = "TRANG CHỦ";
-	const [products, setProducts] = useState([]);
+	const [promotionProducts, setPromotionProducts] = useState([]);
+	const [bestsellerProducts, setBestsellerProducts] = useState([]);
 	const [newestProducts, setNewestProducts] = useState([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState("");
+	const [laptopProducts, setLaptopProducts] = useState([]);
+	const [accessoryProducts, setAccessoryProducts] = useState([]);
+	const [componentProducts, setComponentProducts] = useState([]);
 
 	useEffect(() => {
 		let isActive = true;
-		setLoading(true);
-		setError("");
 
-		// Fetch cả 2 loại products cùng lúc
 		Promise.all([
-			api.get("/products?per_page=8"),
-			api.get("/products?sort=newest&per_page=8")
+			api.get("/products?has_promotion=1&per_page=8"),
+			api.get("/products?sort=bestseller&per_page=8"),
+			api.get("/products?sort=newest&per_page=8"),
+			api.get("/products?category_slug=laptop&per_page=8"),
+			api.get("/products?category_slug=phu-kien&per_page=8"),
+			api.get("/products?category_slug=linh-kien-may-tinh&per_page=8"),
 		])
-			.then(([productsRes, newestRes]) => {
-				if (!isActive) return;
-				setProducts(productsRes.data.data || []);
-				setNewestProducts(newestRes.data.data || []);
-			})
+			.then(
+				([
+					promotionRes,
+					bestsellerRes,
+					newestRes,
+					laptopRes,
+					accessoryRes,
+					componentRes,
+				]) => {
+					if (!isActive) return;
+					setPromotionProducts(promotionRes.data.data || []);
+					setBestsellerProducts(bestsellerRes.data.data || []);
+					setNewestProducts(newestRes.data.data || []);
+					setLaptopProducts(laptopRes.data.data || []);
+					setAccessoryProducts(accessoryRes.data.data || []);
+					setComponentProducts(componentRes.data.data || []);
+				},
+			)
 			.catch((err) => {
 				if (!isActive) return;
 				console.error("Error fetching products: ", err);
-				setError("Không tải được sản phẩm.");
-			})
-			.finally(() => {
-				if (isActive) setLoading(false);
 			});
 
 		return () => {
@@ -54,28 +66,37 @@ export default function Home() {
 			<Carousel />
 			<ServicesBar />
 			<ProductOffers />
-			<OurProducts 
-				products={products} 
-				loading={loading} 
-				error={error}
+			<ProductCarousel2
+				products={promotionProducts}
+				title='Deal hời'
+				description='Ưu đãi cực sốc'
+			/>
+			<ProductCarousel
+				products={newestProducts}
+				title='Hàng mới về'
+				description='Khám phá thêm các sản phẩm mới nhất.'
 			/>
 			<ProductBanner />
-			<ProductCarousel 
-				products={newestProducts}
-				title="Sản phẩm mới nhất"
-				description="Khám phá thêm các sản phẩm mới nhất."
-			/>
-			<ProductCarousel 
-				products={newestProducts}
-				title="Sản phẩm nổi bật"
-				description="Khám phá thêm các sản phẩm mới nhất."
-			/>
 			<ProductCarousel2
-				products={newestProducts}
-				title="Trả góp 0%"
-				description="Ưu đãi đầu năm"
+				products={bestsellerProducts}
+				title='Best Seller'
+				description='Sản phẩm bán chạy'
 			/>
-			<BestsellerProducts />
+			<ProductCarousel
+				products={laptopProducts}
+				title='Laptop'
+				description='Khám phá thêm các sản phẩm laptop với đủ mọi cấu hình.'
+			/>
+			<ProductCarousel
+				products={accessoryProducts}
+				title='Phụ kiện'
+				description='Khám phá thêm các sản phẩm phụ kiện cực chất.'
+			/>
+			<ProductCarousel
+				products={componentProducts}
+				title='Linh kiện'
+				description='Khám phá thêm các sản phẩm linh kiện từ các thương hiệu nổi tiếng.'
+			/>
 		</>
 	);
 }

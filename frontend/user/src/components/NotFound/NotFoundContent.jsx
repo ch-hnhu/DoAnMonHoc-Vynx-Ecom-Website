@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function NotFoundContent() {
 	return (
 		<div className='container-fluid py-5'>
@@ -12,9 +14,9 @@ export default function NotFoundContent() {
 							<br />
 							Hãy thử quay lại trang chủ hoặc sử dụng chức năng tìm kiếm?
 						</p>
-						<a className='btn btn-primary rounded-pill py-3 px-5' href='/'>
+						<Link className='btn btn-primary rounded-pill py-3 px-5' to='/'>
 							Quay lại trang chủ
-						</a>
+						</Link>
 					</div>
 				</div>
 			</div>

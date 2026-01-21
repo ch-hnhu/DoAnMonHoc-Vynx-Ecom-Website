@@ -74,6 +74,75 @@ class OrderController extends Controller
 		}
 	}
 
+
+
+	/**
+	 * Store a newly created resource in storage.
+	 */
+	public function store(Request $request)
+	{
+		try {
+			$validated = $request->validate([
+				'user_id' => 'nullable|exists:users,id',
+				'address_id' => 'nullable|exists:user_addresses,id',
+				'shipping_name' => 'required_without:address_id|nullable|string',
+				'shipping_phone' => 'required_without:address_id|nullable|string',
+				'shipping_address' => 'required_without:address_id|nullable|string',
+				'shipping_email' => 'nullable|email',
+				'shipping_note' => 'nullable|string',
+				'payment_method' => 'required|in:cod,vnpay',
+				'subtotal_amount' => 'required|numeric',
+				'discount_amount' => 'required|numeric',
+				'shipping_fee' => 'required|numeric',
+				'total_amount' => 'required|numeric',
+			]);
+
+			$order = Order::create($validated);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Tao don hang thanh cong',
+				'data' => $order,
+				'error' => null,
+				'timestamp' => now(),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi tao don hang',
+				'data' => null,
+				'error' => $e->getMessage(),
+				'timestamp' => now(),
+			]);
+		}
+	}
+
+	/**
+	 * Display the specified resource.
+	 */
+	public function show(string $id)
+	{
+		try {
+			$order = Order::with(['user', 'user_address', 'order_items.product', 'promotion'])->findOrFail($id);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Lay chi tiet don hang thanh cong',
+				'data' => $order,
+				'error' => null,
+				'timestamp' => now(),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi lay chi tiet don hang',
+				'data' => null,
+				'error' => $e->getMessage(),
+				'timestamp' => now(),
+			]);
+		}
+	}
+
 	/**
 	 * Update the specified resource in storage.
 	 */

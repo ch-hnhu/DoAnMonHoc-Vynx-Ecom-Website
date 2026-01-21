@@ -36,6 +36,7 @@ class SupportRequestController extends Controller
     public function index(): JsonResponse
     {
         $supportRequests = SupportRequest::query()
+            ->with(['user:id,email'])
             ->orderByDesc('created_at')
             ->get();
 
