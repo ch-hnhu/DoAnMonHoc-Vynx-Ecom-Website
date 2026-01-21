@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Alert, Snackbar } from "@mui/material";
 import {
 	getAllProductImages,
@@ -10,17 +11,17 @@ import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
 import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
+import { isAuthenticated } from "../../services/authService";
 import api from "../../services/api";
 
 export default function SingleProduct({ product }) {
 	const [reviews, setReviews] = useState([]);
+	const [isInWishlist, setIsInWishlist] = useState(false);
+	const [isLoggedIn, setIsLoggedIn] = useState(false);
 	const { addToCart } = useCart();
-	const { toast, showSuccess, closeToast } = useToast();
+	const { toast, showSuccess, showError, closeToast } = useToast();
 	const [quantity, setQuantity] = useState(1);
-	const images = useMemo(
-		() => getAllProductImages(product?.image_url),
-		[product?.image_url]
-	);
+	const images = useMemo(() => getAllProductImages(product?.image_url), [product?.image_url]);
 	const DEFAULT_AVATAR = "https://placehold.co/400?text=Chưa+có+ảnh";
 	const getAvatarSrc = () => {
 		const raw = reviews.user?.image;
@@ -39,11 +40,56 @@ export default function SingleProduct({ product }) {
 	};
 
 	useEffect(() => {
+		const loggedIn = isAuthenticated();
+		setIsLoggedIn(loggedIn);
+
 		fetchReviews();
+
+		if (loggedIn) {
+			checkInWishlist();
+		}
+
 		if (window.initCarousels?.single) {
 			window.initCarousels.single();
 		}
 	}, [images.length, product.id]);
+
+	const handleToggleWishlist = () => {
+		if (isInWishlist) {
+			// Xóa khỏi wishlist
+			api.delete(`/wishlists/${product.id}`)
+				.then((response) => {
+					setIsInWishlist(false);
+					showSuccess("Đã xóa khỏi danh sách yêu thích");
+				})
+				.catch((error) => {
+					console.error("Error removing from wishlist:", error);
+					showError("Lỗi khi xóa khỏi danh sách yêu thích");
+				});
+		} else {
+			// Thêm vào wishlist
+			api.post(`/wishlists/`, { product_id: product.id })
+				.then((response) => {
+					setIsInWishlist(true);
+					showSuccess("Đã thêm vào danh sách yêu thích");
+				})
+				.catch((error) => {
+					console.error("Error adding to wishlist:", error);
+					showError("Lỗi khi thêm vào danh sách yêu thích");
+				});
+		}
+	};
+
+	const checkInWishlist = () => {
+		api.get(`/wishlists/check/${product.id}`)
+			.then((response) => {
+				setIsInWishlist(response.data.data.is_in_wishlist);
+			})
+			.catch((error) => {
+				console.error("Error fetching wishlist:", error);
+				setIsInWishlist(false);
+			});
+	};
 
 	const getMaxQuantity = () => {
 		const stock = Number(product?.stock_quantity ?? 0);
@@ -54,7 +100,6 @@ export default function SingleProduct({ product }) {
 		if (quantity <= 1) return;
 		setQuantity((prev) => Math.max(1, prev - 1));
 	};
-
 
 	const handleQuantityChange = (e) => {
 		const raw = Number(e.target.value);
@@ -73,7 +118,12 @@ export default function SingleProduct({ product }) {
 		if (isInStock(product)) {
 			const nextQty = Math.min(Math.max(quantity, 1), getMaxQuantity());
 			setQuantity(nextQty);
-			addToCart(product, nextQty);
+			const added = addToCart(product, nextQty);
+			if (!added) {
+				showError("Vui lòng đăng nhập để thêm vào giỏ hàng");
+				navigate("/dang-nhap");
+				return;
+			}
 			showSuccess("Đã thêm vào giỏ hàng");
 		}
 	};
@@ -447,7 +497,8 @@ export default function SingleProduct({ product }) {
 														className='img-fluid rounded'
 														alt={`${product.name} ${index + 1}`}
 														onError={(e) => {
-															e.target.src = "https://placehold.co/600x400";
+															e.target.src =
+																"https://placehold.co/600x400";
 														}}
 													/>
 												</div>
@@ -479,18 +530,30 @@ export default function SingleProduct({ product }) {
 											className='btn btn-primary d-inline-block rounded text-white py-1 px-4 me-2'>
 											<i className='fa fa-link me-1'></i> Sao chép liên kết
 										</button>
+										{isLoggedIn && (
+											<button
+												type='button'
+												onClick={handleToggleWishlist}
+												className={`btn ${isInWishlist ? "btn-danger" : "btn-outline-danger"} d-inline-block rounded py-1 px-4`}>
+												<i
+													className={`fa${isInWishlist ? "s" : "r"} fa-heart me-1`}></i>
+												{isInWishlist ? "Đã yêu thích" : "Yêu thích"}
+											</button>
+										)}
 									</div>
 									<div className='d-flex flex-column mb-3'>
-										<small>Thương hiệu: {product.brand?.name || "Chưa rõ"}</small>
+										<small>
+											Thương hiệu: {product.brand?.name || "Chưa rõ"}
+										</small>
 										<small>
 											Tình trạng:{" "}
 											<strong className='text-primary'>
-												{isInStock(product)
-													? `Còn hàng`
-													: "Hết hàng"}
+												{isInStock(product) ? `Còn hàng` : "Hết hàng"}
 											</strong>
 										</small>
-										<small>Số lượng tồn kho: {product.stock_quantity ?? 0}</small>
+										<small>
+											Số lượng tồn kho: {product.stock_quantity ?? 0}
+										</small>
 									</div>
 									<div
 										className='input-group quantity mb-5'
@@ -527,7 +590,8 @@ export default function SingleProduct({ product }) {
 										href='#'
 										onClick={handleAddToCart}
 										className='btn btn-primary border border-secondary rounded-pill px-4 py-2 mb-4 text-primary'>
-										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm vào giỏ hàng
+										<i className='fa fa-shopping-bag me-2 text-white'></i> Thêm
+										vào giỏ hàng
 									</a>
 								</div>
 								<div className='col-lg-12'>
@@ -588,16 +652,24 @@ export default function SingleProduct({ product }) {
 											<div className='table-responsive'>
 												<table className='table table-bordered mb-0'>
 													<tbody>
-														{(product.specifications && product.specifications.length > 0) ? (
+														{product.specifications &&
+														product.specifications.length > 0 ? (
 															product.specifications.map((spec) => (
 																<tr key={spec.id || spec.name}>
 																	<th scope='row'>{spec.name}</th>
-																	<td>{spec.value}{spec.unit ? ` ${spec.unit}` : ""}</td>
+																	<td>
+																		{spec.value}
+																		{spec.unit
+																			? ` ${spec.unit}`
+																			: ""}
+																	</td>
 																</tr>
 															))
 														) : (
 															<tr>
-																<td colSpan='2'>Chưa có thông số kỹ thuật.</td>
+																<td colSpan='2'>
+																	Chưa có thông số kỹ thuật.
+																</td>
 															</tr>
 														)}
 													</tbody>
@@ -614,10 +686,16 @@ export default function SingleProduct({ product }) {
 												<div className='col-lg-4'>
 													<div className='bg-light rounded p-4 text-center'>
 														<h1 className='display-4 fw-bold text-primary mb-2'>
-															{product.rating_average ? Number(product.rating_average).toFixed(1) : '0.0'}
+															{product.rating_average
+																? Number(
+																		product.rating_average,
+																	).toFixed(1)
+																: "0.0"}
 														</h1>
 														<div className='d-flex justify-content-center mb-2'>
-															{renderRating(product.rating_average || 0)}
+															{renderRating(
+																product.rating_average || 0,
+															)}
 														</div>
 														<p className='mb-0 text-muted'>
 															{product.rating_count || 0} đánh giá
@@ -627,26 +705,52 @@ export default function SingleProduct({ product }) {
 												<div className='col-lg-8'>
 													<div className='p-3'>
 														{[5, 4, 3, 2, 1].map((star) => {
-															const ratingDist = product.rating_distribution || {};
+															const ratingDist =
+																product.rating_distribution || {};
 															const count = ratingDist[star] || 0;
-															const totalReviews = product.rating_count || 0;
-															const percentage = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+															const totalReviews =
+																product.rating_count || 0;
+															const percentage =
+																totalReviews > 0
+																	? (count / totalReviews) * 100
+																	: 0;
 
 															return (
-																<div key={star} className='d-flex align-items-center mb-2'>
-																	<span className='me-2' style={{ minWidth: '60px' }}>
-																		{star} <i className='fa fa-star text-warning'></i>
+																<div
+																	key={star}
+																	className='d-flex align-items-center mb-2'>
+																	<span
+																		className='me-2'
+																		style={{
+																			minWidth: "60px",
+																		}}>
+																		{star}{" "}
+																		<i className='fa fa-star text-warning'></i>
 																	</span>
-																	<div className='progress flex-grow-1 me-2' style={{ height: '8px' }}>
+																	<div
+																		className='progress flex-grow-1 me-2'
+																		style={{ height: "8px" }}>
 																		<div
 																			className='progress-bar bg-warning'
 																			role='progressbar'
-																			style={{ width: `${percentage}%` }}
-																			aria-valuenow={percentage}
+																			style={{
+																				width: `${percentage}%`,
+																			}}
+																			aria-valuenow={
+																				percentage
+																			}
 																			aria-valuemin={0}
-																			aria-valuemax={100}></div>
+																			aria-valuemax={
+																				100
+																			}></div>
 																	</div>
-																	<span className='text-muted' style={{ minWidth: '40px' }}>{count}</span>
+																	<span
+																		className='text-muted'
+																		style={{
+																			minWidth: "40px",
+																		}}>
+																		{count}
+																	</span>
 																</div>
 															);
 														})}
@@ -662,26 +766,38 @@ export default function SingleProduct({ product }) {
 
 												{reviews.length > 0 ? (
 													reviews.map((review) => (
-														<div key={review.id} className='review-item border rounded p-3 mb-3'>
+														<div
+															key={review.id}
+															className='review-item border rounded p-3 mb-3'>
 															<div className='d-flex'>
 																<img
 																	src={getAvatarSrc()}
 																	className='rounded-circle me-3'
-																	style={{ width: "60px", height: "60px", objectFit: "cover" }}
+																	style={{
+																		width: "60px",
+																		height: "60px",
+																		objectFit: "cover",
+																	}}
 																	alt='Avatar'
 																/>
 																<div className='flex-grow-1'>
 																	<div className='d-flex justify-content-between align-items-start mb-2'>
 																		<div>
 																			<h6 className='mb-1 fw-bold'>
-																				{review.user?.full_name || 'Khách hàng'}
+																				{review.user
+																					?.full_name ||
+																					"Khách hàng"}
 																			</h6>
 																			<div className='d-flex align-items-center mb-1'>
 																				<div className='d-flex me-3'>
-																					{renderRating(review.rating)}
+																					{renderRating(
+																						review.rating,
+																					)}
 																				</div>
 																				<small className='text-muted'>
-																					{formatDate(review.created_at)}
+																					{formatDate(
+																						review.created_at,
+																					)}
 																				</small>
 																			</div>
 																		</div>
@@ -697,13 +813,21 @@ export default function SingleProduct({ product }) {
 																				<i className='fas fa-reply text-primary me-2 mt-1'></i>
 																				<div className='flex-grow-1'>
 																					<p className='mb-1'>
-																						<strong className='text-primary'>VYNX Store</strong>
+																						<strong className='text-primary'>
+																							VYNX
+																							Store
+																						</strong>
 																						<small className='text-muted ms-2'>
-																							{review.updated_at && formatDate(review.updated_at)}
+																							{review.updated_at &&
+																								formatDate(
+																									review.updated_at,
+																								)}
 																						</small>
 																					</p>
 																					<p className='mb-0'>
-																						{review.review_reply}
+																						{
+																							review.review_reply
+																						}
 																					</p>
 																				</div>
 																			</div>

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../../services/api";
 import { API_BASE_URL } from "../../config/api";
 export default function Footer() {
@@ -135,14 +136,14 @@ export default function Footer() {
 									</div>
 									<div className='d-flex align-items-center gap-3 mt-3'>
 										<a
-											href='#'
+											href='https://www.facebook.com/dinhnguyenbatai'
 											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
 											style={{ width: 36, height: 36 }}
 											aria-label='Facebook'>
 											<i className='fab fa-facebook-f' style={{ color: '#1877f2' }}></i>
 										</a>
 										<a
-											href='#'
+											href='https://zalo.me/0777365083'
 											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
 											style={{ width: 36, height: 36 }}
 											aria-label='Zalo'>
@@ -151,7 +152,7 @@ export default function Footer() {
 											</span>
 										</a>
 										<a
-											href='#'
+											href='https://youtube.com/@lctgroup1108?si=XMQ47H0t4tO5e3FZ'
 											className='btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center'
 											style={{ width: 36, height: 36 }}
 											aria-label='YouTube'>
@@ -166,9 +167,9 @@ export default function Footer() {
 						<div className='col-md-6 col-lg-6 col-xl-3'>
 							<div className='footer-item d-flex flex-column'>
 								<h4 className='text-primary mb-4'>Chăm sóc khách hàng</h4>
-								<a href='/lien-he'>
+								<Link to='/lien-he'>
 									<i className='fas fa-angle-right me-2'></i> Liên hệ
-								</a>
+								</Link>
 								<a href='#'>
 									<i className='fas fa-angle-right me-2'></i> Đổi trả
 								</a>
@@ -193,27 +194,27 @@ export default function Footer() {
 						<div className='col-md-6 col-lg-6 col-xl-3'>
 							<div className='footer-item d-flex flex-column'>
 								<h4 className='text-primary mb-4'>Thông tin</h4>
-								<a href='/ve-chung-toi'>
+								<Link to='/ve-chung-toi'>
 									<i className='fas fa-angle-right me-2'></i> Về chúng tôi
-								</a>
-								<a href='/chinh-sach-van-chuyen'>
+								</Link>
+								<Link to='/chinh-sach-van-chuyen'>
 									<i className='fas fa-angle-right me-2'></i> Chính sách vận
 									chuyển
-								</a>
-								<a href='/chinh-sach-bao-mat'>
+								</Link>
+								<Link to='/chinh-sach-bao-mat'>
 									<i className='fas fa-angle-right me-2'></i> Chính sách bảo mật
-								</a>
-								<a href='/dieu-khoan'>
+								</Link>
+								<Link to='/dieu-khoan'>
 									<i className='fas fa-angle-right me-2'></i> Điều khoản &amp;
 									điều kiện
-								</a>
-								<a href='/chinh-sach-bao-hanh'>
+								</Link>
+								<Link to='/chinh-sach-bao-hanh'>
 									<i className='fas fa-angle-right me-2'></i> Bảo hành
-								</a>
-								<a href='/cau-hoi-thuong-gap'>
+								</Link>
+								<Link to='/cau-hoi-thuong-gap'>
 									<i className='fas fa-angle-right me-2'></i> Câu hỏi thường gặp
-								</a>
-								<a href='/dang-nhap'>
+								</Link>
+								<a href='http://localhost:5174/dang-nhap'>
 									<i className='fas fa-angle-right me-2'></i> Đăng nhập quản trị
 								</a>
 							</div>

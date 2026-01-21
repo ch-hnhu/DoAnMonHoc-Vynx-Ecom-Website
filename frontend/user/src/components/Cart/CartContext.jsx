@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { getFinalPrice } from "@shared/utils/productHelper.jsx";
-import { getUser } from "../../services/authService.js";
+import { getUser, isAuthenticated } from "../../services/authService.js";
 
 const CartContext = createContext(null);
 const CART_KEY_PREFIX = "vynx_cart";
@@ -92,6 +92,9 @@ export function CartProvider({ children }) {
 	}, []);
 
 	const addToCart = (product, quantity = 1) => {
+		if (!isAuthenticated()) {
+			return false;
+		}
 		if (!product?.id) return;
 		const qty = Number.isFinite(quantity) ? quantity : 1;
 		setItems((prev) => {
@@ -105,6 +108,7 @@ export function CartProvider({ children }) {
 			}
 			return [...prev, { product, quantity: qty }];
 		});
+		return true;
 	};
 	
 	const updateQuantity = (productId, quantity) => {

@@ -12,20 +12,21 @@ use App\Http\Controllers\Api\ConfigurationController;
 use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\SlideshowController;
+use App\Http\Controllers\Api\WishlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Public routes - Test
 Route::get('/', function () {
-    return response()->json([
-        'message' => 'API is working!',
-        'timestamp' => now(),
-    ]);
+	return response()->json([
+		'message' => 'API is working!',
+		'timestamp' => now(),
+	]);
 });
 Route::get('/test', function () {
-    return response()->json([
-        'message' => 'hehe tako nek!'
-    ]);
+	return response()->json([
+		'message' => 'hehe tako nek!'
+	]);
 });
 Route::post('/support-requests', [SupportRequestController::class, 'store']);
 Route::apiResource('support-requests', SupportRequestController::class)->only(['index', 'update', 'destroy']);
@@ -36,32 +37,32 @@ Route::post('/dang-nhap', [AuthController::class, 'login']);
 
 // Product routes
 Route::prefix('products')->group(function () {
-    Route::get('/', [ProductController::class, 'index']);
-    Route::get('/trashed', [ProductController::class, 'trashed']);
-    Route::post('/{id}/restore', [ProductController::class, 'restore']);
-    Route::delete('/{id}/force', [ProductController::class, 'forceDelete']);
-    Route::get('/{slug}', [ProductController::class, 'show']);
-    Route::post('/', [ProductController::class, 'store']);
-    Route::put('/{id}', [ProductController::class, 'update']);
-    Route::delete('/{id}', [ProductController::class, 'destroy']);
+	Route::get('/', [ProductController::class, 'index']);
+	Route::get('/trashed', [ProductController::class, 'trashed']);
+	Route::post('/{id}/restore', [ProductController::class, 'restore']);
+	Route::delete('/{id}/force', [ProductController::class, 'forceDelete']);
+	Route::get('/{slug}', [ProductController::class, 'show']);
+	Route::post('/', [ProductController::class, 'store']);
+	Route::put('/{id}', [ProductController::class, 'update']);
+	Route::delete('/{id}', [ProductController::class, 'destroy']);
 });
 
 // Public order routes (for admin)
 Route::prefix('orders')->group(function () {
-    Route::get('/', [OrderController::class, 'index']);
-    Route::get('/{id}', [OrderController::class, 'show']);
-    Route::put('/{id}', [OrderController::class, 'update']);
-    Route::delete('/{id}', [OrderController::class, 'destroy']);
+	Route::get('/', [OrderController::class, 'index']);
+	Route::get('/{id}', [OrderController::class, 'show']);
+	Route::put('/{id}', [OrderController::class, 'update']);
+	Route::delete('/{id}', [OrderController::class, 'destroy']);
 });
 
 Route::prefix('configuration')->group(function () {
-    Route::get('/', [ConfigurationController::class, 'index']);
-    Route::get('/active', [ConfigurationController::class, 'active']);
-    Route::get('/all', [ConfigurationController::class, 'all']);
-    Route::get('/{id}', [ConfigurationController::class, 'show']);
-    Route::post('/', [ConfigurationController::class, 'store']);
-    Route::put('/{id}', [ConfigurationController::class, 'update']);
-    Route::delete('/{id}', [ConfigurationController::class, 'destroy']);
+	Route::get('/', [ConfigurationController::class, 'index']);
+	Route::get('/active', [ConfigurationController::class, 'active']);
+	Route::get('/all', [ConfigurationController::class, 'all']);
+	Route::get('/{id}', [ConfigurationController::class, 'show']);
+	Route::post('/', [ConfigurationController::class, 'store']);
+	Route::put('/{id}', [ConfigurationController::class, 'update']);
+	Route::delete('/{id}', [ConfigurationController::class, 'destroy']);
 });
 
 // Resource routes
@@ -76,15 +77,24 @@ Route::apiResource('slideshows', SlideshowController::class)->only(['index']);
 
 // Protected routes - Require authentication
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/me', [AuthController::class, 'me']);
-    Route::post('/profile/update', [AuthController::class, 'updateProfile']);
+	Route::get('/user', function (Request $request) {
+		return $request->user();
+	});
+	Route::post('/logout', [AuthController::class, 'logout']);
+	Route::get('/me', [AuthController::class, 'me']);
+	Route::post('/profile/update', [AuthController::class, 'updateProfile']);
 
-    // Review routes for authenticated users
-    Route::get('/reviews/reviewed-orders', [ReviewController::class, 'getReviewedOrders']);
-    Route::get('/reviews/pending-orders', [ReviewController::class, 'getPendingReviewOrders']);
-    Route::post('/reviews', [ReviewController::class, 'store']);
+	// Review routes
+	Route::get('/reviews/reviewed-orders', [ReviewController::class, 'getReviewedOrders']);
+	Route::get('/reviews/pending-orders', [ReviewController::class, 'getPendingReviewOrders']);
+	Route::post('/reviews', [ReviewController::class, 'store']);
+
+	// Wishlist routes
+	Route::prefix('wishlists')->group(function () {
+		Route::get('/', [WishlistController::class, 'index']);
+		Route::get('/count', [WishlistController::class, 'count']);
+		Route::get('/check/{productId}', [WishlistController::class, 'check']);
+		Route::post('/', [WishlistController::class, 'store']);
+		Route::delete('/{productId}', [WishlistController::class, 'destroy']);
+	});
 });

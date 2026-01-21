@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function PageHeader({ title, breadcrumbs = [] }) {
 	const defaultBreadcrumbs = [
 		{ label: "Trang chủ", href: "/" },
@@ -25,9 +27,9 @@ export default function PageHeader({ title, breadcrumbs = [] }) {
 							{crumb.active ? (
 								<span style={{ color: "#E3E3E3" }}>{crumb.label}</span>
 							) : (
-								<a href={crumb.href} style={{ color: "#456882" }}>
+								<Link to={crumb.href} style={{ color: "#456882" }}>
 									{crumb.label}
-								</a>
+								</Link>
 							)}
 						</li>
 					))}

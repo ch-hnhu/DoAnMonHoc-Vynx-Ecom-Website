@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { logout, getUser, isAuthenticated } from "../../services/authService";
 
 export default function Header() {
@@ -71,9 +72,9 @@ export default function Header() {
             </a>
           </li>
           <li className="nav-item d-none d-md-block">
-            <a href="/" className="nav-link" style={{ color: "#f5f5f5" }}>
+            <Link to="/" className="nav-link" style={{ color: "#f5f5f5" }}>
               Home
-            </a>
+            </Link>
           </li>
           <li className="nav-item d-none d-md-block">
             <a href="#" className="nav-link" style={{ color: "#f5f5f5" }}>
@@ -296,14 +297,14 @@ export default function Header() {
                 </ul>
               </>
             ) : (
-              <a
-                href="/dang-nhap"
+              <Link
+                to="/dang-nhap"
                 className="nav-link"
                 style={{ color: "#f5f5f5" }}
               >
                 <i className="bi bi-box-arrow-in-right me-2"></i>
                 <span className="d-none d-md-inline">Login</span>
-              </a>
+              </Link>
             )}
           </li>
         </ul>

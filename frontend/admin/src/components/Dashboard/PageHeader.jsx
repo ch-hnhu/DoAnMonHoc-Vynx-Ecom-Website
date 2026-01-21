@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function PageHeader({ title, breadcrumbs }) {
 	return (
 		<div className='app-content-header'>
@@ -18,9 +20,9 @@ export default function PageHeader({ title, breadcrumbs }) {
 									{item.active ? (
 										item.label
 									) : (
-										<a style={{ color: "#456882" }} href={item.href}>
+										<Link style={{ color: "#456882" }} to={item.href}>
 											{item.label}
-										</a>
+										</Link>
 									)}
 								</li>
 							))}

@@ -15,7 +15,7 @@ export default function ShopPage() {
 	const [products, setProducts] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const { addToCart } = useCart();
-	const { toast, showSuccess, closeToast } = useToast();
+	const { toast, showSuccess, showError, closeToast } = useToast();
 	const navigate = useNavigate();
 	const [searchParams, setSearchParams] = useSearchParams();
 	const [pagination, setPagination] = useState({
@@ -24,18 +24,19 @@ export default function ShopPage() {
 		perPage: 6,
 		total: 0,
 	});
+	const keyword = (searchParams.get("search") || "").trim();
+	const categoryParam = (searchParams.get("category") || "").trim();
 	const [searchTerm, setSearchTerm] = useState("");
 	const [categories, setCategories] = useState([]);
 	const [brands, setBrands] = useState([]);
 	const [featuredProducts, setFeaturedProducts] = useState([]);
 	const [featuredLoading, setFeaturedLoading] = useState(false);
-	const [filters, setFilters] = useState({
-		categorySlug: null,
+	const [filters, setFilters] = useState(() => ({
+		categorySlug: categoryParam || null,
 		brandId: null,
 		maxPrice: null,
-	});
+	}));
 	const [sortBy, setSortBy] = useState("newest");
-	const keyword = (searchParams.get("search") || "").trim();
 	const [priceValue, setPriceValue] = useState(0);
 	const priceMax = 100000000;
 	const searchInputRef = useRef(null);
@@ -72,6 +73,14 @@ export default function ShopPage() {
 		setSearchTerm(keyword);
 		setPagination((prev) => ({ ...prev, currentPage: 1 }));
 	}, [keyword]);
+
+	useEffect(() => {
+		setFilters((prev) => ({
+			...prev,
+			categorySlug: categoryParam || null,
+		}));
+		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+	}, [categoryParam]);
 
 	useEffect(() => {
 		const fetchProducts = async () => {
@@ -174,6 +183,15 @@ export default function ShopPage() {
 			brandId: categorySlug === null ? null : prev.brandId,
 		}));
 		setPagination((prev) => ({ ...prev, currentPage: 1 }));
+		setSearchParams((prev) => {
+			const next = new URLSearchParams(prev);
+			if (categorySlug) {
+				next.set("category", categorySlug);
+			} else {
+				next.delete("category");
+			}
+			return next;
+		});
 		if (categorySlug === null) {
 			setSearchTerm("");
 			setSearchParams((prev) => {
@@ -199,7 +217,12 @@ export default function ShopPage() {
 	};
 
 	const handleAddToCart = (product) => {
-		addToCart(product, 1);
+		const added = addToCart(product, 1);
+		if (!added) {
+			showError("Vui lòng đăng nhập để thêm vào giỏ hàng");
+			navigate("/dang-nhap");
+			return;
+		}
 		showSuccess("Đã thêm vào giỏ hàng");
 	};
 

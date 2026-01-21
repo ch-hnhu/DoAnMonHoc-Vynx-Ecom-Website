@@ -1,8 +1,18 @@
 import { getProductImage, getFinalPrice, hasDiscount } from "@shared/utils/productHelper.jsx";
+import { Link } from "react-router-dom";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
+import { useWishList } from "../../hooks/useWishList";
+import { useToast } from "@shared/hooks/useToast";
+import { Snackbar, Alert } from "@mui/material";
 
 export default function ProductCardLarge({ product, onAddToCart, onViewDetails }) {
+	const { toast, showSuccess, showError, closeToast } = useToast();
+	const { isInWishlist, isLoggedIn, handleToggleWishlist } = useWishList(
+		product?.id,
+		showSuccess,
+		showError,
+	);
 	const handleAddToCart = (e) => {
 		e.preventDefault();
 		if (onAddToCart) {
@@ -32,18 +42,21 @@ export default function ProductCardLarge({ product, onAddToCart, onViewDetails }
 						/>
 						{product.is_new && <div className='product-new'>New</div>}
 						<div className='product-details'>
-							<a href={`/${product.slug}`} onClick={handleViewDetails}>
+							<Link to={`/${product.slug}`} onClick={handleViewDetails}>
 								<i className='fa fa-eye fa-1x'></i>
-							</a>
+							</Link>
 						</div>
 					</div>
 					<div className='text-center rounded-bottom p-4'>
-						<a href={`/${product.slug}`} className='d-block mb-2'>
+						<Link to={`/${product.slug}`} className='d-block mb-2'>
 							{product.category?.name || "Uncategorized"}
-						</a>
-						<a href={`/${product.slug}`} className='d-block h4' onClick={handleViewDetails}>
+						</Link>
+						<Link
+							to={`/${product.slug}`}
+							className='d-block h4'
+							onClick={handleViewDetails}>
 							{product.name}
-						</a>
+						</Link>
 						{hasDiscount(product) ? (
 							<>
 								<del className='me-2 fs-5'>{formatCurrency(product.price)}</del>
@@ -69,24 +82,33 @@ export default function ProductCardLarge({ product, onAddToCart, onViewDetails }
 					<div className='d-flex justify-content-between align-items-center'>
 						<div className='d-flex'>{renderRating(product.rating_average || 0)}</div>
 						<div className='d-flex'>
-							<a
-								href='#'
-								className='text-primary d-flex align-items-center justify-content-center me-3'>
-								<span className='rounded-circle btn-sm-square border'>
-									<i className='fas fa-random'></i>
-								</span>
-							</a>
-							<a
-								href='#'
-								className='text-primary d-flex align-items-center justify-content-center me-0'>
-								<span className='rounded-circle btn-sm-square border'>
-									<i className='fas fa-heart'></i>
-								</span>
-							</a>
+							{isLoggedIn && (
+								<a
+									href='#'
+									onClick={handleToggleWishlist}
+									className='text-primary d-flex align-items-center justify-content-center me-0'>
+									<span className='rounded-circle btn-sm-square border'>
+										<i
+											className={
+												isInWishlist ? "fas fa-heart" : "far fa-heart"
+											}></i>
+									</span>
+								</a>
+							)}
 						</div>
 					</div>
 				</div>
 			</div>
+			{/* Toast notification */}
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={2500}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</div>
 	);
 }
