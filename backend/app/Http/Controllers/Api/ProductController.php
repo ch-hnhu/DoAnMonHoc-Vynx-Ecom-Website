@@ -61,7 +61,7 @@ class ProductController extends Controller
 			}
 
 			// bắt đầu sắp xếp danh sách sản phẩm
-			$sort = $request->input('sort', 'newest');
+			$sort = $request->input('sort', 'name_asc');
 			switch ($sort) {
 				case 'newest':
 					// sắp xếp theo ngày tạo mới nhất

@@ -22,6 +22,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditOrder from "./EditOrder.jsx";
 import OrderDetails from "./OrderDetails.jsx";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
+import AddOrder from "./AddOrder.jsx";
 
 export default function OrderPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐƠN HÀNG");
@@ -29,6 +30,7 @@ export default function OrderPage() {
 	const [selectedOrder, setSelectedOrder] = useState(null);
 	const [openEditDialog, setOpenEditDialog] = useState(false);
 	const [openViewDialog, setOpenViewDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 	const [rowCount, setRowCount] = useState(0);
@@ -54,8 +56,11 @@ export default function OrderPage() {
 	}, [paginationModel.page, paginationModel.pageSize]);
 
 	const handleCreate = () => {
-		console.log("Create order");
-		showInfo("Tạo đơn hàng mới");
+		setOpenAddDialog(true);
+	};
+
+	const handleCreated = () => {
+		fetchOrders();
 	};
 
 	const handleEdit = (order) => {
@@ -66,6 +71,10 @@ export default function OrderPage() {
 	const handleCloseEdit = () => {
 		setOpenEditDialog(false);
 		setSelectedOrder(null);
+	};
+
+	const handleCloseAdd = () => {
+		setOpenAddDialog(false);
 	};
 
 	const handleView = (order) => {
@@ -257,6 +266,13 @@ export default function OrderPage() {
 				onClose={handleCloseEdit}
 				onSuccess={fetchOrders}
 				order={selectedOrder}
+			/>
+			<AddOrder
+				open={openAddDialog}
+				onClose={handleCloseAdd}
+				onCreated={handleCreated}
+				showSuccess={showSuccess}
+				showError={showError}
 			/>
 			<OrderDetails open={openViewDialog} onClose={handleCloseView} order={selectedOrder} />
 			<Snackbar
