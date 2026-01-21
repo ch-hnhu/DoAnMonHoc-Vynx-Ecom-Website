@@ -673,11 +673,16 @@ export default function SingleProduct({ product }) {
 											id='nav-desc'
 											role='tabpanel'
 											aria-labelledby='nav-desc-tab'>
-											<p className='mb-0'>
-												{product.description ||
-													product.short_description ||
-													"Chưa có mô tả sản phẩm."}
-											</p>
+											{product.description ? (
+												<div
+													className='mb-0'
+													dangerouslySetInnerHTML={{
+														__html: product.description,
+													}}
+												/>
+											) : (
+												<p className='mb-0'>Chưa có mô tả sản phẩm.</p>
+											)}
 										</div>
 										<div
 											className='tab-pane'

@@ -50,10 +50,9 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 
 	const fetchCategories = async () => {
 		const res = await api.get("/categories", { params: { flat: 1, per_page: 10000 } });
-		if(res.data.success) {
+		if (res.data.success) {
 			setCategories(res.data.data || []);
-		}
-		else {
+		} else {
 			console.log("Error fetching categories: ", res.data.error);
 		}
 	};
@@ -61,6 +60,37 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 	useEffect(() => {
 		fetchCategories();
 	}, []);
+
+	useEffect(() => {
+		if (open) {
+			// Init CKEditor when modal opens
+			// Use setTimeout to ensure DOM element exists
+			const timer = setTimeout(() => {
+				if (window.CKEDITOR) {
+					// Check if instance already exists and destroy it
+					if (window.CKEDITOR.instances["description"]) {
+						window.CKEDITOR.instances["description"].destroy(true);
+					}
+					const editor = window.CKEDITOR.replace("description");
+					editor.on("change", () => {
+						const data = editor.getData();
+						setFormData((prev) => ({ ...prev, description: data }));
+					});
+					// Set initial data if any (e.g. if form wasn't cleared properly or reopening with draft)
+					editor.setData(formData.description);
+				}
+			}, 100);
+			return () => clearTimeout(timer);
+		} else {
+			// Destroy editor when modal closes
+			if (window.CKEDITOR && window.CKEDITOR.instances["description"]) {
+				// window.CKEDITOR.instances['description'].destroy(true);
+				// Actually, destroy might remove the textarea from DOM if not careful,
+				// but usually CKEditor restores the textarea.
+				// For safety in React, let's just leave it or destroy carefully.
+			}
+		}
+	}, [open]); // Re-run when open changes
 	// Handle text field changes
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -587,16 +617,14 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 
 						{/* Description */}
 						<Grid size={12}>
-							<TextField
-								fullWidth
-								multiline
-								rows={4}
-								label='Mô tả sản phẩm'
+							<Typography variant='body2' gutterBottom>
+								Mô tả sản phẩm
+							</Typography>
+							<textarea
 								name='description'
-								value={formData.description}
-								onChange={handleChange}
-								placeholder='Nhập mô tả sản phẩm...'
-							/>
+								id='description'
+								rows='10'
+								style={{ width: "100%" }}></textarea>
 						</Grid>
 					</Grid>
 				</Box>
