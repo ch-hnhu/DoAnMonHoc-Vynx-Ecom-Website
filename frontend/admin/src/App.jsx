@@ -17,6 +17,7 @@ import SupportRequest from "./pages/SupportRequest";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthRedirect from "./pages/AuthRedirect";
+import AdminProfile from "./pages/AdminProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
@@ -49,6 +50,7 @@ export default function App() {
         <Route path="configurations" element={<Configuration />} />
         <Route path="reviews" element={<Review />} />
         <Route path="contacts" element={<SupportRequest />} />
+        <Route path="thong-tin-ca-nhan" element={<AdminProfile />} />
       </Route>
     </Routes>
   );

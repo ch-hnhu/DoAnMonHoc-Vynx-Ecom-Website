@@ -273,7 +273,7 @@ export default function Header() {
                   <li className="user-body">
                     <div className="row">
                       <div className="col-4 text-center">
-                        <a href="#">Profile</a>
+                        <Link to="/thong-tin-ca-nhan">Profile</Link>
                       </div>
                       <div className="col-4 text-center">
                         <a href="#">Settings</a>
@@ -284,9 +284,9 @@ export default function Header() {
                     </div>
                   </li>
                   <li className="user-footer">
-                    <a href="#" className="btn btn-outline-secondary">
+                    <Link to="/thong-tin-ca-nhan" className="btn btn-outline-secondary">
                       Profile
-                    </a>
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="btn btn-outline-danger float-end"
