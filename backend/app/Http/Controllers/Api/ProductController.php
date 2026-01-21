@@ -12,6 +12,16 @@ class ProductController extends Controller
 {
 	/**
 	 * Display a listing of the resource with filtering & sorting.
+	 * 
+	 * Query Parameters:
+	 * - category_id: Filter by category ID
+	 * - brand_id: Filter by brand ID
+	 * - sort: newest|bestseller|price_asc|price_desc|rating
+	 * - featured: 1 (products with promotions)
+	 * - min_price: Minimum price
+	 * - max_price: Maximum price
+	 * - search: Search by name
+	 * - per_page: Items per page (default: 9)
 	 */
 	public function index(Request $request)
 	{
@@ -61,7 +71,7 @@ class ProductController extends Controller
 			}
 
 			// bắt đầu sắp xếp danh sách sản phẩm
-			$sort = $request->input('sort', 'newest');
+			$sort = $request->input('sort', 'name_asc');
 			switch ($sort) {
 				case 'newest':
 					// sắp xếp theo ngày tạo mới nhất
