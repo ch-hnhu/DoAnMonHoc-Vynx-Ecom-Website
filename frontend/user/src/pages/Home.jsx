@@ -22,7 +22,6 @@ export default function Home() {
 	useEffect(() => {
 		let isActive = true;
 
-		// Fetch cả 2 loại products cùng lúc
 		Promise.all([
 			api.get("/products?has_promotion=1&per_page=8"),
 			api.get("/products?sort=bestseller&per_page=8"),
