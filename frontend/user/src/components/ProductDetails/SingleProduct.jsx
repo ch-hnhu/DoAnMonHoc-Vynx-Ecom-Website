@@ -26,6 +26,7 @@ export default function SingleProduct({ product }) {
 	const { updateWishlistCount } = useWishlist();
 	const { toast, showSuccess, showError, closeToast } = useToast();
 	const [quantity, setQuantity] = useState(1);
+	const [searchTerm, setSearchTerm] = useState("");
 	const [categories, setCategories] = useState([]);
 	const [categorySlug, setCategorySlug] = useState(null);
 	const images = useMemo(() => getAllProductImages(product?.image_url), [product?.image_url]);
@@ -190,6 +191,15 @@ export default function SingleProduct({ product }) {
 		navigate("/san-pham");
 	};
 
+	const handleSearchSubmit = () => {
+		const keyword = searchTerm.trim();
+		if (keyword) {
+			navigate(`/san-pham?search=${encodeURIComponent(keyword)}`);
+			return;
+		}
+		navigate("/san-pham");
+	};
+
 	const handleCopyLink = async () => {
 		try {
 			await navigator.clipboard.writeText(window.location.href);
@@ -217,8 +227,28 @@ export default function SingleProduct({ product }) {
 									className='form-control p-3'
 									placeholder='Từ khóa'
 									aria-describedby='search-icon-1'
+									value={searchTerm}
+									onChange={(e) => setSearchTerm(e.target.value)}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											handleSearchSubmit();
+										}
+									}}
 								/>
-								<span id='search-icon-1' className='input-group-text p-3'>
+								<span
+									id='search-icon-1'
+									className='input-group-text p-3'
+									role='button'
+									tabIndex={0}
+									onClick={handleSearchSubmit}
+									onKeyDown={(e) => {
+										if (e.key === "Enter") {
+											e.preventDefault();
+											handleSearchSubmit();
+										}
+									}}
+									style={{ cursor: "pointer" }}>
 									<i className='fa fa-search'></i>
 								</span>
 							</div>
