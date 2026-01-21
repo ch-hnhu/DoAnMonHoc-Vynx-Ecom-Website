@@ -75,6 +75,7 @@ Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
+Route::post('/promotions/check', [PromotionController::class, 'check']);
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
 Route::apiResource('reviews', ReviewController::class)->only(['index', 'update', 'destroy']);
 Route::apiResource('slideshows', SlideshowController::class)->only(['index']);

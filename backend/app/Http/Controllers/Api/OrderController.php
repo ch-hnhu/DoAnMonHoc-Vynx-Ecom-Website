@@ -95,6 +95,7 @@ class OrderController extends Controller
 				'shipping_email' => 'nullable|email',
 				'shipping_note' => 'nullable|string',
 				'payment_method' => 'required|in:cod,vnpay',
+				'promotion_id' => 'nullable|exists:promotions,id',
 				'subtotal_amount' => 'required|numeric',
 				'discount_amount' => 'required|numeric',
 				'shipping_fee' => 'required|numeric',

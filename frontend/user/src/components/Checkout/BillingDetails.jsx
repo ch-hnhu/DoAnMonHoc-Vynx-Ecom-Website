@@ -25,6 +25,10 @@ export default function BillingDetails() {
 	const [paymentMethod, setPaymentMethod] = useState("cod");
 	const [submitting, setSubmitting] = useState(false);
 
+	const [discountCode, setDiscountCode] = useState("");
+	const [discountValue, setDiscountValue] = useState(0);
+	const [promotionId, setPromotionId] = useState(null);
+
 	useEffect(() => {
 		const user = getUser();
 		if (user) {
@@ -45,7 +49,45 @@ export default function BillingDetails() {
 		return 15000;
 	}, [shippingOption]);
 
-	const totalAmount = useMemo(() => subtotal + shippingFee, [subtotal, shippingFee]);
+	const totalAmount = useMemo(() => {
+		const total = subtotal + shippingFee - discountValue;
+		return total > 0 ? total : 0;
+	}, [subtotal, shippingFee, discountValue]);
+
+	const handleApplyCoupon = async () => {
+		if (!discountCode.trim()) {
+			showError("Vui lòng nhập mã giảm giá");
+			return;
+		}
+
+		try {
+			const res = await api.post("/promotions/check", { code: discountCode });
+			if (res.data.success) {
+				const promo = res.data.data;
+				let discount = 0;
+				if (promo.discount_type === "percent") {
+					discount = (subtotal * promo.discount_value) / 100;
+				} else {
+					discount = promo.discount_value;
+				}
+
+				if (discount > subtotal) discount = subtotal;
+
+				setDiscountValue(discount);
+				setPromotionId(promo.id);
+				showSuccess(`Áp dụng mã thành công! Giảm ${formatCurrency(discount)}`);
+			} else {
+				setDiscountValue(0);
+				setPromotionId(null);
+				showError(res.data.message);
+			}
+		} catch (error) {
+			console.error(error);
+			setDiscountValue(0);
+			setPromotionId(null);
+			showError("Lỗi khi kiểm tra mã giảm giá");
+		}
+	};
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -90,7 +132,8 @@ export default function BillingDetails() {
 			...formData,
 			user_id: getUser()?.id || null,
 			subtotal_amount: subtotal,
-			discount_amount: 0,
+			discount_amount: discountValue,
+			promotion_id: promotionId,
 			shipping_fee: shippingFee,
 			total_amount: totalAmount,
 			final_amount: totalAmount,
@@ -259,10 +302,10 @@ export default function BillingDetails() {
 											)}
 											<tr>
 												<th scope='row'></th>
-												<td className='py-4'></td>
 												<td className='py-4'>
 													<p className='mb-0 text-dark py-2'>Tạm tính</p>
 												</td>
+												<td className='py-4'></td>
 												<td className='py-4'>
 													<div className='py-2 text-center border-bottom border-top'>
 														<p className='mb-0 text-dark'>
@@ -274,49 +317,87 @@ export default function BillingDetails() {
 											<tr>
 												<th scope='row'></th>
 												<td className='py-4'>
-													<p className='mb-0 text-dark py-4'>
-														Vận chuyển
+													<p className='mb-0 text-dark'>
+														Phương thức vận chuyển
 													</p>
 												</td>
-												<td colSpan='2' className='py-4'>
-													<div className='form-check text-start'>
-														<input
-															type='radio'
-															className='form-check-input bg-primary border-0'
-															id='Shipping-2'
-															name='Shipping'
-															value='standard'
-															checked={shippingOption === "standard"}
-															onChange={() =>
-																setShippingOption("standard")
-															}
-														/>
-														<label
-															className='form-check-label'
-															htmlFor='Shipping-2'>
-															Phí vận chuyển: {formatCurrency(15000)}
-														</label>
-													</div>
-													<div className='form-check text-start'>
-														<input
-															type='radio'
-															className='form-check-input bg-primary border-0'
-															id='Shipping-3'
-															name='Shipping'
-															value='pickup'
-															checked={shippingOption === "pickup"}
-															onChange={() =>
-																setShippingOption("pickup")
-															}
-														/>
-														<label
-															className='form-check-label'
-															htmlFor='Shipping-3'>
-															Nhận tại cửa hàng: Miễn phí
-														</label>
+												<td className='py-4'></td>
+												<td className='py-4'>
+													<select
+														className='form-select'
+														value={shippingOption}
+														onChange={(e) =>
+															setShippingOption(e.target.value)
+														}>
+														<option value='standard'>
+															Giao hàng tiết kiệm
+														</option>
+														<option value='express'>
+															Giao hàng nhanh
+														</option>
+														<option value='pickup'>
+															Nhận tại cửa hàng
+														</option>
+													</select>
+												</td>
+											</tr>
+											<tr>
+												<th scope='row'></th>
+												<td className='py-4'>
+													<p className='mb-0 text-dark'>Phí vận chuyển</p>
+												</td>
+												<td className='py-4'></td>
+												<td className='py-4'>
+													<div className='py-2 text-center border-bottom border-top'>
+														<p className='mb-0 text-dark'>
+															{formatCurrency(shippingFee)}
+														</p>
 													</div>
 												</td>
 											</tr>
+											<tr>
+												<th scope='row'></th>
+												<td className='py-4'>
+													<p className='mb-0 text-dark'>Mã giảm giá</p>
+												</td>
+												<td className='py-4' colSpan='2'>
+													<div className='input-group'>
+														<input
+															type='text'
+															className='form-control'
+															placeholder='Nhập mã giảm giá'
+															value={discountCode}
+															onChange={(e) =>
+																setDiscountCode(e.target.value)
+															}
+														/>
+														<button
+															className='btn btn-primary border-secondary text-primary'
+															type='button'
+															onClick={handleApplyCoupon}>
+															Áp dụng
+														</button>
+													</div>
+												</td>
+											</tr>
+											{discountValue > 0 && (
+												<tr>
+													<th scope='row'></th>
+													<td className='py-4'>
+														<p className='mb-0 text-success'>
+															Giảm giá
+														</p>
+													</td>
+													<td className='py-4'></td>
+													<td className='py-4'>
+														<div className='py-2 text-center border-bottom border-top'>
+															<p className='mb-0 text-success'>
+																-{formatCurrency(discountValue)}
+															</p>
+														</div>
+													</td>
+												</tr>
+											)}
 											<tr>
 												<th scope='row'></th>
 												<td className='py-4'>
