@@ -7,6 +7,7 @@ import { getProductImage, getFinalPrice, isInStock } from "@shared/utils/product
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 import { useCart } from "../components/Cart/CartContext";
+import { useWishlist } from "../components/Wishlist/WishlistContext";
 import { Snackbar, Alert } from "@mui/material";
 import PageHeader from "../components/Partial/PageHeader";
 
@@ -14,6 +15,7 @@ export default function Wishlist() {
 	const navigate = useNavigate();
 	const { toast, showSuccess, showError, closeToast } = useToast();
 	const { addToCart } = useCart();
+	const { updateWishlistCount } = useWishlist();
 	const [wishlistItems, setWishlistItems] = useState([]);
 	const [loading, setLoading] = useState(true);
 
@@ -44,6 +46,7 @@ export default function Wishlist() {
 			await api.delete(`/wishlists/${id}`);
 			setWishlistItems((prev) => prev.filter((item) => item.product.id !== id));
 			showSuccess("Đã xóa sản phẩm khỏi danh sách yêu thích");
+			updateWishlistCount();
 		} catch (error) {
 			console.error("Error removing from wishlist:", error);
 			showError("Lỗi khi xóa sản phẩm");
@@ -69,6 +72,7 @@ export default function Wishlist() {
 			);
 			setWishlistItems([]);
 			showSuccess("Đã xóa danh sách yêu thích");
+			updateWishlistCount();
 		} catch (error) {
 			console.error("Error clearing wishlist:", error);
 			showError("Lỗi khi xóa danh sách");

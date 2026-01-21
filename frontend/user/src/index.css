@@ -161,7 +161,9 @@ a.text-primary:focus {
 #allCat.show .vynx-catmenu-root {
 	opacity: 1;
 	transform: translateY(0);
-	transition: opacity 140ms ease, transform 140ms ease;
+	transition:
+		opacity 140ms ease,
+		transform 140ms ease;
 }
 
 /* While collapsing/expanding, keep content hidden to avoid flicker */
@@ -220,7 +222,9 @@ a.text-primary:focus {
 	text-decoration: none;
 	font-weight: 600;
 	line-height: 1.2;
-	transition: background-color 0.15s ease, color 0.15s ease;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
 }
 
 .dropdown-menu .vynx-catmenu-link,
@@ -271,7 +275,10 @@ a.text-primary:focus {
 	visibility: hidden;
 	transform: translateX(6px);
 	pointer-events: none;
-	transition: opacity 160ms ease, transform 160ms ease, visibility 0ms linear 160ms;
+	transition:
+		opacity 160ms ease,
+		transform 160ms ease,
+		visibility 0ms linear 160ms;
 }
 
 /* Hover bridge: tránh khoảng hở giữa menu cha và submenu mà KHÔNG phá shadow */
@@ -291,7 +298,10 @@ a.text-primary:focus {
 	visibility: visible;
 	transform: translateX(0);
 	pointer-events: auto;
-	transition: opacity 160ms ease, transform 160ms ease, visibility 0ms;
+	transition:
+		opacity 160ms ease,
+		transform 160ms ease,
+		visibility 0ms;
 }
 
 /* Make deeper levels slightly lighter */
@@ -372,7 +382,7 @@ a.text-primary:focus {
 .chat-widget {
 	position: fixed;
 	right: 24px;
-	bottom: 90px;
+	bottom: 100px;
 	z-index: 999;
 }
 
@@ -380,7 +390,22 @@ a.text-primary:focus {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
-	gap: 10px;
+	gap: 20px;
+}
+
+@keyframes zalo-pulse {
+	0% {
+		transform: scale(1);
+		box-shadow: 0 0 0 0 rgba(0, 104, 255, 0.7);
+	}
+	70% {
+		transform: scale(1.05);
+		box-shadow: 0 0 0 15px rgba(0, 104, 255, 0);
+	}
+	100% {
+		transform: scale(1);
+		box-shadow: 0 0 0 0 rgba(0, 104, 255, 0);
+	}
 }
 
 .zalo-toggle {
@@ -395,11 +420,13 @@ a.text-primary:focus {
 	color: #ffffff;
 	box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
 	text-decoration: none;
+	animation: zalo-pulse 1.5s infinite;
 }
 
 .zalo-toggle:hover {
 	background: #0053cc;
 	color: #ffffff;
+	animation: none; /* Stop animation on hover if desired, or keep it */
 }
 
 .zalo-icon {
@@ -512,19 +539,44 @@ a.text-primary:focus {
 	padding: 8px 16px;
 }
 
-.carousel .carousel-header-banner {
-	min-height: 418px;
-	height: calc(100% - 2px);
-	margin-top: 1px;
-	margin-bottom: 1px;
-}
-
+/* -- Carousel & Banner Alignment Fix -- */
+.header-carousel-item img,
 .carousel .carousel-header-banner img {
 	width: 100%;
-	height: 100%;	
 	object-fit: cover;
 }
 
+/* Desktop: Set fixed height to ensure both sides align perfectly */
+@media (min-width: 992px) {
+	.header-carousel-item,
+	.carousel .carousel-header-banner {
+		height: 500px;
+	}
+
+	.header-carousel-item img,
+	.carousel .carousel-header-banner img {
+		height: 100%;
+	}
+
+	/* Propagate height through Owl Carousel layers */
+	.header-carousel,
+	.header-carousel .owl-stage-outer,
+	.header-carousel .owl-stage,
+	.header-carousel .owl-item {
+		height: 100%;
+	}
+}
+
+/* Mobile/Tablet: Adjustments */
+@media (max-width: 991.98px) {
+	.carousel .carousel-header-banner {
+		height: auto;
+		min-height: 200px;
+		margin-top: 15px;
+	}
+}
+
+/* Chat Widget Responsive */
 @media (max-width: 576px) {
 	.chat-widget {
 		right: 16px;
@@ -533,11 +585,5 @@ a.text-primary:focus {
 
 	.chat-panel {
 		width: 280px;
-	}
-}
-
-@media (max-width: 992px) {
-	.carousel .carousel-header-banner {
-		min-height: auto;
 	}
 }

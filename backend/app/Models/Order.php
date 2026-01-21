@@ -64,7 +64,12 @@ class Order extends Model
 		'payment_method',
 		'payment_status',
 		'delivery_method',
-		'delivery_status'
+		'delivery_status',
+		'shipping_name',
+		'shipping_phone',
+		'shipping_email',
+		'shipping_address',
+		'shipping_note'
 	];
 
 	public function user_address()

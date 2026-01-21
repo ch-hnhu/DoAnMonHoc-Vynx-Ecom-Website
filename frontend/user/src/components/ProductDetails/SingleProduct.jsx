@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { Alert, Snackbar } from "@mui/material";
 import {
 	getAllProductImages,
 	getFinalPrice,
-	getProductImage,
 	hasDiscount,
 	isInStock,
 } from "@shared/utils/productHelper.jsx";
@@ -12,23 +10,13 @@ import { formatCurrency, formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderRating } from "@shared/utils/renderHelper.jsx";
 import { useCart } from "../Cart/CartContext.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
-import Spinner from "../Partial/Spinner";
 import api from "../../services/api";
 
 export default function SingleProduct({ product }) {
-	const navigate = useNavigate();
 	const [reviews, setReviews] = useState([]);
 	const { addToCart } = useCart();
 	const { toast, showSuccess, closeToast } = useToast();
 	const [quantity, setQuantity] = useState(1);
-	const [searchTerm, setSearchTerm] = useState("");
-	const [categories, setCategories] = useState([]);
-	const [brands, setBrands] = useState([]);
-	const [featuredProducts, setFeaturedProducts] = useState([]);
-	const [featuredLoading, setFeaturedLoading] = useState(false);
-	const [categorySlug, setCategorySlug] = useState(null);
-	const [priceValue, setPriceValue] = useState(0);
-	const priceMax = 100000000;
 	const images = useMemo(
 		() => getAllProductImages(product?.image_url),
 		[product?.image_url]
@@ -56,59 +44,6 @@ export default function SingleProduct({ product }) {
 			window.initCarousels.single();
 		}
 	}, [images.length, product.id]);
-
-	useEffect(() => {
-		api
-			.get("/categories", { params: { flat: 1, per_page: 10000 } })
-			.then((res) => {
-				if (res?.data?.success) {
-					setCategories(res.data.data || []);
-				} else {
-					setCategories(res?.data?.data || []);
-				}
-			})
-			.catch((error) => {
-				console.error("Error fetching categories: ", error);
-			});
-
-		api
-			.get("/brands", { params: { per_page: 10000 } })
-			.then((res) => {
-				if (res?.data?.success) {
-					setBrands(res.data.data || []);
-				} else {
-					setBrands(res?.data?.data || []);
-				}
-			})
-			.catch((error) => {
-				console.error("Error fetching brands: ", error);
-			});
-	}, []);
-
-	useEffect(() => {
-		let isActive = true;
-		queueMicrotask(() => {
-			if (!isActive) return;
-			setFeaturedLoading(true);
-		});
-		api
-			.get("/products", { params: { page: 1, per_page: 4, featured: 1 } })
-			.then((res) => {
-				if (!isActive) return;
-				setFeaturedProducts(res.data.data || []);
-			})
-			.catch((error) => {
-				if (!isActive) return;
-				console.error("Error fetching featured products: ", error);
-			})
-			.finally(() => {
-				if (isActive) setFeaturedLoading(false);
-			});
-
-		return () => {
-			isActive = false;
-		};
-	}, []);
 
 	const getMaxQuantity = () => {
 		const stock = Number(product?.stock_quantity ?? 0);
@@ -143,52 +78,6 @@ export default function SingleProduct({ product }) {
 		}
 	};
 
-	const handleViewDetails = (item) => {
-		if (item?.slug) {
-			navigate(`/${item.slug}`);
-		}
-	};
-
-	const handleSearchSubmit = () => {
-		const keyword = searchTerm.trim();
-		if (keyword) {
-			navigate(`/san-pham?search=${encodeURIComponent(keyword)}`);
-			return;
-		}
-		navigate("/san-pham");
-	};
-
-	const handleCategoryChange = (slug) => {
-		setCategorySlug(slug);
-		if (slug) {
-			navigate(`/san-pham?category=${slug}`);
-			return;
-		}
-		navigate("/san-pham");
-	};
-
-	const handleTagSearch = (term) => {
-		const keyword = (term || "").trim();
-		setSearchTerm(keyword);
-		if (keyword) {
-			navigate(`/san-pham?search=${encodeURIComponent(keyword)}`);
-			return;
-		}
-		navigate("/san-pham");
-	};
-
-	const handlePriceChange = (value) => {
-		setPriceValue(value);
-	};
-
-	const handleApplyPrice = () => {
-		if (priceValue > 0) {
-			navigate(`/san-pham?max_price=${priceValue}`);
-			return;
-		}
-		navigate("/san-pham");
-	};
-
 	const handleCopyLink = async () => {
 		try {
 			await navigator.clipboard.writeText(window.location.href);
@@ -216,201 +105,333 @@ export default function SingleProduct({ product }) {
 									className='form-control p-3'
 									placeholder='Từ khóa'
 									aria-describedby='search-icon-1'
-									value={searchTerm}
-									onChange={(e) => setSearchTerm(e.target.value)}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") {
-											e.preventDefault();
-											handleSearchSubmit();
-										}
-									}}
 								/>
-								<span
-									id='search-icon-1'
-									className='input-group-text p-3'
-									role='button'
-									tabIndex={0}
-									onClick={handleSearchSubmit}
-									onKeyDown={(e) => {
-										if (e.key === "Enter") {
-											e.preventDefault();
-											handleSearchSubmit();
-										}
-									}}
-									style={{ cursor: "pointer" }}>
+								<span id='search-icon-1' className='input-group-text p-3'>
 									<i className='fa fa-search'></i>
 								</span>
 							</div>
-							{/* Sidebar */}
-								<div className='additional-product mb-4'>
-									<h4>Chọn theo danh mục</h4>
-									<div className='additional-product-item'>
-										<input
-											type='radio'
-											className='me-2'
-											id='Categories-all'
-											name='Categories'
-											checked={!categorySlug}
-											onChange={() => handleCategoryChange(null)}
-										/>
-										<label htmlFor='Categories-all' className='text-dark'>
-											{" "}Tất cả
-										</label>
-									</div>
-									{categories.map((category) => (
-										<div className='additional-product-item' key={category.id}>
-											<input
-												type='radio'
-												className='me-2'
-												id={`Categories-${category.id}`}
-												name='Categories'
-												checked={categorySlug === category.slug}
-												onChange={() => handleCategoryChange(category.slug)}
-											/>
-											<label htmlFor={`Categories-${category.id}`} className='text-dark'>
-												{" "}{category.name}
-											</label>
-										</div>
-									))}
-								</div>
-
-								<div className='price mb-4'>
-									<h4 className='mb-2'>Giá</h4>
-									<input
-										type='range'
-										className='form-range w-100'
-										id='rangeInput'
-										name='rangeInput'
-										min='0'
-										max={priceMax}
-										value={priceValue}
-										onChange={(e) => handlePriceChange(Number(e.target.value))}
-									/>
-									<output id='amount' name='amount' min='0' max={priceMax}>
-										{formatCurrency(priceValue)}
-									</output>
-									<button
-										type='button'
-										className='btn btn-primary w-100 mt-2'
-										onClick={handleApplyPrice}>
-										Áp dụng
-									</button>
-								</div>
-
-								<div className='featured-product mb-4'>
-									<h4 className='mb-3'>Sản phẩm nổi bật</h4>
-									{featuredLoading ? (
-										<div className='py-3'>
-											<Spinner />
-										</div>
-									) : featuredProducts.length > 0 ? (
-										featuredProducts.map((item) => (
-											<div className='featured-product-item' key={item.id}>
-												<div className='rounded me-4' style={{ width: 100, height: 100 }}>
-													<img
-														src={getProductImage(item.image_url)}
-														className='img-fluid rounded'
-														alt={item.name}
-														onError={(e) => {
-														e.target.src = "https://placehold.co/200x200";
-													}}
-													/>
-												</div>
-												<div>
-													<a
-														href='#'
-														className='text-dark'
-														onClick={(e) => {
-														e.preventDefault();
-														handleViewDetails(item);
-													}}>
-														<h6 className='mb-2'>{item.name}</h6>
-													</a>
-													<div className='d-flex mb-2'>
-														<i className='fa fa-star text-secondary'></i>
-														<i className='fa fa-star text-secondary'></i>
-														<i className='fa fa-star text-secondary'></i>
-														<i className='fa fa-star text-secondary'></i>
-														<i className='fa fa-star'></i>
-													</div>
-													<div className='d-flex mb-2'>
-														{hasDiscount(item) ? (
-															<>
-																<h5 className='fw-bold me-2'>
-																	{formatCurrency(getFinalPrice(item))}
-																</h5>
-																<h5 className='text-danger text-decoration-line-through'>
-																	{formatCurrency(item.price)}
-																</h5>
-															</>
-														) : (
-															<h5 className='fw-bold me-2'>
-																{formatCurrency(item.price)}
-															</h5>
-														)}
-													</div>
-												</div>
-											</div>
-										))
-									) : (
-										<p className='text-muted'>Không có sản phẩm nổi bật</p>
-									)}
-									<div className='d-flex justify-content-center my-4'>
-										<a href='/san-pham' className='btn btn-primary px-4 py-3 rounded-pill w-100'>
-											Xem thêm
-										</a>
-									</div>
-								</div>
-
-								<div className='position-relative'>
-									<img
-										src='/img/product-banner-2.jpg'
-										className='img-fluid w-100 rounded'
-										alt='Image'
-									/>
-									<div
-										className='text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4'
-										style={{
-											width: "100%",
-											height: "100%",
-											top: 0,
-											right: 0,
-											background: "rgba(242, 139, 0, 0.3)",
-										}}>
-										<h5 className='display-6 text-primary'>GIẢM GIÁ</h5>
-										<h4 className='text-secondary'>Giảm đến 50%</h4>
-										<a href='/san-pham' className='btn btn-primary rounded-pill px-4'>
-											Mua ngay
-										</a>
-									</div>
-								</div>
-								<div className='product-tags py-4'>
-									<h4 className='mb-3'>TỪ KHÓA</h4>
-									<div className='product-tags-items bg-light rounded p-3'>
-										<a
-											href='#'
-											className='border rounded py-1 px-2 mb-2'
-											onClick={(e) => {
-												e.preventDefault();
-												handleTagSearch("");
-											}}>
-											Tất cả
-										</a>
-										{brands.map((brand) => (
-											<a
-												key={brand.id}
-												href='#'
-												className='border rounded py-1 px-2 mb-2'
-												onClick={(e) => {
-													e.preventDefault();
-													handleTagSearch(brand.name);
-												}}>
-												{brand.name}
+							<div className='product-categories mb-4'>
+								<h4>Danh mục sản phẩm</h4>
+								<ul className='list-unstyled'>
+									<li>
+										<div className='categories-item'>
+											<a href='#' className='text-dark'>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>
+												Phụ kiện
 											</a>
-										))}
-									</div>
+											<span>(3)</span>
+										</div>
+									</li>
+									<li>
+										<div className='categories-item'>
+											<a href='#' className='text-dark'>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>
+												Đồ điện tử
+											</a>
+											<span>(5)</span>
+										</div>
+									</li>
+									<li>
+										<div className='categories-item'>
+											<a href='#' className='text-dark'>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>
+												Laptop & Máy tính để bàn
+											</a>
+											<span>(2)</span>
+										</div>
+									</li>
+									<li>
+										<div className='categories-item'>
+											<a href='#' className='text-dark'>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>
+												Điện thoại & Máy tính bảng
+											</a>
+											<span>(8)</span>
+										</div>
+									</li>
+									<li>
+										<div className='categories-item'>
+											<a href='#' className='text-dark'>
+												<i className='fas fa-apple-alt text-secondary me-2'></i>
+												Smart TV
+											</a>
+											<span>(5)</span>
+										</div>
+									</li>
+								</ul>
+							</div>
+							<div className='additional-product mb-4'>
+								<h4>Lọc theo màu</h4>
+								<div className='additional-product-item'>
+									<input
+										type='radio'
+										className='me-2'
+										id='Categories-1'
+										name='Categories-1'
+										value='Beverages'
+									/>
+									<label htmlFor='Categories-1' className='text-dark'>
+										{" "}
+										Vàng
+									</label>
+								</div>
+								<div className='additional-product-item'>
+									<input
+										type='radio'
+										className='me-2'
+										id='Categories-2'
+										name='Categories-1'
+										value='Beverages'
+									/>
+									<label htmlFor='Categories-2' className='text-dark'>
+										{" "}
+										Xanh lá
+									</label>
+								</div>
+								<div className='additional-product-item'>
+									<input
+										type='radio'
+										className='me-2'
+										id='Categories-3'
+										name='Categories-1'
+										value='Beverages'
+									/>
+									<label htmlFor='Categories-3' className='text-dark'>
+										{" "}
+										Trắng
+									</label>
 								</div>
 							</div>
+							<div className='featured-product mb-4'>
+								<h4 className='mb-3'>Sản phẩm nổi bật</h4>
+								<div className='featured-product-item'>
+									<div
+										className='rounded me-4'
+										style={{ width: "100px", height: "100px" }}>
+										<img
+											src='/img/product-3.png'
+											className='img-fluid rounded'
+											alt='Image'
+										/>
+									</div>
+									<div>
+										<h6 className='mb-2'>SmartPhone</h6>
+										<div className='d-flex mb-2'>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star'></i>
+										</div>
+										<div className='d-flex mb-2'>
+											<h5 className='fw-bold me-2'>2.99 $</h5>
+											<h5 className='text-danger text-decoration-line-through'>
+												4.11 $
+											</h5>
+										</div>
+									</div>
+								</div>
+								<div className='featured-product-item'>
+									<div
+										className='rounded me-4'
+										style={{ width: "100px", height: "100px" }}>
+										<img
+											src='/img/product-4.png'
+											className='img-fluid rounded'
+											alt='Image'
+										/>
+									</div>
+									<div>
+										<h6 className='mb-2'>Smart Camera</h6>
+										<div className='d-flex mb-2'>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star'></i>
+										</div>
+										<div className='d-flex mb-2'>
+											<h5 className='fw-bold me-2'>2.99 $</h5>
+											<h5 className='text-danger text-decoration-line-through'>
+												4.11 $
+											</h5>
+										</div>
+									</div>
+								</div>
+								<div className='featured-product-item'>
+									<div
+										className='rounded me-4'
+										style={{ width: "100px", height: "100px" }}>
+										<img
+											src='/img/product-5.png'
+											className='img-fluid rounded'
+											alt='Image'
+										/>
+									</div>
+									<div>
+										<h6 className='mb-2'>Smart Camera</h6>
+										<div className='d-flex mb-2'>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star'></i>
+										</div>
+										<div className='d-flex mb-2'>
+											<h5 className='fw-bold me-2'>2.99 $</h5>
+											<h5 className='text-danger text-decoration-line-through'>
+												4.11 $
+											</h5>
+										</div>
+									</div>
+								</div>
+								<div className='featured-product-item'>
+									<div
+										className='rounded me-4'
+										style={{ width: "100px", height: "100px" }}>
+										<img
+											src='/img/product-6.png'
+											className='img-fluid rounded'
+											alt='Image'
+										/>
+									</div>
+									<div>
+										<h6 className='mb-2'>Smart Camera</h6>
+										<div className='d-flex mb-2'>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star'></i>
+										</div>
+										<div className='d-flex mb-2'>
+											<h5 className='fw-bold me-2'>2.99 $</h5>
+											<h5 className='text-danger text-decoration-line-through'>
+												4.11 $
+											</h5>
+										</div>
+									</div>
+								</div>
+								<div className='featured-product-item'>
+									<div
+										className='rounded me-4'
+										style={{ width: "100px", height: "100px" }}>
+										<img
+											src='/img/product-7.png'
+											className='img-fluid rounded'
+											alt='Image'
+										/>
+									</div>
+									<div>
+										<h6 className='mb-2'>Camera Leance</h6>
+										<div className='d-flex mb-2'>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star'></i>
+										</div>
+										<div className='d-flex mb-2'>
+											<h5 className='fw-bold me-2'>2.99 $</h5>
+											<h5 className='text-danger text-decoration-line-through'>
+												4.11 $
+											</h5>
+										</div>
+									</div>
+								</div>
+								<div className='featured-product-item'>
+									<div
+										className='rounded me-4'
+										style={{ width: "100px", height: "100px" }}>
+										<img
+											src='/img/product-8.png'
+											className='img-fluid rounded'
+											alt='Image'
+										/>
+									</div>
+									<div>
+										<h6 className='mb-2'>Smart Camera</h6>
+										<div className='d-flex mb-2'>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star text-secondary'></i>
+											<i className='fa fa-star'></i>
+										</div>
+										<div className='d-flex mb-2'>
+											<h5 className='fw-bold me-2'>2.99 $</h5>
+											<h5 className='text-danger text-decoration-line-through'>
+												4.11 $
+											</h5>
+										</div>
+									</div>
+								</div>
+								<div className='d-flex justify-content-center my-4'>
+									<a
+										href='#'
+										className='btn btn-primary px-4 py-3 rounded-pill w-100'>
+										Xem thêm
+									</a>
+								</div>
+							</div>
+							<div className='w-100 position-relative'>
+								<img
+									src='/img/product-banner-2.jpg'
+									className='img-fluid w-100 rounded'
+									alt='Image'
+								/>
+								<div
+									className='text-center position-absolute d-flex flex-column align-items-center justify-content-center rounded p-4'
+									style={{
+										width: "100%",
+										height: "100%",
+										top: 0,
+										right: 0,
+										background: "rgba(242, 139, 0, 0.3)",
+									}}>
+									<h5 className='display-6 text-primary'>Giảm giá</h5>
+									<h4 className='text-secondary'>Giảm đến 50%</h4>
+									<a href='#' className='btn btn-primary rounded-pill px-4'>
+										Mua ngay
+									</a>
+								</div>
+							</div>
+							<div className='product-tags my-4'>
+								<h4 className='mb-3'>Từ khóa sản phẩm</h4>
+								<div className='product-tags-items bg-light rounded p-3'>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										New
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										brand
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										black
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										white
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										tablats
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										phone
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										camera
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										drone
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										talevision
+									</a>
+									<a href='#' className='border rounded py-1 px-2 mb-2'>
+										slaes
+									</a>
+								</div>
+							</div>
+						</div>
 						<div className='col-lg-7 col-xl-9 wow fadeInUp' data-wow-delay='0.1s'>
 							<div className='row g-4 single-product'>
 								<div className='col-xl-6'>

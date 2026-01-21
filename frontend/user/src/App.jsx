@@ -20,54 +20,57 @@ import Account from "./pages/Account.jsx";
 import Blog from "./pages/Blog.jsx";
 import BlogDetail from "./pages/BlogDetail.jsx";
 import { CartProvider } from "./components/Cart/CartContext.jsx";
+import ScrollToTop from "./components/ScrollToTop.jsx";
 import { HelmetProvider } from "react-helmet-async";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import { WishlistProvider } from "./components/Wishlist/WishlistContext.jsx";
 
 export default function App() {
 	return (
 		<HelmetProvider>
 			<CartProvider>
-				<Routes>
-					<Route path='dang-nhap' element={<Login />} />
-					<Route path='dang-ky' element={<Signup />} />
-					<Route path='/' element={<MainLayout />}>
-						<Route index element={<Home />} />
+				<WishlistProvider>
+					<ScrollToTop />
+					<Routes>
+						<Route path='dang-nhap' element={<Login />} />
+						<Route path='dang-ky' element={<Signup />} />
+						<Route path='/' element={<MainLayout />}>
+							<Route index element={<Home />} />
 
-						<Route path='san-pham' element={<Shop />} />
+							<Route path='san-pham' element={<Shop />} />
 
-						{/* Protected routes - Cần đăng nhập */}
-						<Route
-							path='gio-hang'
-							element={
-								<ProtectedRoute>
-									<Cart />
-								</ProtectedRoute>
-							}
-						/>
-						<Route
-							path='thanh-toan'
-							element={
-								<ProtectedRoute>
-									<Checkout />
-								</ProtectedRoute>
-							}
-						/>
-						<Route
-							path='wishlist'
-							element={
-								<ProtectedRoute>
-									<Wishlist />
-								</ProtectedRoute>
-							}
-						/>
-						<Route
-							path='tai-khoan/*'
-							element={
-								<ProtectedRoute>
-									<Account />
-								</ProtectedRoute>
-							}
-						/>
+							{/* Protected routes - Cần đăng nhập */}
+							<Route
+								path='gio-hang'
+								element={
+									<ProtectedRoute>
+										<Cart />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path='thanh-toan'
+								element={
+									<ProtectedRoute>
+										<Checkout />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path='wishlist'
+								element={
+									<ProtectedRoute>
+										<Wishlist />
+									</ProtectedRoute>
+								}
+							/>
+							<Route
+								path='tai-khoan/*'
+								element={
+									<ProtectedRoute>
+										<Account />
+									</ProtectedRoute>
+								}
+							/>
 
 						<Route path='chinh-sach-bao-mat' element={<PrivacyPolicy />} />
 						<Route path='lien-he' element={<Contact />} />
@@ -80,10 +83,11 @@ export default function App() {
 						<Route path='tin-tuc/:id' element={<BlogDetail />} />
 						<Route path='404' element={<NotFound />} />
 
-						<Route path=':slug' element={<ProductDetails />} />
-						<Route path='*' element={<NotFound />} />
-					</Route>
-				</Routes>
+							<Route path=':slug' element={<ProductDetails />} />
+							<Route path='*' element={<NotFound />} />
+						</Route>
+					</Routes>
+				</WishlistProvider>
 			</CartProvider>
 		</HelmetProvider>
 	);

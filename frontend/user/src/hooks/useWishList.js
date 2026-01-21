@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { isAuthenticated } from "../services/authService";
 import api from "../services/api";
+import { useWishlist } from "../components/Wishlist/WishlistContext";
 
 export const useWishList = (productId, showSuccess, showError) => {
 	const [isInWishlist, setIsInWishlist] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
+	const { updateWishlistCount } = useWishlist();
 
 	// Check authentication và wishlist status
 	useEffect(() => {
@@ -47,6 +49,7 @@ export const useWishList = (productId, showSuccess, showError) => {
 				.then(() => {
 					setIsInWishlist(false);
 					showSuccess?.("Đã xóa khỏi danh sách yêu thích");
+					updateWishlistCount();
 				})
 				.catch((error) => {
 					console.error("Error removing from wishlist:", error);
@@ -58,6 +61,7 @@ export const useWishList = (productId, showSuccess, showError) => {
 				.then(() => {
 					setIsInWishlist(true);
 					showSuccess?.("Đã thêm vào danh sách yêu thích");
+					updateWishlistCount();
 				})
 				.catch((error) => {
 					console.error("Error adding to wishlist:", error);
