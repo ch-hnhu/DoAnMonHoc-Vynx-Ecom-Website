@@ -257,41 +257,28 @@ export default function Header() {
                   />
                   <span className="d-none d-md-inline">{user.full_name}</span>
                 </a>
-                <ul className="dropdown-menu dropdown-menu-lg dropdown-menu-end admin-user-menu">
-                  <li className="user-header admin-user-header">
-                    <img
-                      src={getAvatarSrc()}
-                      className="rounded-circle shadow"
-                      alt="User Image"
-                      onError={handleAvatarError}
-                    />
-                    <p>
-                      {user.full_name} - {user.role}
-                      <small>{user.email}</small>
-                    </p>
+                <ul className="dropdown-menu dropdown-menu-end admin-user-menu">
+                  <li className="dropdown-item-text px-3 py-2">
+                    <small className="text-muted">Đăng nhập với</small>
+                    <br />
+                    <strong>{user?.email}</strong>
                   </li>
-                  <li className="user-body">
-                    <div className="row">
-                      <div className="col-4 text-center">
-                        <a href="#">Profile</a>
-                      </div>
-                      <div className="col-4 text-center">
-                        <a href="#">Settings</a>
-                      </div>
-                      <div className="col-4 text-center">
-                        <a href="#">Activity</a>
-                      </div>
-                    </div>
+                  <li>
+                    <hr className="dropdown-divider" />
                   </li>
-                  <li className="user-footer">
-                    <a href="#" className="btn btn-outline-secondary">
-                      Profile
-                    </a>
+                  <li>
+                    <Link to="/profile" className="dropdown-item">
+                      <i className="bi bi-person me-2"></i>
+                      Tài khoản
+                    </Link>
+                  </li>
+                  <li>
                     <button
                       onClick={handleLogout}
-                      className="btn btn-outline-danger float-end"
+                      className="dropdown-item text-danger"
                     >
-                      Sign out
+                      <i className="bi bi-box-arrow-right me-2"></i>
+                      Đăng xuất
                     </button>
                   </li>
                 </ul>

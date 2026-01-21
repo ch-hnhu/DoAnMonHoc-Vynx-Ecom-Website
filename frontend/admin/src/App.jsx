@@ -14,6 +14,7 @@ import Promotion from "./pages/Promotion";
 import Configuration from "./pages/Configuration";
 import Review from "./pages/Review";
 import SupportRequest from "./pages/SupportRequest";
+import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthRedirect from "./pages/AuthRedirect";
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="categories" element={<Category />} />
         <Route path="attributes" element={<Attribute />} />
         <Route path="promotions" element={<Promotion />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="configurations" element={<Configuration />} />
         <Route path="reviews" element={<Review />} />
         <Route path="contacts" element={<SupportRequest />} />
