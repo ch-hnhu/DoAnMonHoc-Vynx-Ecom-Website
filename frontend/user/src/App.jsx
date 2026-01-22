@@ -9,6 +9,7 @@ import Wishlist from "./pages/Wishlist.jsx";
 import NotFound from "./pages/NotFound.jsx";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
+import Success from "./pages/Success.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import Contact from "./pages/Contact.jsx";
 import About from "./pages/About.jsx";
@@ -32,6 +33,7 @@ export default function App() {
 					<Routes>
 						<Route path='dang-nhap' element={<Login />} />
 						<Route path='dang-ky' element={<Signup />} />
+						<Route path='/thanh-toan-thanh-cong' element={<Success />} />
 						<Route path='/' element={<MainLayout />}>
 							<Route index element={<Home />} />
 

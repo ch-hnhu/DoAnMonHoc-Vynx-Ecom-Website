@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\SlideshowController;
 use App\Http\Controllers\Api\WishlistController;
+use App\Http\Controllers\Api\PaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,7 @@ Route::get('/test', function () {
 		'message' => 'hehe tako nek!'
 	]);
 });
+Route::post('/vnpay_payment', [PaymentController::class, 'vnpay_payment']);
 Route::post('/support-requests', [SupportRequestController::class, 'store']);
 Route::apiResource('support-requests', SupportRequestController::class)->only(['index', 'update', 'destroy']);
 Route::prefix('support-requests')->group(function () {
@@ -71,6 +73,8 @@ Route::prefix('orders')->group(function () {
 	Route::get('/', [OrderController::class, 'index']);
 	Route::get('/{id}', [OrderController::class, 'show']);
 	Route::put('/{id}', [OrderController::class, 'update']);
+	Route::put('/{id}/pay-confirm', [OrderController::class, 'confirmPayment']);
+	Route::post('/', [OrderController::class, 'store']);
 	Route::delete('/{id}', [OrderController::class, 'destroy']);
 });
 
@@ -101,7 +105,8 @@ Route::prefix('users')->group(function () {
 Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
-Route::apiResource('attributes', AttributeController::class)->only(['index', 'store', 'update', 'destroy']);
+Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
+Route::post('/promotions/check', [PromotionController::class, 'check']);
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'destroy']);
 Route::apiResource('reviews', ReviewController::class)->only(['index', 'update', 'destroy']);
 Route::prefix('reviews')->group(function () {

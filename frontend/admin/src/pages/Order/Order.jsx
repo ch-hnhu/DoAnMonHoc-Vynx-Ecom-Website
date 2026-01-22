@@ -142,14 +142,20 @@ export default function OrderPage() {
 			field: "customer",
 			headerName: "Khách hàng",
 			width: 220,
-			valueGetter: (params, row) => row.user?.full_name || "N/A",
+			valueGetter: (params, row) => {
+				if (row.user?.role === "admin") {
+					return row.shipping_name || row.user?.full_name || "Guest";
+				}
+				return row.user?.full_name || row.shipping_name || "N/A";
+			},
 		},
 		{
 			field: "items_count",
 			headerName: "Số lượng SP",
 			width: 110,
 			type: "number",
-			valueGetter: (params, row) => row.order_items?.length || 0,
+			valueGetter: (params, row) =>
+				row.order_items?.reduce((total, item) => total + (item.quantity || 0), 0) || 0,
 		},
 		{
 			field: "total_amount",
@@ -267,19 +273,15 @@ export default function OrderPage() {
 				onSuccess={fetchOrders}
 				order={selectedOrder}
 			/>
-			<AddOrder
-				open={openAddDialog}
-				onClose={handleCloseAdd}
-				onCreated={handleCreated}
-				showSuccess={showSuccess}
-				showError={showError}
-			/>
+			<AddOrder open={openAddDialog} onClose={handleCloseAdd} onSuccess={handleCreated} />
 			<OrderDetails open={openViewDialog} onClose={handleCloseView} order={selectedOrder} />
+			{/* Toast Notification */}
 			<Snackbar
 				open={toast.open}
 				autoHideDuration={3000}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}
+				style={{ zIndex: 999999 }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>

@@ -1,76 +1,200 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Alert, Snackbar } from "@mui/material";
 import { useCart } from "../Cart/CartContext.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { getFinalPrice } from "@shared/utils/productHelper.jsx";
 import { useToast } from "@shared/hooks/useToast.js";
+import api from "../../services/api";
+import { getUser } from "../../services/authService";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const DEFAULT_FORM = {
-	first_name: "",
-	last_name: "",
-	company: "",
-	address: "",
-	city: "",
-	country: "",
-	zip: "",
-	phone: "",
-	email: "",
-	note: "",
+	shipping_name: "",
+	shipping_phone: "",
+	shipping_email: "",
+	shipping_address: "",
+	shipping_note: "",
 };
 
 export default function BillingDetails() {
-	const { items, subtotal } = useCart();
+	const { items, subtotal: cartSubtotal, clearCart, removeFromCart } = useCart();
 	const { toast, showSuccess, showError, closeToast } = useToast();
+	const navigate = useNavigate();
+	const location = useLocation();
 	const [formData, setFormData] = useState(DEFAULT_FORM);
-	const [shippingOption, setShippingOption] = useState("free");
+	const [shippingOption, setShippingOption] = useState("standard");
 	const [paymentMethod, setPaymentMethod] = useState("cod");
+	const [submitting, setSubmitting] = useState(false);
+
+	const [discountCode, setDiscountCode] = useState("");
+	const [discountValue, setDiscountValue] = useState(0);
+	const [promotionId, setPromotionId] = useState(null);
+
+	const selectedIds = location.state?.selectedIds || [];
+
+	const checkoutItems = useMemo(() => {
+		if (selectedIds.length > 0) {
+			return items.filter((item) => selectedIds.includes(item.product.id));
+		}
+		return items;
+	}, [items, selectedIds]);
+
+	const orderSubtotal = useMemo(() => {
+		return checkoutItems.reduce(
+			(sum, item) => sum + getFinalPrice(item.product) * item.quantity,
+			0,
+		);
+	}, [checkoutItems]);
+
+	useEffect(() => {
+		const user = getUser();
+		if (user) {
+			setFormData((prev) => ({
+				...prev,
+				shipping_name: user.full_name || "",
+				shipping_phone: user.phone || "",
+				shipping_email: user.email || "",
+				shipping_address: user.address || "",
+			}));
+		}
+	}, []);
 
 	const shippingFee = useMemo(() => {
-		if (shippingOption === "flat") return 15000;
-		if (shippingOption === "pickup") return 8000;
-		return 0;
+		if (shippingOption === "standard") return 15000;
+		if (shippingOption === "express") return 30000;
+		if (shippingOption === "pickup") return 0;
+		return 15000;
 	}, [shippingOption]);
 
-	const total = useMemo(() => subtotal + shippingFee, [subtotal, shippingFee]);
+	const totalAmount = useMemo(() => {
+		const total = orderSubtotal + shippingFee - discountValue;
+		return total > 0 ? total : 0;
+	}, [orderSubtotal, shippingFee, discountValue]);
+
+	const handleApplyCoupon = async () => {
+		if (!discountCode.trim()) {
+			showError("Vui lòng nhập mã giảm giá");
+			return;
+		}
+
+		try {
+			const res = await api.post("/promotions/check", { code: discountCode });
+			if (res.data.success) {
+				const promo = res.data.data;
+				let discount = 0;
+				if (promo.discount_type === "percent") {
+					discount = (orderSubtotal * promo.discount_value) / 100;
+				} else {
+					discount = promo.discount_value;
+				}
+
+				if (discount > orderSubtotal) discount = orderSubtotal;
+
+				setDiscountValue(discount);
+				setPromotionId(promo.id);
+				showSuccess(
+					`Áp dụng mã thành công! Giảm ${promo.discount_type === "percent" ? promo.discount_value + "%" : formatCurrency(promo.discount_value)} `,
+				);
+			} else {
+				setDiscountValue(0);
+				setPromotionId(null);
+				showError(res.data.message);
+			}
+		} catch (error) {
+			console.error(error);
+			setDiscountValue(0);
+			setPromotionId(null);
+			showError("Lỗi khi kiểm tra mã giảm giá");
+		}
+	};
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleSubmit = (e) => {
+	const validate = () => {
+		if (!formData.shipping_name.trim()) {
+			showError("Vui lòng nhập tên người nhận");
+			return false;
+		}
+		if (!formData.shipping_phone.trim()) {
+			showError("Vui lòng nhập số điện thoại");
+			return false;
+		}
+		if (!formData.shipping_address.trim()) {
+			showError("Vui lòng nhập địa chỉ giao hàng");
+			return false;
+		}
+		return true;
+	};
+
+	const handleSubmit = async (e) => {
 		e.preventDefault();
-		if (!items.length) {
-			showError("Giỏ hàng đang trống");
+		if (!checkoutItems.length) {
+			showError("Giỏ hàng đang trống hoặc chưa chọn sản phẩm");
 			return;
 		}
 
-		const orderItems = items.map((item) => ({
+		if (!validate()) return;
+
+		setSubmitting(true);
+
+		const orderItems = checkoutItems.map((item) => ({
 			product_id: item.product.id,
-			name: item.product.name,
 			quantity: item.quantity,
 			price: getFinalPrice(item.product),
+			total: getFinalPrice(item.product) * item.quantity,
 		}));
 
 		const payload = {
-			customer: { ...formData },
-			shipping: {
-				option: shippingOption,
-				fee: shippingFee,
-			},
-			payment: {
-				method: paymentMethod,
-			},
-			totals: {
-				subtotal,
-				shipping_fee: shippingFee,
-				total,
-			},
-			items: orderItems,
+			...formData,
+			user_id: getUser()?.id || null,
+			subtotal_amount: orderSubtotal,
+			discount_amount: discountValue,
+			promotion_id: promotionId,
+			shipping_fee: shippingFee,
+			total_amount: totalAmount,
+			final_amount: totalAmount,
+			payment_method: paymentMethod,
+			order_items: orderItems,
 		};
 
-		console.log("Order payload:", payload);
-		showSuccess("Tạo payload đặt hàng thành công");
+		try {
+			const res = await api.post("/orders", payload);
+			if (res.data.success) {
+				const orderId = res.data.data.id;
+
+				if (paymentMethod === "vnpay") {
+					const vnpayRes = await api.post("/vnpay_payment", {
+						order_id: orderId,
+						total_vnpay: totalAmount,
+					});
+					if (vnpayRes.data.code === "00") {
+						checkoutItems.forEach((item) => removeFromCart(item.product.id));
+						window.location.href = vnpayRes.data.data;
+					} else {
+						showError("Lỗi tạo link thanh toán VNPAY");
+						setSubmitting(false);
+					}
+				} else {
+					showSuccess("Đặt hàng thành công!");
+					checkoutItems.forEach((item) => removeFromCart(item.product.id));
+					navigate("/thanh-toan-thanh-cong");
+				}
+			} else {
+				showError(res.data.message || "Đặt hàng thất bại");
+				setSubmitting(false);
+			}
+		} catch (error) {
+			console.error("Order submit error:", error);
+			if (error.response && error.response.status === 404) {
+				showError("Lỗi kết nối (404): Không tìm thấy API đặt hàng");
+			} else {
+				showError(error.response?.data?.message || "Có lỗi xảy ra khi đặt hàng");
+			}
+			setSubmitting(false);
+		}
 	};
 
 	return (
@@ -85,95 +209,17 @@ export default function BillingDetails() {
 							<div
 								className='col-md-12 col-lg-6 col-xl-6 wow fadeInUp'
 								data-wow-delay='0.1s'>
-								<div className='row'>
-									<div className='col-md-12 col-lg-6'>
-										<div className='form-item w-100'>
-											<label className='form-label my-3'>
-												Họ<sup>*</sup>
-											</label>
-											<input
-												type='text'
-												className='form-control'
-												name='first_name'
-												value={formData.first_name}
-												onChange={handleChange}
-											/>
-										</div>
-									</div>
-									<div className='col-md-12 col-lg-6'>
-										<div className='form-item w-100'>
-											<label className='form-label my-3'>
-												Tên<sup>*</sup>
-											</label>
-											<input
-												type='text'
-												className='form-control'
-												name='last_name'
-												value={formData.last_name}
-												onChange={handleChange}
-											/>
-										</div>
-									</div>
-								</div>
 								<div className='form-item'>
 									<label className='form-label my-3'>
-										Tên công ty<sup>*</sup>
+										Họ tên người nhận<sup>*</sup>
 									</label>
 									<input
 										type='text'
 										className='form-control'
-										name='company'
-										value={formData.company}
+										name='shipping_name'
+										value={formData.shipping_name}
 										onChange={handleChange}
-									/>
-								</div>
-								<div className='form-item'>
-									<label className='form-label my-3'>
-										Địa chỉ <sup>*</sup>
-									</label>
-									<input
-										type='text'
-										className='form-control'
-										placeholder='Số nhà, tên đường'
-										name='address'
-										value={formData.address}
-										onChange={handleChange}
-									/>
-								</div>
-								<div className='form-item'>
-									<label className='form-label my-3'>
-										Quận/Huyện/Thành phố<sup>*</sup>
-									</label>
-									<input
-										type='text'
-										className='form-control'
-										name='city'
-										value={formData.city}
-										onChange={handleChange}
-									/>
-								</div>
-								<div className='form-item'>
-									<label className='form-label my-3'>
-										Quốc gia<sup>*</sup>
-									</label>
-									<input
-										type='text'
-										className='form-control'
-										name='country'
-										value={formData.country}
-										onChange={handleChange}
-									/>
-								</div>
-								<div className='form-item'>
-									<label className='form-label my-3'>
-										Mã bưu chính<sup>*</sup>
-									</label>
-									<input
-										type='text'
-										className='form-control'
-										name='zip'
-										value={formData.zip}
-										onChange={handleChange}
+										placeholder='Nguyễn Văn A'
 									/>
 								</div>
 								<div className='form-item'>
@@ -183,57 +229,46 @@ export default function BillingDetails() {
 									<input
 										type='tel'
 										className='form-control'
-										name='phone'
-										value={formData.phone}
+										name='shipping_phone'
+										value={formData.shipping_phone}
 										onChange={handleChange}
+										placeholder='0901234567'
+									/>
+								</div>
+								<div className='form-item'>
+									<label className='form-label my-3'>Email</label>
+									<input
+										type='email'
+										className='form-control'
+										name='shipping_email'
+										value={formData.shipping_email}
+										onChange={handleChange}
+										placeholder='email@example.com'
 									/>
 								</div>
 								<div className='form-item'>
 									<label className='form-label my-3'>
-										Email<sup>*</sup>
+										Địa chỉ nhận hàng<sup>*</sup>
 									</label>
 									<input
-										type='email'
+										type='text'
 										className='form-control'
-										name='email'
-										value={formData.email}
+										name='shipping_address'
+										value={formData.shipping_address}
 										onChange={handleChange}
+										placeholder='Số nhà, tên đường, phường/xã, quận/huyện'
 									/>
-								</div>
-								<div className='form-check my-3'>
-									<input
-										type='checkbox'
-										className='form-check-input'
-										id='Account-1'
-										name='Accounts'
-										value='Accounts'
-									/>
-									<label className='form-check-label' htmlFor='Account-1'>
-										Tạo tài khoản?
-									</label>
-								</div>
-								<hr />
-								<div className='form-check my-3'>
-									<input
-										className='form-check-input'
-										type='checkbox'
-										id='Address-1'
-										name='Address'
-										value='Address'
-									/>
-									<label className='form-check-label' htmlFor='Address-1'>
-										Giao đến địa chỉ khác?
-									</label>
 								</div>
 								<div className='form-item'>
+									<label className='form-label my-3'>Ghi chú</label>
 									<textarea
-										name='note'
+										name='shipping_note'
 										className='form-control'
 										spellCheck='false'
 										cols='30'
-										rows='11'
+										rows='4'
 										placeholder='Ghi chú đơn hàng (tùy chọn)'
-										value={formData.note}
+										value={formData.shipping_note}
 										onChange={handleChange}></textarea>
 								</div>
 							</div>
@@ -248,19 +283,19 @@ export default function BillingDetails() {
 													Sản phẩm
 												</th>
 												<th scope='col'>Giá</th>
-												<th scope='col'>Số lượng</th>
+												<th scope='col'>SL</th>
 												<th scope='col'>Thành tiền</th>
 											</tr>
 										</thead>
 										<tbody>
-											{items.length === 0 ? (
+											{checkoutItems.length === 0 ? (
 												<tr className='text-center'>
 													<td colSpan='4' className='py-4 text-muted'>
-														Giỏ hàng đang trống
+														Không có sản phẩm nào được chọn
 													</td>
 												</tr>
 											) : (
-												items.map((item) => {
+												checkoutItems.map((item) => {
 													const price = getFinalPrice(item.product);
 													return (
 														<tr
@@ -279,7 +314,7 @@ export default function BillingDetails() {
 															</td>
 															<td className='py-4'>
 																{formatCurrency(
-																	price * item.quantity
+																	price * item.quantity,
 																)}
 															</td>
 														</tr>
@@ -288,14 +323,14 @@ export default function BillingDetails() {
 											)}
 											<tr>
 												<th scope='row'></th>
-												<td className='py-4'></td>
 												<td className='py-4'>
 													<p className='mb-0 text-dark py-2'>Tạm tính</p>
 												</td>
+												<td className='py-4'></td>
 												<td className='py-4'>
 													<div className='py-2 text-center border-bottom border-top'>
 														<p className='mb-0 text-dark'>
-															{formatCurrency(subtotal)}
+															{formatCurrency(orderSubtotal)}
 														</p>
 													</div>
 												</td>
@@ -303,68 +338,87 @@ export default function BillingDetails() {
 											<tr>
 												<th scope='row'></th>
 												<td className='py-4'>
-													<p className='mb-0 text-dark py-4'>
-														Vận chuyển
+													<p className='mb-0 text-dark'>
+														Phương thức vận chuyển
 													</p>
 												</td>
-												<td colSpan='2' className='py-4'>
-													<div className='form-check text-start'>
-														<input
-															type='radio'
-															className='form-check-input bg-primary border-0'
-															id='Shipping-1'
-															name='Shipping'
-															value='free'
-															checked={shippingOption === "free"}
-															onChange={() =>
-																setShippingOption("free")
-															}
-														/>
-														<label
-															className='form-check-label'
-															htmlFor='Shipping-1'>
-															Miễn phí
-														</label>
-													</div>
-													<div className='form-check text-start'>
-														<input
-															type='radio'
-															className='form-check-input bg-primary border-0'
-															id='Shipping-2'
-															name='Shipping'
-															value='flat'
-															checked={shippingOption === "flat"}
-															onChange={() =>
-																setShippingOption("flat")
-															}
-														/>
-														<label
-															className='form-check-label'
-															htmlFor='Shipping-2'>
-															Đồng giá: {formatCurrency(15000)}
-														</label>
-													</div>
-													<div className='form-check text-start'>
-														<input
-															type='radio'
-															className='form-check-input bg-primary border-0'
-															id='Shipping-3'
-															name='Shipping'
-															value='pickup'
-															checked={shippingOption === "pickup"}
-															onChange={() =>
-																setShippingOption("pickup")
-															}
-														/>
-														<label
-															className='form-check-label'
-															htmlFor='Shipping-3'>
-															Nhận tại cửa hàng:{" "}
-															{formatCurrency(8000)}
-														</label>
+												<td className='py-4'></td>
+												<td className='py-4'>
+													<select
+														className='form-select'
+														value={shippingOption}
+														onChange={(e) =>
+															setShippingOption(e.target.value)
+														}>
+														<option value='standard'>
+															Giao hàng tiết kiệm
+														</option>
+														<option value='express'>
+															Giao hàng nhanh
+														</option>
+														<option value='pickup'>
+															Nhận tại cửa hàng
+														</option>
+													</select>
+												</td>
+											</tr>
+											<tr>
+												<th scope='row'></th>
+												<td className='py-4'>
+													<p className='mb-0 text-dark'>Phí vận chuyển</p>
+												</td>
+												<td className='py-4'></td>
+												<td className='py-4'>
+													<div className='py-2 text-center border-bottom border-top'>
+														<p className='mb-0 text-dark'>
+															{formatCurrency(shippingFee)}
+														</p>
 													</div>
 												</td>
 											</tr>
+											<tr>
+												<th scope='row'></th>
+												<td className='py-4'>
+													<p className='mb-0 text-dark'>Mã giảm giá</p>
+												</td>
+												<td className='py-4' colSpan='2'>
+													<div className='input-group'>
+														<input
+															type='text'
+															className='form-control'
+															placeholder='Nhập mã giảm giá'
+															value={discountCode}
+															onChange={(e) =>
+																setDiscountCode(e.target.value)
+															}
+														/>
+														<button
+															className='btn btn-primary border-secondary text-primary'
+															type='button'
+															onClick={handleApplyCoupon}>
+															Áp dụng
+														</button>
+													</div>
+												</td>
+											</tr>
+											{discountValue > 0 && (
+												<tr>
+													<th scope='row'></th>
+													<td className='py-4'>
+														<p className='mb-0 text-success'>
+															Giảm giá
+														</p>
+													</td>
+													<td className='py-4'></td>
+													<td className='py-4'>
+														<div className='py-2 text-center border-bottom border-top'>
+															<p className='mb-0 text-success'>
+																-{formatCurrency(discountValue)}
+															</p>
+														</div>
+													</td>
+												</tr>
+											)}
 											<tr>
 												<th scope='row'></th>
 												<td className='py-4'>
@@ -376,7 +430,7 @@ export default function BillingDetails() {
 												<td className='py-4'>
 													<div className='py-2 text-center border-bottom border-top'>
 														<p className='mb-0 text-dark'>
-															{formatCurrency(total)}
+															{formatCurrency(totalAmount)}
 														</p>
 													</div>
 												</td>
@@ -384,52 +438,7 @@ export default function BillingDetails() {
 										</tbody>
 									</table>
 								</div>
-								<div className='row g-0 text-center align-items-center justify-content-center border-bottom py-2'>
-									<div className='col-12'>
-										<div className='form-check text-start my-2'>
-											<input
-												type='radio'
-												className='form-check-input bg-primary border-0'
-												id='Transfer-1'
-												name='Payment'
-												value='bank_transfer'
-												checked={paymentMethod === "bank_transfer"}
-												onChange={() => setPaymentMethod("bank_transfer")}
-											/>
-											<label
-												className='form-check-label'
-												htmlFor='Transfer-1'>
-												Chuyển khoản ngân hàng
-											</label>
-										</div>
-										<p className='text-start text-dark'>
-											Thanh toán trực tiếp vào tài khoản ngân hàng của chúng
-											tôi. Vui lòng dùng mã đơn hàng làm nội dung chuyển
-											khoản. Đơn hàng sẽ được xử lý sau khi hệ thống nhận được
-											thanh toán.
-										</p>
-									</div>
-								</div>
-								<div className='row g-4 text-center align-items-center justify-content-center border-bottom py-2'>
-									<div className='col-12'>
-										<div className='form-check text-start my-2'>
-											<input
-												type='radio'
-												className='form-check-input bg-primary border-0'
-												id='Payments-1'
-												name='Payment'
-												value='check'
-												checked={paymentMethod === "check"}
-												onChange={() => setPaymentMethod("check")}
-											/>
-											<label
-												className='form-check-label'
-												htmlFor='Payments-1'>
-												Thanh toán khi nhận hóa đơn
-											</label>
-										</div>
-									</div>
-								</div>
+
 								<div className='row g-4 text-center align-items-center justify-content-center border-bottom py-2'>
 									<div className='col-12'>
 										<div className='form-check text-start my-2'>
@@ -456,23 +465,25 @@ export default function BillingDetails() {
 											<input
 												type='radio'
 												className='form-check-input bg-primary border-0'
-												id='Paypal-1'
+												id='VnPay-1'
 												name='Payment'
-												value='paypal'
-												checked={paymentMethod === "paypal"}
-												onChange={() => setPaymentMethod("paypal")}
+												value='vnpay'
+												checked={paymentMethod === "vnpay"}
+												onChange={() => setPaymentMethod("vnpay")}
 											/>
-											<label className='form-check-label' htmlFor='Paypal-1'>
-												Paypal
+											<label className='form-check-label' htmlFor='VnPay-1'>
+												Thanh toán qua VNPAY
 											</label>
 										</div>
 									</div>
 								</div>
+
 								<div className='row g-4 text-center align-items-center justify-content-center pt-4'>
 									<button
 										type='submit'
+										disabled={submitting}
 										className='btn btn-primary border-secondary py-3 px-4 text-uppercase w-100 text-primary'>
-										Đặt hàng
+										{submitting ? "Đang xử lý..." : "Đặt hàng"}
 									</button>
 								</div>
 							</div>
@@ -492,4 +503,3 @@ export default function BillingDetails() {
 		</>
 	);
 }
-

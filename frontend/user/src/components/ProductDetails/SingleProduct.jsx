@@ -18,6 +18,7 @@ import Pagination from "../Partial/Pagination.jsx";
 import { useWishlist } from "../Wishlist/WishlistContext.jsx";
 
 export default function SingleProduct({ product }) {
+	const navigate = useNavigate();
 	const [reviews, setReviews] = useState([]);
 	const [isInWishlist, setIsInWishlist] = useState(false);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -82,9 +83,14 @@ export default function SingleProduct({ product }) {
 			checkInWishlist();
 		}
 
-		if (window.initCarousels?.single) {
-			window.initCarousels.single();
-		}
+		// Delay carousel init to ensure DOM is ready
+		const timer = setTimeout(() => {
+			if (window.initCarousels?.single) {
+				window.initCarousels.single();
+			}
+		}, 100);
+
+		return () => clearTimeout(timer);
 	}, [images.length, product.id]);
 
 	const handleToggleWishlist = () => {

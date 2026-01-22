@@ -14,20 +14,22 @@ import {
 	IconButton,
 	Card,
 	CardMedia,
+	Snackbar,
+	Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import DataTable from "../../components/Partial/DataTable";
 import api from "../../services/api";
-import { useToast } from "@shared/hooks/useToast";
 import { getUser } from "../../services/authService";
 import { formatCurrency } from "@shared/utils/formatHelper";
 import { getProductImage } from "../../../../shared/utils/productHelper";
+import { useToast } from "@shared/hooks/useToast";
 
 export default function AddOrder({ open, onClose, onSuccess }) {
 	const currentUser = getUser();
-	const { showSuccess, showError } = useToast();
+	const { toast, showSuccess, showError, closeToast } = useToast();
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
 
@@ -47,7 +49,8 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 		shipping_address: "",
 		shipping_note: "",
 		shipping_fee: 0,
-		discount_amount: 0,
+		discount_type: "amount",
+		discount_value: 0,
 		payment_method: "cod",
 	});
 
@@ -67,8 +70,11 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 	}, [open, paginationModel]);
 
 	const subtotalAmount = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-	const totalAmount =
-		subtotalAmount + Number(formData.shipping_fee) - Number(formData.discount_amount);
+	const discountAmount =
+		formData.discount_type === "percent"
+			? (subtotalAmount * Number(formData.discount_value)) / 100
+			: Number(formData.discount_value);
+	const totalAmount = subtotalAmount + Number(formData.shipping_fee) - discountAmount;
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -106,11 +112,46 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 
 	const validate = () => {
 		const newErrors = {};
-		if (!formData.shipping_name) newErrors.shipping_name = "Tên người nhận không được để trống";
-		if (!formData.shipping_phone)
+		const phoneRegex = /(84|0[3|5|7|8|9])+([0-9]{8})\b/;
+		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+		if (!formData.shipping_name.trim()) {
+			newErrors.shipping_name = "Tên người nhận không được để trống";
+		} else if (formData.shipping_name.trim().length < 2) {
+			newErrors.shipping_name = "Tên người nhận quá ngắn";
+		}
+
+		if (!formData.shipping_phone.trim()) {
 			newErrors.shipping_phone = "Số điện thoại không được để trống";
-		if (!formData.shipping_address) newErrors.shipping_address = "Địa chỉ không được để trống";
-		if (orderItems.length === 0) newErrors.orderItems = "Vui lòng thêm ít nhất 1 sản phẩm";
+		} else if (!phoneRegex.test(formData.shipping_phone.trim())) {
+			newErrors.shipping_phone = "Số điện thoại không hợp lệ";
+		}
+
+		if (formData.shipping_email.trim() && !emailRegex.test(formData.shipping_email.trim())) {
+			newErrors.shipping_email = "Email không hợp lệ";
+		}
+
+		if (!formData.shipping_address.trim()) {
+			newErrors.shipping_address = "Địa chỉ không được để trống";
+		} else if (formData.shipping_address.trim().length < 5) {
+			newErrors.shipping_address = "Địa chỉ quá ngắn, vui lòng nhập chi tiết hơn";
+		}
+
+		if (formData.shipping_fee < 0) {
+			newErrors.shipping_fee = "Phí vận chuyển không được âm";
+		}
+
+		if (formData.discount_value < 0) {
+			newErrors.discount_value = "Giá trị giảm giá không được âm";
+		}
+
+		if (formData.discount_type === "percent" && formData.discount_value > 100) {
+			newErrors.discount_value = "Phần trăm giảm giá không được vượt quá 100%";
+		}
+
+		if (orderItems.length === 0) {
+			newErrors.orderItems = "Vui lòng thêm ít nhất 1 sản phẩm";
+		}
 
 		setErrors(newErrors);
 		return Object.keys(newErrors).length === 0;
@@ -124,9 +165,9 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 
 		const payload = {
 			...formData,
-			user_id: null,
-			address_id: null,
+			user_id: currentUser?.id || null,
 			subtotal_amount: subtotalAmount,
+			discount_amount: discountAmount,
 			total_amount: totalAmount < 0 ? 0 : totalAmount,
 			final_amount: totalAmount < 0 ? 0 : totalAmount,
 			order_items: orderItems.map((item) => ({
@@ -142,14 +183,21 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 				if (res.data.success) {
 					showSuccess("Tạo đơn hàng thành công!");
 					if (onSuccess) onSuccess();
-					handleClose();
+					setTimeout(() => {
+						handleClose();
+					}, 1500);
+				} else {
+					setSubmitting(false);
+					if (!res.data.success) {
+						showError("Tạo đơn hàng thất bại");
+						console.error(res.data.message);
+						setSubmitting(false);
+					}
 				}
 			})
 			.catch((err) => {
 				console.error(err);
-				showError(err.response?.data?.message || "Tạo đơn hàng thất bại");
-			})
-			.finally(() => {
+				showError("Tạo đơn hàng thất bại");
 				setSubmitting(false);
 			});
 	};
@@ -162,12 +210,14 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 			shipping_address: "",
 			shipping_note: "",
 			shipping_fee: 0,
-			discount_amount: 0,
+			discount_type: "amount",
+			discount_value: 0,
 			payment_method: "cod",
 		});
 		setOrderItems([]);
 		setErrors({});
 		setSubmitting(false);
+		closeToast();
 		onClose();
 	};
 
@@ -255,7 +305,8 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 									fontWeight='bold'
 									gutterBottom
 									sx={{ color: "#234C6A", mb: 2 }}>
-									CHI TIẾT ĐƠN HÀNG ({orderItems.length})
+									CHI TIẾT ĐƠN HÀNG (
+									{orderItems.reduce((sum, item) => sum + item.quantity, 0)})
 								</Typography>
 								{errors.orderItems && (
 									<Typography
@@ -421,6 +472,11 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 								<TextField
 									fullWidth
 									label='Số điện thoại'
+									type='tel'
+									inputProps={{
+										minLength: 10,
+										maxLength: 15,
+									}}
 									name='shipping_phone'
 									value={formData.shipping_phone}
 									onChange={handleChange}
@@ -436,6 +492,8 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 									name='shipping_email'
 									value={formData.shipping_email}
 									onChange={handleChange}
+									error={!!errors.shipping_email}
+									helperText={errors.shipping_email}
 									sx={{ mb: 2, bgcolor: "white" }}
 									size='small'
 								/>
@@ -499,6 +557,8 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 											value={formData.shipping_fee}
 											onChange={handleChange}
 											inputProps={{ min: 0 }}
+											error={!!errors.shipping_fee}
+											helperText={errors.shipping_fee}
 											size='small'
 											sx={{ bgcolor: "white" }}
 										/>
@@ -506,20 +566,35 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 								</Grid>
 
 								<Grid container spacing={1} alignItems='center' sx={{ mb: 2 }}>
-									<Grid item xs={6}>
+									<Grid size={4}>
 										<Typography variant='body2'>Giảm giá:</Typography>
 									</Grid>
-									<Grid item xs={6}>
+									<Grid size={4}>
 										<TextField
 											fullWidth
-											name='discount_amount'
+											name='discount_value'
 											type='number'
-											value={formData.discount_amount}
+											value={formData.discount_value}
 											onChange={handleChange}
 											inputProps={{ min: 0 }}
+											error={!!errors.discount_value}
+											helperText={errors.discount_value}
 											size='small'
 											sx={{ bgcolor: "white" }}
 										/>
+									</Grid>
+									<Grid size={4}>
+										<TextField
+											select
+											fullWidth
+											name='discount_type'
+											value={formData.discount_type}
+											onChange={handleChange}
+											size='small'
+											sx={{ bgcolor: "white" }}>
+											<MenuItem value='amount'>VND</MenuItem>
+											<MenuItem value='percent'>%</MenuItem>
+										</TextField>
 									</Grid>
 								</Grid>
 
@@ -576,6 +651,15 @@ export default function AddOrder({ open, onClose, onSuccess }) {
 					{submitting ? "Đang xử lý..." : "TẠO ĐƠN HÀNG"}
 				</Button>
 			</DialogActions>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={3000}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</Dialog>
 	);
 }
