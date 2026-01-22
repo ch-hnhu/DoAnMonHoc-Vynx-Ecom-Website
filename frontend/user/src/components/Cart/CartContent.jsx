@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "react-router-dom";
 import Pagination from "../Partial/Pagination";
+import { Link, useNavigate } from "react-router-dom";
+import { Alert, Snackbar } from "@mui/material";
 import { useCart } from "./CartContext.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { getFinalPrice } from "@shared/utils/productHelper.jsx";
 import api from "../../services/api";
+import { useToast } from "@shared/hooks/useToast";
 
 export default function CartContent() {
 	const { items, updateQuantity, removeFromCart, clearCart, subtotal } = useCart();
+	const navigate = useNavigate();
+	const { toast, showError, closeToast } = useToast();
 
 	const total = useMemo(() => subtotal, [subtotal]);
 	const [selectedIds, setSelectedIds] = useState(() => new Set());
@@ -30,6 +34,15 @@ export default function CartContent() {
 	}, [items, currentPage]);
 
 	const baseUrl = (api.defaults.baseURL || "").replace(/\/api\/?$/, "");
+
+	const handleCheckout = () => {
+		if (selectedIds.size === 0) {
+			showError("Vui lòng chọn ít nhất 1 sản phẩm để thanh toán");
+			return;
+		}
+		navigate("/thanh-toan", { state: { selectedIds: Array.from(selectedIds) } });
+	};
+
 	const resolveImage = (rawImage) => {
 		if (!rawImage) return "/img/product-1.png";
 
@@ -268,13 +281,24 @@ export default function CartContent() {
 								</div>
 								<div className='cart-v2-summary-savings'>{"Ti\u1EBFt ki\u1EC7m 0\u0111"}</div>
 							</div>
-							<a href='/thanh-toan' className='btn btn-primary cart-v2-checkout'>
+							<button
+								className='btn btn-primary cart-v2-checkout'
+								onClick={handleCheckout}>
 								Mua hàng
-							</a>
+							</button>
 						</div>
 					</div>
 				</div>
 			</div>
+			<Snackbar
+				open={toast.open}
+				autoHideDuration={2500}
+				onClose={closeToast}
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
+				</Alert>
+			</Snackbar>
 		</>
 	);
 }

@@ -210,7 +210,7 @@ body.sidebar-collapse .app-sidebar {
 }
 
 .app-header .admin-user-menu .user-body a:hover {
-	background: rgba(69, 104, 130, 0.10);
+	background: rgba(69, 104, 130, 0.1);
 	color: rgba(0, 0, 0, 0.82);
 }
 

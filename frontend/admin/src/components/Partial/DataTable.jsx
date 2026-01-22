@@ -29,6 +29,7 @@ export default function DataTable({
 	disableRowSelectionOnClick = true,
 	height = 570,
 	sx = {},
+	noWrapper = false,
 	...otherProps
 }) {
 	const hasControlledPagination = Boolean(otherProps.paginationModel);
@@ -62,6 +63,28 @@ export default function DataTable({
 		...sx, // Merge custom styles
 	};
 
+	if (noWrapper) {
+		return (
+			<div style={{ height, width: "100%" }}>
+				{actions && <div className='d-flex align-items-center mb-3'>{actions}</div>}
+				<DataGrid
+					columns={columns}
+					rows={rows}
+					loading={loading}
+					showToolbar
+					checkboxSelection={checkboxSelection}
+					disableRowSelectionOnClick={disableRowSelectionOnClick}
+					pageSizeOptions={pageSizeOptions}
+					{...(!hasControlledPagination
+						? { initialState: { pagination: { paginationModel: { pageSize } } } }
+						: {})}
+					sx={defaultSx}
+					{...otherProps}
+				/>
+			</div>
+		);
+	}
+
 	return (
 		<>
 			{title && <PageHeader title={title} breadcrumbs={breadcrumbs} />}
@@ -78,7 +101,11 @@ export default function DataTable({
 							disableRowSelectionOnClick={disableRowSelectionOnClick}
 							pageSizeOptions={pageSizeOptions}
 							{...(!hasControlledPagination
-								? { initialState: { pagination: { paginationModel: { pageSize } } } }
+								? {
+										initialState: {
+											pagination: { paginationModel: { pageSize } },
+										},
+									}
 								: {})}
 							sx={defaultSx}
 							{...otherProps}

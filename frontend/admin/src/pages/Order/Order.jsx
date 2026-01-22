@@ -22,6 +22,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditOrder from "./EditOrder.jsx";
 import OrderDetails from "./OrderDetails.jsx";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
+import AddOrder from "./AddOrder.jsx";
 
 export default function OrderPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐƠN HÀNG");
@@ -29,6 +30,7 @@ export default function OrderPage() {
 	const [selectedOrder, setSelectedOrder] = useState(null);
 	const [openEditDialog, setOpenEditDialog] = useState(false);
 	const [openViewDialog, setOpenViewDialog] = useState(false);
+	const [openAddDialog, setOpenAddDialog] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 	const [rowCount, setRowCount] = useState(0);
@@ -54,8 +56,11 @@ export default function OrderPage() {
 	}, [paginationModel.page, paginationModel.pageSize]);
 
 	const handleCreate = () => {
-		console.log("Create order");
-		showInfo("Tạo đơn hàng mới");
+		setOpenAddDialog(true);
+	};
+
+	const handleCreated = () => {
+		fetchOrders();
 	};
 
 	const handleEdit = (order) => {
@@ -66,6 +71,10 @@ export default function OrderPage() {
 	const handleCloseEdit = () => {
 		setOpenEditDialog(false);
 		setSelectedOrder(null);
+	};
+
+	const handleCloseAdd = () => {
+		setOpenAddDialog(false);
 	};
 
 	const handleView = (order) => {
@@ -133,14 +142,20 @@ export default function OrderPage() {
 			field: "customer",
 			headerName: "Khách hàng",
 			width: 220,
-			valueGetter: (params, row) => row.user?.full_name || "N/A",
+			valueGetter: (params, row) => {
+				if (row.user?.role === "admin") {
+					return row.shipping_name || row.user?.full_name || "Guest";
+				}
+				return row.user?.full_name || row.shipping_name || "N/A";
+			},
 		},
 		{
 			field: "items_count",
 			headerName: "Số lượng SP",
 			width: 110,
 			type: "number",
-			valueGetter: (params, row) => row.order_items?.length || 0,
+			valueGetter: (params, row) =>
+				row.order_items?.reduce((total, item) => total + (item.quantity || 0), 0) || 0,
 		},
 		{
 			field: "total_amount",
@@ -258,12 +273,15 @@ export default function OrderPage() {
 				onSuccess={fetchOrders}
 				order={selectedOrder}
 			/>
+			<AddOrder open={openAddDialog} onClose={handleCloseAdd} onSuccess={handleCreated} />
 			<OrderDetails open={openViewDialog} onClose={handleCloseView} order={selectedOrder} />
+			{/* Toast Notification */}
 			<Snackbar
 				open={toast.open}
 				autoHideDuration={3000}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}
+				style={{ zIndex: 999999 }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>
