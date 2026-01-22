@@ -155,8 +155,6 @@ export default function About() {
 									thiết bị, đúng nhu cầu, đúng ngân sách. Chúng tôi minh bạch từ
 									vân đến hậu mãi, ưu tiên trải nghiệm bạn vang thay vì chạy theo
 									xu hướng.
-
-
 								</p>
 								<div className='d-flex flex-wrap gap-3'>
 									<div className='bg-white border rounded px-3 py-2'>
