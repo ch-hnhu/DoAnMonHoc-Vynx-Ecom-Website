@@ -116,6 +116,7 @@ Route::apiResource('brands', BrandController::class)->only(['index', 'store', 'u
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
 Route::prefix('promotions')->group(function () {
+	Route::post('/check', [PromotionController::class, 'check']);
 	Route::get('/trashed', [PromotionController::class, 'trashed']);
 	Route::post('/{id}/restore', [PromotionController::class, 'restore']);
 	Route::delete('/{id}/force', [PromotionController::class, 'forceDelete']);
