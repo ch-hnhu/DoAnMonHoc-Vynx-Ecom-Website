@@ -156,7 +156,6 @@ export default function About() {
 									vân đến hậu mãi, ưu tiên trải nghiệm bạn vang thay vì chạy theo
 									xu hướng.
 
-
 								</p>
 								<div className='d-flex flex-wrap gap-3'>
 									<div className='bg-white border rounded px-3 py-2'>
