@@ -73,11 +73,11 @@ export default function Header() {
 								<a href='/ve-chung-toi' className='text-muted me-2'>
 									Về chúng tôi
 								</a>
-								<small> / </small>
+								<small>/ </small>
 								<a href='/cau-hoi-thuong-gap' className='text-muted mx-2'>
 									Câu hỏi thường gặp
 								</a>
-								<small> / </small>
+								<small>/ </small>
 								<a href='/lien-he' className='text-muted ms-2'>
 									Liên hệ
 								</a>
@@ -204,19 +204,22 @@ export default function Header() {
 
 						<div className='col-md-4 col-lg-3 text-center text-lg-end'>
 							<div className='d-inline-flex align-items-center'>
-								<a
-									href='/wishlist'
-									className='text-muted d-flex align-items-center justify-content-center me-3'>
-									<span className='rounded-circle btn-md-square border position-relative'>
-										<i className='fas fa-heart'></i>
-										{wishlistCount > 0 && (
-											<span className='position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'>
-												{wishlistCount}
-											</span>
-										)}
-									</span>
-									<span className='text-dark ms-2'>Wishlist</span>
-								</a>
+								{/* Chỉ hiện Wishlist khi đã đăng nhập */}
+								{isLoggedIn && (
+									<a
+										href='/wishlist'
+										className='text-muted d-flex align-items-center justify-content-center me-3'>
+										<span className='rounded-circle btn-md-square border position-relative'>
+											<i className='fas fa-heart'></i>
+											{wishlistCount > 0 && (
+												<span className='position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger'>
+													{wishlistCount}
+												</span>
+											)}
+										</span>
+										<span className='text-dark ms-2'>Wishlist</span>
+									</a>
+								)}
 
 								<a
 									href='/gio-hang'

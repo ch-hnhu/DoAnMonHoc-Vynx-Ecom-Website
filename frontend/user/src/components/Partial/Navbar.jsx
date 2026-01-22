@@ -13,15 +13,17 @@ export default function Navbar() {
 			params: {
 				parent_slug: "phu-kien",
 			},
-		}).then((res) => {
-			if (res.data.success) {
-				setPhuKienCategories(res.data.data);
-			} else {
-				console.error("Error fetching phu kien categories:", res.data.error);
-			}
-		}).catch((err) => {
-			console.error("Error fetching phu kien categories:", err);
-		});
+		})
+			.then((res) => {
+				if (res.data.success) {
+					setPhuKienCategories(res.data.data);
+				} else {
+					console.error("Error fetching phu kien categories:", res.data.error);
+				}
+			})
+			.catch((err) => {
+				console.error("Error fetching phu kien categories:", err);
+			});
 	}, []);
 
 	useEffect(() => {
@@ -29,15 +31,17 @@ export default function Navbar() {
 			params: {
 				parent_slug: "linh-kien-may-tinh",
 			},
-		}).then((res) => {
-			if (res.data.success) {
-				setLinhKienCategories(res.data.data);
-			} else {
-				console.error("Error fetching linh kien categories:", res.data.error);
-			}
-		}).catch((err) => {
-			console.error("Error fetching linh kien categories:", err);
-		});
+		})
+			.then((res) => {
+				if (res.data.success) {
+					setLinhKienCategories(res.data.data);
+				} else {
+					console.error("Error fetching linh kien categories:", res.data.error);
+				}
+			})
+			.catch((err) => {
+				console.error("Error fetching linh kien categories:", err);
+			});
 	}, []);
 
 	const getChildren = (cat) => {
@@ -70,7 +74,9 @@ export default function Navbar() {
 							]
 								.filter(Boolean)
 								.join(" ")}>
-							<Link className='vynx-catmenu-link' to={`/san-pham?category=${cat.slug}`}>
+							<Link
+								className='vynx-catmenu-link'
+								to={`/san-pham?category=${cat.slug}`}>
 								<span className='vynx-catmenu-text'>{cat.name}</span>
 								{hasChildren ? (
 									<i
@@ -92,9 +98,12 @@ export default function Navbar() {
 		);
 	};
 
-	const laptopCategory = categories.find((cat) => cat.slug === "lap-top")
-		|| categories.find((cat) => (cat.name || "").toLowerCase().includes("laptop"));
-	const laptopLink = laptopCategory ? `/san-pham?category=${laptopCategory.slug}` : "/san-pham?category=lap-top";
+	const laptopCategory =
+		categories.find((cat) => cat.slug === "lap-top") ||
+		categories.find((cat) => (cat.name || "").toLowerCase().includes("laptop"));
+	const laptopLink = laptopCategory
+		? `/san-pham?category=${laptopCategory.slug}`
+		: "/san-pham?category=lap-top";
 
 	useEffect(() => {
 		api.get("/categories")
@@ -142,6 +151,7 @@ export default function Navbar() {
 					<div className='px-5'>
 						<div className='row gx-0 align-items-center'>
 							{/* Left: All Categories (desktop) */}
+							{/* Left: All Categories (desktop) */}
 							<div className='col-lg-3 d-none d-lg-block'>
 								<nav
 									className='navbar navbar-light position-relative'
@@ -151,49 +161,24 @@ export default function Navbar() {
 										type='button'
 										data-bs-toggle='collapse'
 										data-bs-target='#allCat'>
-										{/* <h4 className='m-0'>
+										<h4 className='m-0'>
 											<i className='fa fa-bars me-2'></i>Danh mục
-										</h4> */}
+										</h4>
 									</button>
 
-									{/* <div
+									<div
 										className='collapse navbar-collapse rounded-bottom'
 										id='allCat'>
 										<div className='navbar-nav ms-auto py-0'>
-											<ul className='list-unstyled categories-bars'>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Accessories</a>
-														<span>(3)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Electronics &amp; Computer</a>
-														<span>(5)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Laptops &amp; Desktops</a>
-														<span>(2)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>Mobiles &amp; Tablets</a>
-														<span>(8)</span>
-													</div>
-												</li>
-												<li>
-													<div className='categories-bars-item'>
-														<a href='#'>SmartPhone &amp; Smart TV</a>
-														<span>(5)</span>
-													</div>
-												</li>
-											</ul>
+											{categories && categories.length > 0 ? (
+												renderCategoryTree(categories)
+											) : (
+												<ul className='list-unstyled categories-bars'>
+													<li>Không có danh mục</li>
+												</ul>
+											)}
 										</div>
-									</div> */}
+									</div>
 								</nav>
 							</div>
 
@@ -237,7 +222,8 @@ export default function Navbar() {
 													</span>
 												</Link>
 												<div className='dropdown-menu m-0'>
-													{phuKienCategories && phuKienCategories.length > 0 ? (
+													{phuKienCategories &&
+													phuKienCategories.length > 0 ? (
 														renderCategoryTree(phuKienCategories)
 													) : (
 														<ul className='list-unstyled categories-bars'>
@@ -256,7 +242,8 @@ export default function Navbar() {
 													</span>
 												</Link>
 												<div className='dropdown-menu m-0'>
-													{linhKienCategories && linhKienCategories.length > 0 ? (
+													{linhKienCategories &&
+													linhKienCategories.length > 0 ? (
 														renderCategoryTree(linhKienCategories)
 													) : (
 														<ul className='list-unstyled categories-bars'>

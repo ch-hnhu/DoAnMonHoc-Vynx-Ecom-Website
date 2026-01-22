@@ -4,6 +4,8 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\User;
+use App\Models\UserAddress;
+use App\Models\Promotion;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Order>
@@ -17,37 +19,62 @@ class OrderFactory extends Factory
 	 */
 	public function definition(): array
 	{
-		$statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
-		$paymentMethods = ['credit_card', 'debit_card', 'paypal', 'bank_transfer', 'cod'];
-		$paymentStatuses = ['pending', 'paid', 'failed', 'refunded'];
+		$paymentMethods = ['vnpay', 'cod'];  // Chỉ có 2 options theo migration
+		$paymentStatuses = ['pending', 'paid', 'failed'];
+		$deliveryMethods = ['standard', 'express'];
+		$deliveryStatuses = ['pending', 'confirmed', 'shipping', 'delivered', 'cancelled'];
 
-		$status = fake()->randomElement($statuses);
-		$paymentStatus = $status === 'cancelled' ? 'refunded' : ($status === 'pending' ? 'pending' : 'paid');
+		// Random user with address
+		$user = User::where('role', 'customer')->inRandomOrder()->first();
+		$address = $user ? UserAddress::where('user_id', $user->id)->inRandomOrder()->first() : null;
 
-		$subtotal = fake()->randomFloat(0, 500000, 20000000);
-		$tax = $subtotal * 0.1;
-		$shippingFee = fake()->randomElement([0, 30000, 50000, 100000]);
-		$discount = fake()->boolean(30) ? fake()->randomFloat(0, 0, $subtotal * 0.3) : 0;
-		$total = $subtotal + $tax + $shippingFee - $discount;
+		// Random có promotion không (30% chance)
+		$promotion = fake()->boolean(30) ? Promotion::inRandomOrder()->first() : null;
+
+		// Tính toán số tiền
+		$subtotal = fake()->randomFloat(0, 500000, 50000000);
+		$discount = 0;
+
+		if ($promotion) {
+			if ($promotion->discount_type === 'percentage') {
+				$discount = $subtotal * ($promotion->discount_value / 100);
+			} else {
+				$discount = $promotion->discount_value;
+			}
+		}
+
+		$shippingFee = fake()->randomElement([0, 30000, 50000]);
+		$total = $subtotal - $discount + $shippingFee;
+
+		// Payment và delivery status logic
+		$paymentMethod = fake()->randomElement($paymentMethods);
+		$deliveryStatus = fake()->randomElement($deliveryStatuses);
+
+		// Nếu đã delivered thì phải paid
+		$paymentStatus = in_array($deliveryStatus, ['delivered', 'shipping'])
+			? 'paid'
+			: ($paymentMethod === 'cod' ? 'pending' : fake()->randomElement($paymentStatuses));
 
 		return [
-			'user_id' => User::inRandomOrder()->first()?->id ?? 1,
-			'order_number' => 'ORD-' . fake()->unique()->numerify('######'),
-			'status' => $status,
-			'payment_method' => fake()->randomElement($paymentMethods),
-			'payment_status' => $paymentStatus,
-			'subtotal' => $subtotal,
-			'tax' => $tax,
+			'user_id' => $user?->id ?? 1,
+			'promotion_id' => $promotion?->id,
+			'address_id' => $address?->id ?? 1,
+			'subtotal_amount' => $subtotal,
+			'discount_amount' => $discount,
 			'shipping_fee' => $shippingFee,
-			'discount' => $discount,
-			'total' => $total,
-			'shipping_address' => fake()->address(),
-			'shipping_city' => fake()->city(),
-			'shipping_district' => fake()->citySuffix(),
-			'shipping_ward' => fake()->streetSuffix(),
-			'shipping_phone' => fake()->phoneNumber(),
-			'notes' => fake()->boolean(30) ? fake()->sentence() : null,
-			'created_at' => fake()->dateTimeBetween('-6 months', 'now'),
+			'total_amount' => $total,
+			'payment_method' => $paymentMethod,
+			'payment_status' => $paymentStatus,
+			'delivery_method' => fake()->randomElement($deliveryMethods),
+			'delivery_status' => $deliveryStatus,
+			'shipping_name' => $user?->full_name ?? fake()->name(),
+			'shipping_phone' => $user?->phone ?? '0' . fake()->numerify('#########'),
+			'shipping_email' => $user?->email ?? fake()->email(),
+			'shipping_address' => $address ?
+				"{$address->address_line}, {$address->ward}, {$address->district}, {$address->city}" :
+				fake()->address(),
+			'shipping_note' => fake()->boolean(20) ? fake()->sentence() : null,
+			'created_at' => fake()->dateTimeBetween('-3 months', 'now'),
 			'updated_at' => now(),
 		];
 	}

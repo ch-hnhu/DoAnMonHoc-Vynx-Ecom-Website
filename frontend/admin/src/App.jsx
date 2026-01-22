@@ -5,6 +5,7 @@ import Product from "./pages/Product/Product";
 import ProductTrash from "./pages/Product/ProductTrash";
 import AddProduct from "./pages/Product/AddProduct";
 import Order from "./pages/Order/Order";
+import OrderTrash from "./pages/Order/OrderTrash";
 import User from "./pages/User/User";
 import UserTrash from "./pages/User/UserTrash";
 import Brand from "./pages/Brand/Brand";
@@ -50,6 +51,7 @@ export default function App() {
 				<Route path='san-pham/thung-rac' element={<ProductTrash />} />
 				<Route path='san-pham/them' element={<AddProduct />} />
 				<Route path='don-hang' element={<Order />} />
+				<Route path='don-hang/thung-rac' element={<OrderTrash />} />
 				<Route path='nguoi-dung' element={<User />} />
 				<Route path='nguoi-dung/thung-rac' element={<UserTrash />} />
 				<Route path='thuong-hieu' element={<Brand />} />

@@ -19,14 +19,17 @@ import { useToast } from "@shared/hooks/useToast";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import EditOrder from "./EditOrder.jsx";
 import OrderDetails from "./OrderDetails.jsx";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 import AddOrder from "./AddOrder.jsx";
 import PageTransition from "../../components/PageTransition";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐƠN HÀNG");
+	const navigate = useNavigate();
 	const [orders, setOrders] = useState([]);
 	const [selectedOrder, setSelectedOrder] = useState(null);
 	const [openEditDialog, setOpenEditDialog] = useState(false);
@@ -249,23 +252,39 @@ export default function OrderPage() {
 				loading={loading}
 				title='Quản lý đơn hàng'
 				breadcrumbs={breadcrumbs}
-				pageSize={paginationModel.pageSize}
-				page={paginationModel.page}
-				onPageChange={setPaginationModel}
+				paginationModel={paginationModel}
+				onPaginationModelChange={setPaginationModel}
+				paginationMode='server'
 				rowCount={rowCount}
 				checkboxSelection={true}
 				processRowUpdate={processRowUpdate}
 				actions={
-					<Button
-						variant='contained'
-						startIcon={<AddIcon />}
-						onClick={handleCreate}
-						sx={{
-							backgroundColor: "#234C6A",
-							"&:hover": { backgroundColor: "#1B3C53" },
-						}}>
-						Tạo đơn hàng
-					</Button>
+					<Box sx={{ display: "flex", gap: 2 }}>
+						<Button
+							variant='contained'
+							startIcon={<AddIcon />}
+							onClick={handleCreate}
+							sx={{
+								backgroundColor: "#234C6A",
+								"&:hover": { backgroundColor: "#1B3C53" },
+							}}>
+							Tạo đơn hàng
+						</Button>
+						<Button
+							variant='outlined'
+							startIcon={<DeleteSweepIcon />}
+							onClick={() => navigate("/don-hang/thung-rac")}
+							sx={{
+								color: "#234C6A",
+								borderColor: "#234C6A",
+								"&:hover": {
+									backgroundColor: "#1B3C53",
+									color: "#ffffff",
+								},
+							}}>
+							Thùng rác
+						</Button>
+					</Box>
 				}
 			/>
 			<EditOrder

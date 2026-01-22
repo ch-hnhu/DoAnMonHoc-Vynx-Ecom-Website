@@ -42,8 +42,7 @@ export default function ShopPage() {
 	const searchInputRef = useRef(null);
 
 	useEffect(() => {
-		api
-			.get("/categories", { params: { flat: 1, per_page: 10000 } })
+		api.get("/categories", { params: { flat: 1, per_page: 10000 } })
 			.then((res) => {
 				if (res?.data?.success) {
 					setCategories(res.data.data || []);
@@ -55,8 +54,7 @@ export default function ShopPage() {
 				console.error("Error fetching categories: ", error);
 			});
 
-		api
-			.get("/brands", { params: { per_page: 10000 } })
+		api.get("/brands", { params: { per_page: 10000 } })
 			.then((res) => {
 				if (res?.data?.success) {
 					setBrands(res.data.data || []);
@@ -111,7 +109,15 @@ export default function ShopPage() {
 		};
 
 		fetchProducts();
-	}, [pagination.currentPage, pagination.perPage, filters.categorySlug, filters.brandId, filters.maxPrice, sortBy, keyword]);
+	}, [
+		pagination.currentPage,
+		pagination.perPage,
+		filters.categorySlug,
+		filters.brandId,
+		filters.maxPrice,
+		sortBy,
+		keyword,
+	]);
 
 	useEffect(() => {
 		const fetchFeaturedProducts = async () => {
@@ -202,8 +208,6 @@ export default function ShopPage() {
 		}
 	};
 
-	
-
 	const handlePriceChange = (value) => {
 		setPriceValue(value);
 	};
@@ -238,8 +242,6 @@ export default function ShopPage() {
 				<div className='row g-4'>
 					{/* Sidebar */}
 					<div className='col-lg-3 wow fadeInUp' data-wow-delay='0.1s'>
-						
-
 						{/* Chọn theo danh mục */}
 						<div className='additional-product mb-4'>
 							<h4>Chọn theo danh mục</h4>
@@ -269,14 +271,16 @@ export default function ShopPage() {
 										checked={filters.categorySlug === category.slug}
 										onChange={() => handleCategoryChange(category.slug)}
 									/>
-									<label htmlFor={`Categories-${category.id}`} className='text-dark'>
+									<label
+										htmlFor={`Categories-${category.id}`}
+										className='text-dark'>
 										{" "}
 										{category.name}
 									</label>
 								</div>
 							))}
 						</div>
-						
+
 						{/* Giá */}
 						<div className='price mb-4'>
 							<h4 className='mb-2'>Giá</h4>
@@ -311,7 +315,9 @@ export default function ShopPage() {
 							) : featuredProducts.length > 0 ? (
 								featuredProducts.map((product) => (
 									<div className='featured-product-item' key={product.id}>
-										<div className='rounded me-4' style={{ width: 100, height: 100 }}>
+										<div
+											className='rounded me-4'
+											style={{ width: 100, height: 100 }}>
 											<img
 												src={getProductImage(product.image_url)}
 												className='img-fluid rounded'
@@ -495,8 +501,7 @@ export default function ShopPage() {
 										onChange={(e) => {
 											setSortBy(e.target.value);
 											setPagination((prev) => ({ ...prev, currentPage: 1 }));
-										}}
-									>
+										}}>
 										<option value='newest'>Mặc định</option>
 										<option value='nothing'>Không sắp xếp</option>
 										<option value='bestseller'>Phổ biến</option>
@@ -593,7 +598,7 @@ export default function ShopPage() {
 				open={toast.open}
 				autoHideDuration={2500}
 				onClose={closeToast}
-				anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>

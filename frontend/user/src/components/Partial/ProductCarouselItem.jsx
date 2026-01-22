@@ -36,7 +36,7 @@ export default function ProductCarouselItem({
 					{showNewBadge && product.is_new && <div className='related-new'>New</div>}
 					<div className='related-details'>
 						<a
-							href='#'
+							href={`/${product.slug}`}
 							onClick={(e) => {
 								e.preventDefault();
 								onViewDetails?.(product);

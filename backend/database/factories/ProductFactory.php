@@ -13,98 +13,118 @@ use App\Models\Promotion;
  */
 class ProductFactory extends Factory
 {
-    /**
-     * Get random images from actual storage folder
-     */
-    private function getRandomImages(): array
-    {
-        $categories = [
-            'laptops' => 64,
-            'headphones' => 3,
-            'keyboards' => 2,
-            'mouses' => 21,
-            'speakers' => 2,
-            'ssd' => 1,
-        ];
+	/**
+	 * Map category ID to image folder
+	 */
+	private function getCategoryImageFolder(int $categoryId): string
+	{
+		// Map category IDs to image folders
+		// Based on CategorySeeder:
+		// 1: Linh kiện máy tính, 2: Laptop, 3: Phụ kiện
+		// 4: Tai nghe, 5: Chuột, 6: Bàn phím, 7: Lót chuột
+		// 8: Ram, 9: Ổ cứng SSD, 10: Card màn hình VGA
+		$categoryMap = [
+			2 => 'laptops',       // Laptop
+			4 => 'headphones',    // Tai nghe
+			5 => 'mouses',        // Chuột
+			6 => 'keyboards',     // Bàn phím
+			7 => 'mouses',        // Lót chuột -> use mouses as fallback
+			8 => 'ram',           // Ram
+			9 => 'ssd',           // Ổ cứng SSD
+			10 => 'laptops',      // Card màn hình VGA -> use laptops as fallback
+		];
 
-        // Pick a random category
-        $category = fake()->randomElement(array_keys($categories));
-        $storagePath = storage_path("app/public/products/$category");
+		// Default to laptops if category not mapped
+		return $categoryMap[$categoryId] ?? 'laptops';
+	}
 
-        if (!is_dir($storagePath)) {
-            return ["http://localhost:8000/storage/products/laptops/1-251027012518.png"];
-        }
+	/**
+	 * Get random images from actual storage folder based on category
+	 */
+	private function getRandomImages(int $categoryId): array
+	{
+		$imageFolder = $this->getCategoryImageFolder($categoryId);
+		$storagePath = storage_path("app/public/products/$imageFolder");
 
-        // Get all image files
-        $files = glob($storagePath . '/*.{png,jpg,jpeg,webp}', GLOB_BRACE);
+		if (!is_dir($storagePath)) {
+			return ["http://localhost:8000/storage/products/laptops/1-251027012518.png"];
+		}
 
-        if (empty($files)) {
-            return ["http://localhost:8000/storage/products/laptops/1-251027012518.png"];
-        }
+		// Get all image files
+		$files = glob($storagePath . '/*.{png,jpg,jpeg,webp}', GLOB_BRACE);
 
-        // Shuffle and pick random number of images (1-4)
-        shuffle($files);
-        $numImages = fake()->numberBetween(1, min(4, count($files)));
-        $selectedFiles = array_slice($files, 0, $numImages);
+		if (empty($files)) {
+			return ["http://localhost:8000/storage/products/laptops/1-251027012518.png"];
+		}
 
-        // Convert to URLs
-        $images = [];
-        foreach ($selectedFiles as $file) {
-            $filename = basename($file);
-            $images[] = "http://localhost:8000/storage/products/$category/$filename";
-        }
+		// Shuffle and pick random number of images (1-4)
+		shuffle($files);
+		$numImages = fake()->numberBetween(1, min(4, count($files)));
+		$selectedFiles = array_slice($files, 0, $numImages);
 
-        return $images;
-    }
+		// Convert to URLs
+		$images = [];
+		foreach ($selectedFiles as $file) {
+			$filename = basename($file);
+			$images[] = "http://localhost:8000/storage/products/$imageFolder/$filename";
+		}
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
-    public function definition(): array
-    {
-        $productTypes = [
-            'Laptop',
-            'Desktop',
-            'Monitor',
-            'Keyboard',
-            'Mouse',
-            'Headphones',
-            'Speakers',
-            'Webcam',
-            'Microphone',
-            'RAM',
-            'SSD',
-            'HDD',
-            'Graphics Card',
-            'Processor',
-            'Motherboard'
-        ];
+		return $images;
+	}
 
-        $adjectives = ['Gaming', 'Professional', 'Ultra', 'Premium', 'Budget', 'Wireless', 'Mechanical', 'RGB', 'Silent', 'Portable'];
+	/**
+	 * Define the model's default state.
+	 *
+	 * @return array<string, mixed>
+	 */
+	public function definition(): array
+	{
+		$productTypes = [
+			'Laptop',
+			'Desktop',
+			'Monitor',
+			'Keyboard',
+			'Mouse',
+			'Headphones',
+			'Speakers',
+			'Webcam',
+			'Microphone',
+			'RAM',
+			'SSD',
+			'HDD',
+			'Graphics Card',
+			'Processor',
+			'Motherboard'
+		];
 
-        $type = fake()->randomElement($productTypes);
-        $adjective = fake()->randomElement($adjectives);
-        $model = fake()->bothify('??-####');
-        $name = trim("$adjective $type $model");
+		$adjectives = ['Gaming', 'Professional', 'Ultra', 'Premium', 'Budget', 'Wireless', 'Mechanical', 'RGB', 'Silent', 'Portable'];
 
-        // Get random images from actual storage
-        $images = $this->getRandomImages();
+		$type = fake()->randomElement($productTypes);
+		$adjective = fake()->randomElement($adjectives);
+		$model = fake()->bothify('??-####');
+		$name = trim("$adjective $type $model");
+		$slug = Str::slug($name);
 
-        $price = fake()->randomFloat(0, 500000, 50000000);
+		// Select category first
+		$categoryId = Category::inRandomOrder()->first()?->id ?? 1;
 
-        return [
-            'name' => $name,
-            'description' => fake()->paragraph(3),
-            'price' => $price,
-            'image_url' => json_encode($images),
-            'category_id' => Category::inRandomOrder()->first()?->id ?? 1,
-            'brand_id' => Brand::inRandomOrder()->first()?->id ?? 1,
-            'promotion_id' => fake()->boolean(30) ? Promotion::inRandomOrder()->first()?->id : null,
-            'stock_quantity' => fake()->numberBetween(0, 200),
-            'created_at' => fake()->dateTimeBetween('-6 months', 'now'),
-            'updated_at' => now(),
-        ];
-    }
+		// Get images based on the selected category
+		$images = $this->getRandomImages($categoryId);
+
+		$price = fake()->randomFloat(0, 500000, 50000000);
+
+		return [
+			'name' => $name,
+			'slug' => $slug,
+			'description' => fake()->paragraph(3),
+			'price' => $price,
+			'image_url' => $images,
+			'category_id' => $categoryId,
+			'brand_id' => Brand::inRandomOrder()->first()?->id ?? 1,
+			'promotion_id' => fake()->boolean(30) ? Promotion::inRandomOrder()->first()?->id : null,
+			'stock_quantity' => fake()->numberBetween(0, 200),
+			'created_at' => fake()->dateTimeBetween('-6 months', 'now'),
+			'updated_at' => now(),
+		];
+	}
 }
