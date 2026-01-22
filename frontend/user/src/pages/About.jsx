@@ -38,11 +38,11 @@ export default function About() {
 
 	const companyInfoItems = companyProfile
 		? [
-				{ label: "Tên công ty", value: companyProfile.name },
-				{ label: "Địa chỉ", value: companyProfile.address },
-				{ label: "Hotline", value: companyProfile.phone },
-				{ label: "Email", value: companyProfile.email },
-		  ]
+			{ label: "Tên công ty", value: companyProfile.name },
+			{ label: "Địa chỉ", value: companyProfile.address },
+			{ label: "Hotline", value: companyProfile.phone },
+			{ label: "Email", value: companyProfile.email },
+		]
 		: [];
 
 	const title = "VỀ CHÚNG TÔI";

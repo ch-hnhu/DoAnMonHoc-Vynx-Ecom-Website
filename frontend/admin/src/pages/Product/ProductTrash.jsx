@@ -185,9 +185,9 @@ export default function ProductTrashPage() {
 	];
 
 	const breadcrumbs = [
-		{ label: "Trang chu", href: "/" },
-		{ label: "San pham", href: "/san-pham" },
-		{ label: "Thung rac", active: true },
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Sản phẩm", href: "/san-pham" },
+		{ label: "Thùng rác", active: true },
 	];
 
 	return (
@@ -196,7 +196,7 @@ export default function ProductTrashPage() {
 				columns={columns}
 				rows={products}
 				loading={loading}
-				title='Thung rac san pham'
+				title='Thùng rác sản phẩm'
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
 				paginationMode='server'

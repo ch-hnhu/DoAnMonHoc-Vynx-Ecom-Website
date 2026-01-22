@@ -71,17 +71,16 @@ export default function Account() {
 													Đánh giá
 												</span>
 												<i
-													className={`fas fa-chevron-${
-														isReviewOpen ? "down" : "right"
-													} text-muted`}></i>
+													className={`fas fa-chevron-${isReviewOpen ? "down" : "right"
+														} text-muted`}></i>
 											</button>
 
 											{/* Submenu Đánh giá */}
 											{isReviewOpen && (
-												<div className='ps-4'>
+												<div className='review-submenu'>
 													<Link
 														to='/tai-khoan/danh-gia/da-danh-gia'
-														className={`list-group-item list-group-item-action border-0 ${isActive(
+														className={`list-group-item list-group-item-action border-0 submenu-item ${isActive(
 															"/tai-khoan/danh-gia/da-danh-gia",
 														)}`}>
 														<i className='fas fa-check-circle me-2 text-success'></i>
@@ -89,7 +88,7 @@ export default function Account() {
 													</Link>
 													<Link
 														to='/tai-khoan/danh-gia/chua-danh-gia'
-														className={`list-group-item list-group-item-action border-0 ${isActive(
+														className={`list-group-item list-group-item-action border-0 submenu-item ${isActive(
 															"/tai-khoan/danh-gia/chua-danh-gia",
 														)}`}>
 														<i className='fas fa-clock me-2 text-warning'></i>
@@ -115,7 +114,7 @@ export default function Account() {
 								{/* Route cho đơn mua */}
 								<Route path='don-mua' element={<Orders />} />
 
-								{/* Route cho đánh giá (bao gồm cả sub-routes) */}
+								{/* Route cho đ/gia (bao gồm cả sub-routes) */}
 								<Route path='danh-gia/*' element={<Reviews />} />
 							</Routes>
 						</div>
@@ -125,9 +124,9 @@ export default function Account() {
 
 			<style jsx>{`
 				.list-group-item.active {
-					background-color: #007bff;
-					color: white;
-					border-color: #007bff;
+					background-color: #1b3c53;
+					color: #e3e3e3;
+					border-color: #1b3c53;
 				}
 
 				.list-group-item:hover {
@@ -135,11 +134,46 @@ export default function Account() {
 				}
 
 				.list-group-item.active:hover {
-					background-color: #0056b3;
+					background-color: #234c6a;
 				}
 
 				.list-group-item {
 					transition: all 0.3s ease;
+				}
+
+				/* Submenu dropdown styles */
+				.review-submenu {
+					background-color: #f8f9fa;
+					border-left: 3px solid #1b3c53;
+					margin-left: 0;
+					padding: 8px 0;
+					animation: slideDown 0.2s ease-out;
+				}
+
+				.review-submenu .submenu-item {
+					padding-left: 20px;
+					font-size: 0.95rem;
+					background-color: transparent;
+				}
+
+				.review-submenu .submenu-item:hover {
+					background-color: #e9ecef;
+				}
+
+				.review-submenu .submenu-item.active {
+					background-color: #1b3c53;
+					color: #e3e3e3;
+				}
+
+				@keyframes slideDown {
+					from {
+						opacity: 0;
+						transform: translateY(-10px);
+					}
+					to {
+						opacity: 1;
+						transform: translateY(0);
+					}
 				}
 			`}</style>
 		</>

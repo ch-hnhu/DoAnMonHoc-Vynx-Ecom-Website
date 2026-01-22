@@ -126,8 +126,6 @@ export default function Orders() {
       hour: "2-digit",
       minute: "2-digit",
     });
-
-  // ================= RENDER =================
   return (
     <>
       {/* TOAST */}

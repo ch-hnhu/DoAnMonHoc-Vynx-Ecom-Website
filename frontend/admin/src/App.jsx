@@ -29,51 +29,47 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Blog from "./pages/Blog";
 import BlogTrash from "./pages/BlogTrash";
 export default function App() {
-  return (
-    <Routes>
-      <Route path="dang-nhap" element={<Login />} />
-      <Route path="dang-ky" element={<Signup />} />
-      <Route path="auth-redirect" element={<AuthRedirect />} />
+	return (
+		<Routes>
+			<Route path='dang-nhap' element={<Login />} />
+			<Route path='dang-ky' element={<Signup />} />
+			<Route path='auth-redirect' element={<AuthRedirect />} />
 
-      {/* Protected routes - Chỉ admin/employee */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<DashboardPage />} />
-        {/* tai khoan */}
-        <Route path="tai-khoan/*" element={<Profile />} />
-        <Route path="san-pham" element={<Product />} />
-        <Route path="san-pham/thung-rac" element={<ProductTrash />} />
-        <Route path="san-pham/them" element={<AddProduct />} />
-        <Route path="don-hang" element={<Order />} />
-        <Route path="nguoi-dung" element={<User />} />
-        <Route path="nguoi-dung/thung-rac" element={<UserTrash />} />
-        <Route path="thuong-hieu" element={<Brand />} />
-        <Route path="thuong-hieu/thung-rac" element={<BrandTrash />} />
-        <Route path="danh-muc" element={<Category />} />
-        <Route path="danh-muc/thung-rac" element={<CategoryTrash />} />
-        <Route path="thuoc-tinh" element={<Attribute />} />
-        <Route path="thuoc-tinh/thung-rac" element={<AttributeTrash />} />
-        <Route path="khuyen-mai" element={<Promotion />} />
-        <Route path="khuyen-mai/thung-rac" element={<PromotionTrash />} />
-        <Route path="cau-hinh" element={<Configuration />} />
-        <Route path="danh-gia" element={<Review />} />
-        <Route path="danh-gia/thung-rac" element={<ReviewTrash />} />
-        <Route path="lien-he" element={<SupportRequest />} />
-        <Route path="lien-he/thung-rac" element={<SupportRequestTrash />} />
-        <Route path="thong-tin-ca-nhan" element={<AdminProfile />} />
-        <Route path="bai-viet" element={<Blog />} />
-        <Route path="bai-viet/thung-rac" element={<BlogTrash />} />
-        <Route path="*" element={<div>404 Not Found</div>} />
-
-
-       
-      </Route >
-    </Routes >
-  );
+			{/* Protected routes - Chỉ admin/employee */}
+			<Route
+				path='/'
+				element={
+					<ProtectedRoute>
+						<MainLayout />
+					</ProtectedRoute>
+				}>
+				<Route index element={<DashboardPage />} />
+				{/* tai khoan */}
+				<Route path='tai-khoan/*' element={<Profile />} />
+				<Route path='san-pham' element={<Product />} />
+				<Route path='san-pham/thung-rac' element={<ProductTrash />} />
+				<Route path='san-pham/them' element={<AddProduct />} />
+				<Route path='don-hang' element={<Order />} />
+				<Route path='nguoi-dung' element={<User />} />
+				<Route path='nguoi-dung/thung-rac' element={<UserTrash />} />
+				<Route path='thuong-hieu' element={<Brand />} />
+				<Route path='thuong-hieu/thung-rac' element={<BrandTrash />} />
+				<Route path='danh-muc' element={<Category />} />
+				<Route path='danh-muc/thung-rac' element={<CategoryTrash />} />
+				<Route path='thuoc-tinh' element={<Attribute />} />
+				<Route path='thuoc-tinh/thung-rac' element={<AttributeTrash />} />
+				<Route path='khuyen-mai' element={<Promotion />} />
+				<Route path='khuyen-mai/thung-rac' element={<PromotionTrash />} />
+				<Route path='cau-hinh' element={<Configuration />} />
+				<Route path='danh-gia' element={<Review />} />
+				<Route path='danh-gia/thung-rac' element={<ReviewTrash />} />
+				<Route path='lien-he' element={<SupportRequest />} />
+				<Route path='lien-he/thung-rac' element={<SupportRequestTrash />} />
+				<Route path='thong-tin-ca-nhan' element={<AdminProfile />} />
+				<Route path='bai-viet' element={<Blog />} />
+				<Route path='bai-viet/thung-rac' element={<BlogTrash />} />
+				<Route path='*' element={<div>404 Not Found</div>} />
+			</Route>
+		</Routes>
+	);
 }

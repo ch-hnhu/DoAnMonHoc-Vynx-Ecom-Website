@@ -182,9 +182,9 @@ export default function Footer() {
 								<a href='#'>
 									<i className='fas fa-angle-right me-2'></i> Đánh giá
 								</a>
-								<a href='#'>
+								<Link to='/tai-khoan/thong-tin'>
 									<i className='fas fa-angle-right me-2'></i> Tài khoản của tôi
-								</a>
+								</Link>
 								<a href='#'>
 									<i className='fas fa-angle-right me-2'></i> Hủy nhận thông báo
 								</a>
@@ -250,7 +250,6 @@ export default function Footer() {
 				</div>
 			</div>
 			{/* Footer End */}
-
 			{/* Copyright Start */}
 			<div className='container-fluid copyright py-4'>
 				<div className='container'>
