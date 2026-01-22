@@ -75,6 +75,15 @@ export default function CartContent() {
 	};
 	const allSelected = items.length > 0 && selectedIds.size === items.length;
 	const selectedCount = selectedIds.size;
+	const selectedQuantity = useMemo(
+		() =>
+			items.reduce(
+				(sum, item) =>
+					selectedIds.has(item.product.id) ? sum + item.quantity : sum,
+				0,
+			),
+		[items, selectedIds],
+	);
 	const selectedTotal = useMemo(
 		() =>
 			items.reduce((sum, item) => {
@@ -164,7 +173,13 @@ export default function CartContent() {
 											<span className='cart-v2-checkmark'></span>
 										</label>
 										<div className='cart-v2-thumb'>
-											<img src={image} alt={item.product.name} />
+											<img
+												src={image}
+												alt={item.product.name}
+												onError={(e) => {
+													e.target.src = "https://placehold.co/400";
+												}}
+											/>
 										</div>
 										<div className='cart-v2-info'>
 											<Link
@@ -259,7 +274,7 @@ export default function CartContent() {
 								<span className='cart-v2-checkmark'></span>
 							</label>
 							<span className='cart-v2-footer-text'>
-								{"Ch\u1ECDn t\u1EA5t c\u1EA3"} ({items.length})
+								{"Ch\u1ECDn t\u1EA5t c\u1EA3"} ({selectedQuantity})
 							</span>
 							<button
 								className='cart-v2-footer-action'
