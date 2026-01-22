@@ -20,6 +20,7 @@ import {
 import Grid from "@mui/material/Grid";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import DataTable from "../components/Partial/DataTable";
 import api from "../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
@@ -29,9 +30,11 @@ import AddIcon from "@mui/icons-material/Add";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 import CloseIcon from "@mui/icons-material/Close";
 import { useToast } from "@shared/hooks/useToast";
+import { useNavigate } from "react-router-dom";
 
 export default function PromotionPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ KHUYẾN MÃI");
+	const navigate = useNavigate();
 	
 	const [promotions, setPromotions] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -132,6 +135,10 @@ export default function PromotionPage() {
 					showError("Xóa mã khuyến mãi thất bại. Vui lòng thử lại.");
 				});
 		}
+	};
+
+	const handleGoToTrash = () => {
+		navigate("/promotions/trash");
 	};
 
 	const handleChange = (event) => {
@@ -306,16 +313,32 @@ export default function PromotionPage() {
 				pageSize={25}
 				checkboxSelection={true}
 				actions={
-					<Button
-						variant='contained'
-						startIcon={<AddIcon />}
-						onClick={handleCreate}
-						sx={{
-							backgroundColor: "#234C6A",
-							"&:hover": { backgroundColor: "#1B3C53" },
-						}}>
-						Thêm mã khuyến mãi
-					</Button>
+					<Box sx={{ display: "flex", gap: 2 }}>
+						<Button
+							variant='contained'
+							startIcon={<AddIcon />}
+							onClick={handleCreate}
+							sx={{
+								backgroundColor: "#234C6A",
+								"&:hover": { backgroundColor: "#1B3C53" },
+							}}>
+							Thêm mã khuyến mãi
+						</Button>
+						<Button
+							variant='outlined'
+							startIcon={<DeleteSweepIcon />}
+							onClick={handleGoToTrash}
+							sx={{
+								color: "#234C6A",
+								borderColor: "#234C6A",
+								"&:hover": {
+									backgroundColor: "#1B3C53",
+									color: "#ffffff",
+								},
+							}}>
+							Thùng rác
+						</Button>
+					</Box>
 				}
 			/>
 

@@ -76,9 +76,19 @@ Route::apiResource('users', UserController::class)->only(['index', 'destroy']);
 Route::apiResource('brands', BrandController::class)->only(['index', 'destroy']);
 Route::apiResource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::apiResource('attributes', AttributeController::class)->only(['index', 'destroy']);
+Route::prefix('promotions')->group(function () {
+	Route::get('/trashed', [PromotionController::class, 'trashed']);
+	Route::post('/{id}/restore', [PromotionController::class, 'restore']);
+	Route::delete('/{id}/force', [PromotionController::class, 'forceDelete']);
+});
 Route::apiResource('promotions', PromotionController::class)->only(['index', 'store', 'update', 'destroy']);
 Route::apiResource('reviews', ReviewController::class)->only(['index', 'update', 'destroy']);
 Route::apiResource('slideshows', SlideshowController::class)->only(['index']);
+Route::prefix('blogs')->group(function () {
+	Route::get('/trashed', [BlogController::class, 'trashed']);
+	Route::post('/{id}/restore', [BlogController::class, 'restore']);
+	Route::delete('/{id}/force', [BlogController::class, 'forceDelete']);
+});
 Route::apiResource('blogs', BlogController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
 // Protected routes - Require authentication

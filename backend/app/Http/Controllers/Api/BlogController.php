@@ -191,4 +191,98 @@ class BlogController extends Controller
 			], 500);
 		}
 	}
+
+	/**
+	 * Display a listing of trashed blogs.
+	 */
+	public function trashed(Request $request): JsonResponse
+	{
+		try {
+			$perPage = (int) $request->input('per_page', 25);
+			$search = trim((string) $request->input('search', ''));
+
+			$query = Blog::onlyTrashed()->orderByDesc('deleted_at');
+
+			if ($search !== '') {
+				$query->where(function ($subQuery) use ($search) {
+					$subQuery->where('title', 'like', '%' . $search . '%')
+						->orWhere('content', 'like', '%' . $search . '%')
+						->orWhere('author_name', 'like', '%' . $search . '%');
+				});
+			}
+
+			$blogs = $query->paginate($perPage);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Lay danh sach bai viet da xoa thanh cong',
+				'data' => $blogs->items(),
+				'pagination' => [
+					'total' => $blogs->total(),
+					'per_page' => $blogs->perPage(),
+					'current_page' => $blogs->currentPage(),
+					'last_page' => $blogs->lastPage(),
+					'from' => $blogs->firstItem(),
+					'to' => $blogs->lastItem(),
+				],
+				'timestamp' => now(),
+			]);
+		} catch (\Throwable $th) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi lay danh sach bai viet da xoa',
+				'error' => $th->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
+	}
+
+	/**
+	 * Restore a trashed blog.
+	 */
+	public function restore(string $id): JsonResponse
+	{
+		try {
+			$blog = Blog::onlyTrashed()->findOrFail($id);
+			$blog->restore();
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Khoi phuc bai viet thanh cong',
+				'data' => $blog,
+				'timestamp' => now(),
+			]);
+		} catch (\Throwable $th) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi khoi phuc bai viet',
+				'error' => $th->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
+	}
+
+	/**
+	 * Permanently delete a trashed blog.
+	 */
+	public function forceDelete(string $id): JsonResponse
+	{
+		try {
+			$blog = Blog::onlyTrashed()->findOrFail($id);
+			$blog->forceDelete();
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Xoa vinh vien bai viet thanh cong',
+				'timestamp' => now(),
+			]);
+		} catch (\Throwable $th) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi xoa vinh vien bai viet',
+				'error' => $th->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
+	}
 }

@@ -156,7 +156,7 @@ export default function Navbar() {
 										</h4> */}
 									</button>
 
-									<div
+									{/* <div
 										className='collapse navbar-collapse rounded-bottom'
 										id='allCat'>
 										<div className='navbar-nav ms-auto py-0'>
@@ -193,7 +193,7 @@ export default function Navbar() {
 												</li>
 											</ul>
 										</div>
-									</div>
+									</div> */}
 								</nav>
 							</div>
 
@@ -267,7 +267,7 @@ export default function Navbar() {
 											</div>
 
 											{/* All Category dropdown (mobile) */}
-											<div className='nav-item dropdown d-block d-lg-none mb-3'>
+											{/* <div className='nav-item dropdown d-block d-lg-none mb-3'>
 												<a
 													href='#'
 													className='nav-link'
@@ -318,7 +318,7 @@ export default function Navbar() {
 														</li>
 													</ul>
 												</div>
-											</div>
+											</div> */}
 										</div>
 
 										<a

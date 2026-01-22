@@ -103,4 +103,98 @@ class PromotionController extends Controller
             'message' => 'Xoa ma khuyen mai thanh cong',
         ]);
     }
+
+    /**
+     * Display a listing of trashed promotions.
+     */
+    public function trashed(Request $request)
+    {
+        try {
+            $perPage = (int) $request->input('per_page', 25);
+            $search = trim((string) $request->input('search', ''));
+
+            $query = Promotion::onlyTrashed()->orderByDesc('deleted_at');
+
+            if ($search !== '') {
+                $query->where(function ($subQuery) use ($search) {
+                    $subQuery->where('code', 'like', '%' . $search . '%')
+                        ->orWhere('name', 'like', '%' . $search . '%')
+                        ->orWhere('description', 'like', '%' . $search . '%');
+                });
+            }
+
+            $promotions = $query->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach ma khuyen mai da xoa thanh cong',
+                'data' => $promotions->items(),
+                'pagination' => [
+                    'total' => $promotions->total(),
+                    'per_page' => $promotions->perPage(),
+                    'current_page' => $promotions->currentPage(),
+                    'last_page' => $promotions->lastPage(),
+                    'from' => $promotions->firstItem(),
+                    'to' => $promotions->lastItem(),
+                ],
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay danh sach ma khuyen mai da xoa',
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Restore a trashed promotion.
+     */
+    public function restore(string $id)
+    {
+        try {
+            $promotion = Promotion::onlyTrashed()->findOrFail($id);
+            $promotion->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Khoi phuc ma khuyen mai thanh cong',
+                'data' => $promotion,
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi khoi phuc ma khuyen mai',
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Permanently delete a trashed promotion.
+     */
+    public function forceDelete(string $id)
+    {
+        try {
+            $promotion = Promotion::onlyTrashed()->findOrFail($id);
+            $promotion->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xoa vinh vien ma khuyen mai thanh cong',
+                'timestamp' => now(),
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi xoa vinh vien ma khuyen mai',
+                'error' => $th->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
+    }
 }

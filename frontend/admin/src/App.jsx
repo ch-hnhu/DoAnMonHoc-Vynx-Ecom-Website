@@ -11,6 +11,7 @@ import Brand from "./pages/Brand";
 import Category from "./pages/Category/Category";
 import Attribute from "./pages/Attribute";
 import Promotion from "./pages/Promotion";
+import PromotionTrash from "./pages/PromotionTrash";
 import Configuration from "./pages/Configuration";
 import Review from "./pages/Review";
 import SupportRequest from "./pages/SupportRequest";
@@ -20,6 +21,7 @@ import Signup from "./pages/Signup";
 import AuthRedirect from "./pages/AuthRedirect";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Blog from "./pages/Blog";
+import BlogTrash from "./pages/BlogTrash";
 export default function App() {
   return (
     <Routes>
@@ -47,11 +49,13 @@ export default function App() {
         <Route path="categories" element={<Category />} />
         <Route path="attributes" element={<Attribute />} />
         <Route path="promotions" element={<Promotion />} />
+        <Route path="promotions/trash" element={<PromotionTrash />} />
         <Route path="profile" element={<Profile />} />
         <Route path="configurations" element={<Configuration />} />
         <Route path="reviews" element={<Review />} />
         <Route path="contacts" element={<SupportRequest />} />
         <Route path="blogs" element={<Blog />} />
+        <Route path="blogs/trash" element={<BlogTrash />} />
         <Route path="*" element={<div>404 Not Found</div>} />
       </Route>
     </Routes>

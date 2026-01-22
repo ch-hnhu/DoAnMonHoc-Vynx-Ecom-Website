@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import EditIcon from "@mui/icons-material/Edit";
 import AddIcon from "@mui/icons-material/Add";
@@ -29,6 +30,7 @@ import DataTable from "../components/Partial/DataTable";
 import PageTransition from "../components/PageTransition";
 import { useToast } from "@shared/hooks/useToast";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
+import { useNavigate } from "react-router-dom";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 
 const toDateTimeLocal = (value) => {
@@ -502,7 +504,7 @@ function BlogDialog({ open, onClose, onSuccess, blog, mode = "edit" }) {
 							color: "#ffffff",
 						},
 					}}>
-					Cancel
+					Huỷ
 				</Button>
 				<Button
 					onClick={handleSubmit}
@@ -515,8 +517,8 @@ function BlogDialog({ open, onClose, onSuccess, blog, mode = "edit" }) {
 						{submitting
 							? "Saving..."
 							: mode === "create"
-								? "Create Blog"
-								: "Save Blog"}
+								? "Tạo bài viết"
+								: "Lưu bài viết"}
 				</Button>
 			</DialogActions>
 
@@ -534,8 +536,9 @@ function BlogDialog({ open, onClose, onSuccess, blog, mode = "edit" }) {
 }
 
 export default function BlogPage() {
-	const title = "VYNX ADMIN | QUẢN LÝ BÀI VIẾT";
+	const title = "Quản lý bài viết";
 	useDocumentTitle(title);
+	const navigate = useNavigate();
 	const [blogs, setBlogs] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -598,10 +601,11 @@ export default function BlogPage() {
 	};
 
 	const handleDelete = (blog) => {
-		if (!blog) return;
+		if (!blog) {
+			return;
+		}
 		if (window.confirm(`Bạn có chắc chắn muốn xoá bài viết: "${blog.title}"?`)) {
-			api
-				.delete(`/blogs/${blog.id}`)
+			api.delete(`/blogs/${blog.id}`)
 				.then((res) => {
 					if (res.data.success) {
 						showSuccess("Xoá bài viết thành công!");
@@ -615,6 +619,10 @@ export default function BlogPage() {
 					showError("Xoá bài viết thất bại!");
 				});
 		}
+	};
+
+	const handleGoToTrash = () => {
+		navigate("/blogs/trash");
 	};
 
 	const columns = [
@@ -709,13 +717,32 @@ export default function BlogPage() {
 				rowCount={rowCount}
 				paginationMode='server'
 				actions={
-					<Button
-						variant='contained'
-						startIcon={<AddIcon />}
-						onClick={handleCreate}
-						sx={{ backgroundColor: "#234C6A", "&:hover": { backgroundColor: "#1B3C53" } }}>
-						Thêm bài viết
-					</Button>
+					<Box sx={{ display: "flex", gap: 2 }}>
+						<Button
+							variant='contained'
+							startIcon={<AddIcon />}
+							onClick={handleCreate}
+							sx={{
+								backgroundColor: "#234C6A",
+								"&:hover": { backgroundColor: "#1B3C53" },
+							}}>
+							Thêm bài viết
+						</Button>
+						<Button
+							variant='outlined'
+							startIcon={<DeleteSweepIcon />}
+							onClick={handleGoToTrash}
+							sx={{
+								color: "#234C6A",
+								borderColor: "#234C6A",
+								"&:hover": {
+									backgroundColor: "#1B3C53",
+									color: "#ffffff",
+								},
+							}}>
+							Thùng rác
+						</Button>
+					</Box>
 				}
 			/>
 
