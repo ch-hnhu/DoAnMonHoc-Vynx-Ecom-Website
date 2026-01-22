@@ -23,6 +23,7 @@ import SupportRequestTrash from "./pages/SupportRequest/SupportRequestTrash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AuthRedirect from "./pages/AuthRedirect";
+import AdminProfile from "./pages/AdminProfile";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {

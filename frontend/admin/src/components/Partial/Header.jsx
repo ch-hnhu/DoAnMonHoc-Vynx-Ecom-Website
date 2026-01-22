@@ -273,7 +273,7 @@ export default function Header() {
                   <li className="user-body">
                     <div className="row">
                       <div className="col-4 text-center">
-                        <a href="#">Tài khoản</a>
+                        <Link to="/thong-tin-ca-nhan">Profile</Link>
                       </div>
                       <div className="col-4 text-center">
                         <a href="#">Cài đặt</a>
@@ -284,9 +284,9 @@ export default function Header() {
                     </div>
                   </li>
                   <li className="user-footer">
-                    <a href="#" className="btn btn-outline-secondary">
-                      Tài khoản
-                    </a>
+                    <Link to="/thong-tin-ca-nhan" className="btn btn-outline-secondary">
+                      Profile
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="btn btn-outline-danger float-end"

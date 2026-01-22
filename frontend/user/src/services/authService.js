@@ -127,26 +127,5 @@ export const initAuth = () => {
     api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   }
 };
-
-/**
- * Lấy thông tin user hiện tại từ API
- */
-export const getCurrentUser = async () => {
-  try {
-    const response = await api.get("/me");
-    const user = response.data.user;
-
-    // Cập nhật user data trong localStorage
-    localStorage.setItem(USER_KEY, JSON.stringify(user));
-    notifyAuthChange();
-
-    return user;
-  } catch (error) {
-    // Nếu token không hợp lệ, xóa auth data
-    logout();
-    throw error;
-  }
-};
-
 // Khởi tạo auth khi import module
 initAuth();
