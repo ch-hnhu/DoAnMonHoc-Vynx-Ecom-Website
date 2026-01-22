@@ -14,24 +14,28 @@ use App\Models\OrderItem;
 
 class FactoryDataSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     * Seeder này sử dụng factories để generate nhiều dữ liệu test
-     */
-    public function run(): void
-    {
-        // Tạo thêm users
-        $this->command->info('Creating 20 users...');
-        User::factory(20)->create();
+	/**
+	 * Run the database seeds.
+	 * Seeder này sử dụng factories để generate nhiều dữ liệu test
+	 */
+	public function run(): void
+	{
+		// Tạo thêm users
+		$this->command->info('Creating 20 users...');
+		User::factory(20)->create();
 
-        // Tạo nhiều products sử dụng factory
-        $this->command->info('Creating 50 products...');
-        Product::factory(50)->create();
+		// Tạo nhiều products sử dụng factory
+		$this->command->info('Creating 50 products...');
+		Product::factory(50)->create();
 
-        // Tạo reviews cho products
-        $this->command->info('Creating 100 product reviews...');
-        ProductReview::factory(100)->create();
+		// Tự động tạo attribute values cho products
+		$this->command->info('Auto-generating product attributes...');
+		$this->call(AutoProductAttributeValueSeeder::class);
 
-        $this->command->info('Factory data seeding completed successfully!');
-    }
+		// Tạo reviews cho products
+		$this->command->info('Creating 100 product reviews...');
+		ProductReview::factory(100)->create();
+
+		$this->command->info('Factory data seeding completed successfully!');
+	}
 }
