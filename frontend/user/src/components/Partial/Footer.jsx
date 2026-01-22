@@ -250,7 +250,6 @@ export default function Footer() {
 				</div>
 			</div>
 			{/* Footer End */}
-
 			{/* Copyright Start */}
 			<div className='container-fluid copyright py-4'>
 				<div className='container'>
