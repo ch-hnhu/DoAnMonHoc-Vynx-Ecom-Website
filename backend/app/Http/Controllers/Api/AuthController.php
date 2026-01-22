@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -178,16 +179,21 @@ class AuthController extends Controller
 
         // Xử lý upload ảnh
         if ($request->hasFile('image')) {
-            // Xóa ảnh cũ nếu có
-            if ($user->image && file_exists(public_path($user->image))) {
-                unlink(public_path($user->image));
+            if ($user->image) {
+                if (str_starts_with($user->image, '/storage/')) {
+                    $oldPath = ltrim(substr($user->image, strlen('/storage/')), '/');
+                    Storage::disk('public')->delete($oldPath);
+                } elseif (str_starts_with($user->image, '/uploads/avatars/')) {
+                    $legacyPath = public_path($user->image);
+                    if (file_exists($legacyPath)) {
+                        unlink($legacyPath);
+                    }
+                }
             }
 
-            // Lưu ảnh mới
             $image = $request->file('image');
-            $imageName = time() . '_' . $image->getClientOriginalName();
-            $image->move(public_path('uploads/avatars'), $imageName);
-            $user->image = '/uploads/avatars/' . $imageName;
+            $storedPath = $image->store('avatars', 'public');
+            $user->image = '/storage/' . $storedPath;
         }
 
         $user->save();

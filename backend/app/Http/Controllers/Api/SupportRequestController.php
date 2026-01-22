@@ -74,4 +74,97 @@ class SupportRequestController extends Controller
             'message' => 'Support request deleted successfully.',
         ]);
     }
+
+    /**
+     * Display a listing of trashed support requests.
+     */
+    public function trashed(Request $request): JsonResponse
+    {
+        try {
+            $perPage = $request->input('per_page', 25);
+
+            $supportRequests = SupportRequest::onlyTrashed()
+                ->with(['user:id,email'])
+                ->orderByDesc('deleted_at')
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach lien he da xoa thanh cong',
+                'data' => $supportRequests->items(),
+                'error' => null,
+                'pagination' => [
+                    'total' => $supportRequests->total(),
+                    'per_page' => $supportRequests->perPage(),
+                    'current_page' => $supportRequests->currentPage(),
+                    'last_page' => $supportRequests->lastPage(),
+                    'from' => $supportRequests->firstItem(),
+                    'to' => $supportRequests->lastItem(),
+                ],
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay danh sach lien he da xoa',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Restore a trashed support request.
+     */
+    public function restore(string $id): JsonResponse
+    {
+        try {
+            $supportRequest = SupportRequest::onlyTrashed()->with(['user:id,email'])->findOrFail($id);
+            $supportRequest->restore();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Khoi phuc lien he thanh cong',
+                'data' => $supportRequest,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi khoi phuc lien he',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Permanently delete a trashed support request.
+     */
+    public function forceDelete(string $id): JsonResponse
+    {
+        try {
+            $supportRequest = SupportRequest::onlyTrashed()->findOrFail($id);
+            $supportRequest->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xoa vinh vien lien he thanh cong',
+                'data' => null,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi xoa vinh vien lien he',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ], 500);
+        }
+    }
 }

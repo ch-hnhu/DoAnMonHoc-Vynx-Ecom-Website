@@ -23,6 +23,7 @@ import EditOrder from "./EditOrder.jsx";
 import OrderDetails from "./OrderDetails.jsx";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 import AddOrder from "./AddOrder.jsx";
+import PageTransition from "../../components/PageTransition";
 
 export default function OrderPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ ĐƠN HÀNG");
@@ -44,7 +45,7 @@ export default function OrderPage() {
 				setRowCount(res.data.pagination?.total ?? 0);
 			})
 			.catch((error) => {
-				console.error("Error fetching orders: ", error);
+				console.error("Error fetching don-hang: ", error);
 			})
 			.finally(() => {
 				setLoading(false);
@@ -241,7 +242,7 @@ export default function OrderPage() {
 	];
 
 	return (
-		<>
+		<PageTransition>
 			<DataTable
 				columns={columns}
 				rows={orders}
@@ -286,6 +287,6 @@ export default function OrderPage() {
 					{toast.message}
 				</Alert>
 			</Snackbar>
-		</>
+		</PageTransition>
 	);
 }

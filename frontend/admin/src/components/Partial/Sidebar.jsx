@@ -86,61 +86,61 @@ export default function Sidebar() {
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/products' className='nav-link'>
+							<Link to='/san-pham' className='nav-link'>
 								<i className='nav-icon bi bi-box-seam' />
 								<p>Quản lý sản phẩm</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/orders' className='nav-link'>
+							<Link to='/don-hang' className='nav-link'>
 								<i className='nav-icon bi bi-receipt' />
 								<p>Quản lý đơn hàng</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/users' className='nav-link'>
+							<Link to='/nguoi-dung' className='nav-link'>
 								<i className='nav-icon bi bi-people' />
 								<p>Quản lý người dùng</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/categories' className='nav-link'>
+							<Link to='/danh-muc' className='nav-link'>
 								<i className='nav-icon bi bi-grid' />
 								<p>Quản lý danh mục</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/brands' className='nav-link'>
+							<Link to='/thuong-hieu' className='nav-link'>
 								<i className='nav-icon bi bi-tags' />
 								<p>Quản lý thương hiệu</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/attributes' className='nav-link'>
+							<Link to='/thuoc-tinh' className='nav-link'>
 								<i className='nav-icon bi bi-sliders' />
 								<p>Quản lý thuộc tính</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/reviews' className='nav-link'>
+							<Link to='/danh-gia' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý đánh giá</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/contacts' className='nav-link'>
+							<Link to='/lien-he' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý liên hệ</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/promotions' className='nav-link'>
+							<Link to='/khuyen-mai' className='nav-link'>
 								<i className='nav-icon bi bi-ticket-perforated' />
 								<p>Quản lý khuyến mãi</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/configurations' className='nav-link'>
+							<Link to='/cau-hinh' className='nav-link'>
 								<i className='nav-icon bi bi-gear' />
 								<p>Quản lý cấu hình</p>
 							</Link>

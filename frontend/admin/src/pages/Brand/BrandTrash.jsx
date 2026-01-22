@@ -5,26 +5,26 @@ import { Button, Box } from "@mui/material";
 import RestoreIcon from "@mui/icons-material/Restore";
 import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { formatDate, formatCurrency } from "@shared/utils/formatHelper.jsx";
-import { getProductImage } from "../../../../shared/utils/productHelper";
+import { formatDate } from "@shared/utils/formatHelper.jsx";
+import { getProductImage } from "@shared/utils/productHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 import { Snackbar, Alert } from "@mui/material";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
 import { useNavigate } from "react-router-dom";
 import PageTransition from "../../components/PageTransition";
 
-export default function ProductTrashPage() {
-	useDocumentTitle("VYNX ADMIN | THÙNG RÁC SẢN PHẨM");
+export default function BrandTrashPage() {
+	useDocumentTitle("VYNX ADMIN | THÙNG RÁC THƯƠNG HIỆU");
 	const navigate = useNavigate();
-	const [products, setProducts] = useState([]);
+	const [brands, setBrands] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 	const [rowCount, setRowCount] = useState(0);
 	const { toast, showSuccess, showError, closeToast } = useToast();
 
-	const fetchTrashedProducts = (model = paginationModel) => {
+	const fetchTrashedBrands = (model = paginationModel) => {
 		setLoading(true);
-		api.get("/products/trashed", {
+		api.get("/brands/trashed", {
 			params: {
 				page: model.page + 1,
 				per_page: model.pageSize,
@@ -32,15 +32,15 @@ export default function ProductTrashPage() {
 		})
 			.then((res) => {
 				if (res.data.success) {
-					setProducts(res.data.data || []);
+					setBrands(res.data.data || []);
 					setRowCount(res.data.pagination?.total ?? 0);
 				} else {
-					showError("Không thể tải danh sách sản phẩm đã xóa");
+					showError("Không thể tải danh sách thương hiệu đã xóa");
 				}
 			})
 			.catch((error) => {
-				console.error("Error fetching trashed products: ", error);
-				showError("Lỗi khi tải danh sách sản phẩm đã xóa");
+				console.error("Error fetching trashed thuong-hieu: ", error);
+				showError("Lỗi khi tải danh sách thương hiệu đã xóa");
 			})
 			.finally(() => {
 				setLoading(false);
@@ -48,103 +48,86 @@ export default function ProductTrashPage() {
 	};
 
 	useEffect(() => {
-		fetchTrashedProducts(paginationModel);
+		fetchTrashedBrands(paginationModel);
 	}, [paginationModel.page, paginationModel.pageSize]);
 
-	const handleRestore = (product) => {
-		if (!product) return;
+	const handleRestore = (brand) => {
+		if (!brand) return;
 
-		if (window.confirm(`Bạn có chắc chắn muốn khôi phục sản phẩm: "${product.name}"?`)) {
-			api.post(`/products/${product.id}/restore`)
+		if (window.confirm(`Bạn có chắc chắn muốn khôi phục thương hiệu: "${brand.name}"?`)) {
+			api.post(`/brands/${brand.id}/restore`)
 				.then((res) => {
 					if (res.data.success) {
-						showSuccess("Khôi phục sản phẩm thành công!");
-						fetchTrashedProducts(paginationModel);
+						showSuccess("Khôi phục thương hiệu thành công!");
+						fetchTrashedBrands(paginationModel);
 					} else {
-						showError("Khôi phục sản phẩm thất bại!");
+						showError("Khôi phục thương hiệu thất bại!");
 					}
 				})
 				.catch((error) => {
-					console.error("Error restoring product:", error);
-					showError("Khôi phục sản phẩm thất bại!");
+					console.error("Error restoring brand:", error);
+					showError("Khôi phục thương hiệu thất bại!");
 				});
 		}
 	};
 
-	const handleForceDelete = (product) => {
-		if (!product) return;
+	const handleForceDelete = (brand) => {
+		if (!brand) return;
 
 		if (
 			window.confirm(
-				`Bạn có chắc chắn muốn xóa vĩnh viễn sản phẩm: "${product.name}"?\n\nành động này KHÔNG THỂ HOÀN TÁC!`,
+				`Bạn có chắc chắn muốn xóa vĩnh viễn thương hiệu: "${brand.name}"?\n\nHành động này KHÔNG THỂ HOÀN TÁC!`,
 			)
 		) {
-			api.delete(`/products/${product.id}/force`)
+			api.delete(`/brands/${brand.id}/force`)
 				.then((res) => {
 					if (res.data.success) {
-						showSuccess("Xóa vĩnh viễn sản phẩm thành công!");
-						fetchTrashedProducts(paginationModel);
+						showSuccess("Xóa vĩnh viễn thương hiệu thành công!");
+						fetchTrashedBrands(paginationModel);
 					} else {
-						showError("Xóa vĩnh viễn sản phẩm thất bại!");
+						showError("Xóa vĩnh viễn thương hiệu thất bại!");
 					}
 				})
 				.catch((error) => {
-					console.error("Error force deleting product:", error);
-					showError("Xóa vĩnh viễn sản phẩm thất bại!");
+					console.error("Error force deleting brand:", error);
+					showError("Xóa vĩnh viễn thương hiệu thất bại!");
 				});
 		}
 	};
 
-	const handleBackToProducts = () => {
-		navigate("/san-pham");
+	const handleBackToBrands = () => {
+		navigate("/thuong-hieu");
 	};
 
 	const columns = [
 		{ field: "id", headerName: "ID", width: 90 },
-		{ field: "name", headerName: "Tên sản phẩm", width: 300 },
 		{
-			field: "image_url",
-			headerName: "Hình ảnh",
-			width: 150,
+			field: "logo_url",
+			headerName: "Logo",
+			width: 110,
+			sortable: false,
 			renderCell: (params) => {
-				const imageUrl = getProductImage(params.value);
+				const src = getProductImage(params.row.logo_url);
 				return (
 					<img
-						src={imageUrl}
-						alt={params.row.name}
+						src={src}
+						alt={params.row.name || "brand-logo"}
 						style={{
-							width: "50px",
-							height: "50px",
-							objectFit: "cover",
-							borderRadius: "4px",
+							width: 48,
+							height: 48,
+							objectFit: "contain",
+							borderRadius: 6,
 						}}
 						onError={(e) => {
-							e.target.src = "https://placehold.co/600x400";
+							e.currentTarget.onerror = null;
+							e.currentTarget.src = "/img/product-default.png";
 						}}
 					/>
 				);
 			},
 		},
-		{
-			field: "price",
-			headerName: "Giá",
-			width: 150,
-			type: "number",
-			valueFormatter: (params) => formatCurrency(params),
-		},
-		{ field: "stock_quantity", headerName: "Tồn kho", width: 120, type: "number" },
-		{
-			field: "category",
-			headerName: "Danh mục",
-			width: 180,
-			valueGetter: (params, row) => row.category?.name || "N/A",
-		},
-		{
-			field: "brand",
-			headerName: "Thương hiệu",
-			width: 180,
-			valueGetter: (params, row) => row.brand?.name || "N/A",
-		},
+		{ field: "name", headerName: "Tên thương hiệu", width: 240 },
+		{ field: "description", headerName: "Mô tả", width: 400 },
 		{
 			field: "deleted_at",
 			headerName: "Ngày xóa",
@@ -156,7 +139,7 @@ export default function ProductTrashPage() {
 		{
 			field: "actions",
 			headerName: "Thao tác",
-			width: 300,
+			width: 320,
 			sortable: false,
 			filterable: false,
 			renderCell: (params) => {
@@ -185,18 +168,18 @@ export default function ProductTrashPage() {
 	];
 
 	const breadcrumbs = [
-		{ label: "Trang chu", href: "/" },
-		{ label: "San pham", href: "/san-pham" },
-		{ label: "Thung rac", active: true },
+		{ label: "Trang chủ", href: "/" },
+		{ label: "Thương hiệu", href: "/thuong-hieu" },
+		{ label: "Thùng rác", active: true },
 	];
 
 	return (
 		<PageTransition>
 			<DataTable
 				columns={columns}
-				rows={products}
+				rows={brands}
 				loading={loading}
-				title='Thung rac san pham'
+				title='Thùng rác thương hiệu'
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
 				paginationMode='server'
@@ -208,7 +191,7 @@ export default function ProductTrashPage() {
 					<Button
 						variant='contained'
 						startIcon={<ArrowBackIcon />}
-						onClick={handleBackToProducts}
+						onClick={handleBackToBrands}
 						sx={{
 							backgroundColor: "#234C6A",
 							"&:hover": { backgroundColor: "#1B3C53" },

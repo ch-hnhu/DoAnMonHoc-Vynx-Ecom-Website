@@ -163,4 +163,98 @@ class CategoryController extends Controller
             'message' => 'Xoa danh muc thanh cong',
         ]);
     }
+
+    /**
+     * Display a listing of trashed categories.
+     */
+    public function trashed(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 25);
+
+            $categories = Category::onlyTrashed()
+                ->with('category')
+                ->orderBy('deleted_at', 'desc')
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lay danh sach danh muc da xoa thanh cong',
+                'data' => $categories->items(),
+                'error' => null,
+                'pagination' => [
+                    'total' => $categories->total(),
+                    'per_page' => $categories->perPage(),
+                    'current_page' => $categories->currentPage(),
+                    'last_page' => $categories->lastPage(),
+                    'from' => $categories->firstItem(),
+                    'to' => $categories->lastItem(),
+                ],
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi lay danh sach danh muc da xoa',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Restore a trashed category.
+     */
+    public function restore(string $id)
+    {
+        try {
+            $category = Category::onlyTrashed()->findOrFail($id);
+            $category->restore();
+            $category->load('category');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Khoi phuc danh muc thanh cong',
+                'data' => $category,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi khoi phuc danh muc',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
+    }
+
+    /**
+     * Permanently delete a trashed category.
+     */
+    public function forceDelete(string $id)
+    {
+        try {
+            $category = Category::onlyTrashed()->findOrFail($id);
+            $category->forceDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xoa vinh vien danh muc thanh cong',
+                'data' => null,
+                'error' => null,
+                'timestamp' => now(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Loi khi xoa vinh vien danh muc',
+                'data' => null,
+                'error' => $e->getMessage(),
+                'timestamp' => now(),
+            ]);
+        }
+    }
 }

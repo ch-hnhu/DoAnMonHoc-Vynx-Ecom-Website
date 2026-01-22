@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
 	Dialog,
 	DialogTitle,
@@ -14,52 +14,44 @@ import {
 	InputLabel,
 	FormHelperText,
 	Typography,
+	FormControlLabel,
+	Checkbox,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import api from "../../services/api";
-import { formatSlug } from "../../../../shared/utils/formatHelper";
 
-export default function AddCategory({
-	open,
-	onClose,
-	onCreated,
-	showSuccess,
-	showError,
-}) {
+const ATTRIBUTE_TYPES = [
+	{ value: "specification", label: "Thông số" },
+	{ value: "variant", label: "Biến thể" },
+	{ value: "both", label: "Cả hai" },
+];
+
+const DATA_TYPES = [
+	{ value: "string", label: "Chuỗi" },
+	{ value: "number", label: "Số" },
+	{ value: "decimal", label: "Số thập phân" },
+	{ value: "boolean", label: "Đúng/Sai" },
+	{ value: "date", label: "Ngày" },
+];
+
+export default function AddAttribute({ open, onClose, onCreated, showSuccess, showError }) {
 	const [formData, setFormData] = useState({
 		name: "",
-		parent_id: "",
-		description: "",
+		attribute_type: "specification",
+		data_type: "string",
+		unit: "",
+		is_filterable: false,
 	});
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
-	const [categories, setCategories] = useState([]);
-
-	const fetchCategories = async () => {
-        const res = await api.get("/categories", {
-            params: {
-                flat: 1,
-                per_page: 10000,
-            },
-        });
-        if(res.data.success) {
-            setCategories(res.data.data || []);
-        } else {
-            console.log("Error fetching categories: ", res.data.error);
-        }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-        console.log("categories: ", categories);
-    }, []);
 
 	const handleChange = (e) => {
-		const { name, value } = e.target;
+		const { name, value, type, checked } = e.target;
+		const nextValue = type === "checkbox" ? checked : value;
 		setFormData((prev) => ({
 			...prev,
-			[name]: value,
+			[name]: nextValue,
 		}));
 		if (errors[name]) {
 			setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -70,13 +62,21 @@ export default function AddCategory({
 		const nextErrors = {};
 
 		if (!formData.name.trim()) {
-			nextErrors.name = "Vui lòng nhập tên danh mục.";
+			nextErrors.name = "Vui lòng nhập tên thuộc tính.";
 		} else if (formData.name.length > 255) {
-			nextErrors.name = "Tên danh mục không vượt quá 255 ký tự.";
+			nextErrors.name = "Tên thuộc tính tối đa 255 ký tự.";
 		}
 
-		if (formData.description.length > 1000) {
-			nextErrors.description = "Mô tả không vượt quá 1000 ký tự.";
+		if (!formData.attribute_type) {
+			nextErrors.attribute_type = "Vui lòng chọn loại thuộc tính.";
+		}
+
+		if (!formData.data_type) {
+			nextErrors.data_type = "Vui lòng chọn kiểu dữ liệu.";
+		}
+
+		if (formData.unit.length > 255) {
+			nextErrors.unit = "Đơn vị tối đa 255 ký tự.";
 		}
 
 		setErrors(nextErrors);
@@ -93,18 +93,17 @@ export default function AddCategory({
 		setSubmitting(true);
 		const payload = {
 			name: formData.name.trim(),
-			slug: formatSlug(formData.name),
-			description: formData.description.trim() || null,
-			parent_id: formData.parent_id ? Number(formData.parent_id) : null,
+			attribute_type: formData.attribute_type,
+			data_type: formData.data_type,
+			unit: formData.unit.trim() || null,
+			is_filterable: !!formData.is_filterable,
 		};
 
-		api.post("/categories", payload)
+		api.post("/attributes", payload)
 			.then((response) => {
 				const created = response?.data?.data ?? response?.data;
-				showSuccess("Thêm danh mục thành công!");
-				// Gọi callback để refetch data
+				showSuccess?.("Thêm thuộc tính thành công!");
 				onCreated?.(created);
-				// Delay close để toast kịp hiển thị
 				handleClose();
 			})
 			.catch((error) => {
@@ -120,11 +119,11 @@ export default function AddCategory({
 					setErrors((prev) => ({ ...prev, ...nextErrors }));
 					const firstError = Object.values(nextErrors)[0];
 					if (firstError) {
-						showError(firstError);
+						showError?.(firstError);
 					}
 				} else {
-					console.error("Error creating category:", error);
-					showError("Thêm danh mục thất bại!");
+					console.error("Error creating attribute:", error);
+					showError?.("Thêm thuộc tính thất bại!");
 				}
 			})
 			.finally(() => {
@@ -135,8 +134,10 @@ export default function AddCategory({
 	const handleClose = () => {
 		setFormData({
 			name: "",
-			parent_id: "",
-			description: "",
+			attribute_type: "specification",
+			data_type: "string",
+			unit: "",
+			is_filterable: false,
 		});
 		setErrors({});
 		setSubmitting(false);
@@ -148,7 +149,7 @@ export default function AddCategory({
 			<DialogTitle>
 				<Box display="flex" alignItems="center" justifyContent="space-between">
 					<Typography variant="h6" component="div">
-						THÊM DANH MỤC MỚI
+						THÊM THUỘC TÍNH MỚI
 					</Typography>
 					<IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
 						<CloseIcon />
@@ -174,7 +175,7 @@ export default function AddCategory({
 							align="center"
 							sx={{ color: "white", letterSpacing: 1 }}
 						>
-							THÔNG TIN DANH MỤC
+							THÔNG TIN THUỘC TÍNH
 						</Typography>
 					</Box>
 
@@ -183,7 +184,7 @@ export default function AddCategory({
 							<TextField
 								fullWidth
 								required
-								label="Tên danh mục"
+								label="Tên thuộc tính"
 								name="name"
 								value={formData.name}
 								onChange={handleChange}
@@ -193,39 +194,71 @@ export default function AddCategory({
 							/>
 						</Grid>
 
-						<Grid size={12}>
-							<FormControl fullWidth>
-								<InputLabel>Danh mục cha</InputLabel>
+						<Grid size={6}>
+							<FormControl fullWidth error={!!errors.attribute_type}>
+								<InputLabel>Loại thuộc tính</InputLabel>
 								<Select
-									name="parent_id"
-									value={formData.parent_id}
+									name="attribute_type"
+									value={formData.attribute_type}
 									onChange={handleChange}
-									label="Parent Category"
+									label="Loại thuộc tính"
 								>
-									<MenuItem value="">
-										<em>Không có</em>
-									</MenuItem>
-									{categories?.map((category) => (
-										<MenuItem key={category.id} value={category.id}>
-											{category.name}
+									{ATTRIBUTE_TYPES.map((item) => (
+										<MenuItem key={item.value} value={item.value}>
+											{item.label}
 										</MenuItem>
 									))}
 								</Select>
-								{errors.parent_id && <FormHelperText>{errors.parent_id}</FormHelperText>}
+								{errors.attribute_type && (
+									<FormHelperText>{errors.attribute_type}</FormHelperText>
+								)}
+							</FormControl>
+						</Grid>
+
+						<Grid size={6}>
+							<FormControl fullWidth error={!!errors.data_type}>
+								<InputLabel>Kiểu dữ liệu</InputLabel>
+								<Select
+									name="data_type"
+									value={formData.data_type}
+									onChange={handleChange}
+									label="Kiểu dữ liệu"
+								>
+									{DATA_TYPES.map((item) => (
+										<MenuItem key={item.value} value={item.value}>
+											{item.label}
+										</MenuItem>
+									))}
+								</Select>
+								{errors.data_type && (
+									<FormHelperText>{errors.data_type}</FormHelperText>
+								)}
 							</FormControl>
 						</Grid>
 
 						<Grid size={12}>
 							<TextField
 								fullWidth
-								multiline
-								rows={4}
-								label="Mô tả"
-								name="description"
-								value={formData.description}
+								label="Đơn vị"
+								name="unit"
+								value={formData.unit}
 								onChange={handleChange}
-								error={!!errors.description}
-								helperText={errors.description || `${formData.description.length}/1000`}
+								error={!!errors.unit}
+								helperText={errors.unit || `${formData.unit.length}/255`}
+								inputProps={{ maxLength: 255 }}
+							/>
+						</Grid>
+
+						<Grid size={12}>
+							<FormControlLabel
+								control={
+									<Checkbox
+										name="is_filterable"
+										checked={formData.is_filterable}
+										onChange={handleChange}
+									/>
+								}
+								label="Dùng để lọc"
 							/>
 						</Grid>
 					</Grid>
@@ -257,10 +290,9 @@ export default function AddCategory({
 						"&:hover": { backgroundColor: "#1B3C53" },
 					}}
 				>
-					{submitting ? "Đang lưu..." : "Lưu danh mục"}
+					{submitting ? "Đang lưu..." : "Lưu thuộc tính"}
 				</Button>
 			</DialogActions>
-
 		</Dialog>
 	);
 }

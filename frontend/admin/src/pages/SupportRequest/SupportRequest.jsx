@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 import {
 	Button,
 	Box,
@@ -16,15 +16,24 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import DataTable from "../components/Partial/DataTable";
-import api from "../services/api";
-import { getUser } from "../services/authService";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+import DataTable from "../../components/Partial/DataTable";
+import api from "../../services/api";
+import { getUser } from "../../services/authService";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
 import { renderChip } from "@shared/utils/renderHelper.jsx";
+import {
+	supportRequestStatuses,
+	supportRequestStatusColors,
+	getSupportRequestStatusName,
+} from "@shared/utils/supportRequestHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
+import { useNavigate } from "react-router-dom";
+import PageTransition from "../../components/PageTransition";
 
 export default function SupportRequestPage() {
+	const navigate = useNavigate();
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ LIÊN HỆ");
 	const [supportRequests, setSupportRequests] = useState([]);
 	const [loading, setLoading] = useState(true);
@@ -34,11 +43,6 @@ export default function SupportRequestPage() {
 	const [updating, setUpdating] = useState(false);
 	const { toast, showSuccess, showError, closeToast } = useToast();
 
-	const statusColor = {
-		pending: "warning",
-		processing: "info",
-		resolved: "success",
-	};
 	//Refresh data
 	const fetchSupportRequests = () => {
 		setLoading(true);
@@ -108,6 +112,10 @@ export default function SupportRequestPage() {
 		}
 	};
 
+	const handleGoToTrash = () => {
+		navigate("/lien-he/thung-rac");
+	};
+
 	const columns = [
 		{ field: "id", headerName: "ID", width: 80 },
 		{ field: "full_name", headerName: "Họ và tên", width: 180 },
@@ -118,7 +126,8 @@ export default function SupportRequestPage() {
 			field: "status",
 			headerName: "Trạng thái",
 			width: 140,
-			renderCell: (params) => renderChip(params.value, statusColor),
+			valueGetter: (value, row) => getSupportRequestStatusName(row.status),
+			renderCell: (params) => renderChip(params.value, supportRequestStatusColors),
 		},
 		{
 			field: "supported_by",
@@ -197,7 +206,7 @@ export default function SupportRequestPage() {
 	];
 
 	return (
-		<>
+		<PageTransition>
 			<DataTable
 				columns={columns}
 				rows={supportRequests}
@@ -205,6 +214,22 @@ export default function SupportRequestPage() {
 				title='Quản lý liên hệ'
 				breadcrumbs={breadcrumbs}
 				pageSize={25}
+				actions={
+					<Button
+						variant='outlined'
+						startIcon={<DeleteSweepIcon />}
+						onClick={handleGoToTrash}
+						sx={{
+							color: "#234C6A",
+							borderColor: "#234C6A",
+							"&:hover": {
+								backgroundColor: "#1B3C53",
+								color: "#ffffff",
+							},
+						}}>
+						Thùng rác
+					</Button>
+				}
 				checkboxSelection={true}
 			/>
 			<Dialog
@@ -220,9 +245,11 @@ export default function SupportRequestPage() {
 							value={statusValue}
 							label='Trang thai'
 							onChange={(event) => setStatusValue(event.target.value)}>
-							<MenuItem value='pending'>Chờ xử lý</MenuItem>
-							<MenuItem value='processing'>Đang xử lý</MenuItem>
-							<MenuItem value='resolved'>Đã xử lý</MenuItem>
+							{supportRequestStatuses.map((status) => (
+								<MenuItem key={status.id} value={status.id}>
+									{status.name}
+								</MenuItem>
+							))}
 						</Select>
 						<FormHelperText>Chọn trạng thái hỗ trợ mới</FormHelperText>
 					</FormControl>
@@ -248,6 +275,11 @@ export default function SupportRequestPage() {
 					{toast.message}
 				</Alert>
 			</Snackbar>
-		</>
+		</PageTransition>
 	);
 }
+
+
+
+
+

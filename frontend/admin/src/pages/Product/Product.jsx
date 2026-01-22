@@ -31,7 +31,6 @@ export default function ProductPage() {
 	const [rowCount, setRowCount] = useState(0);
 	const { toast, showSuccess, showError, closeToast } = useToast();
 
-	// Fetch products function
 	const fetchProducts = (model = paginationModel) => {
 		setLoading(true);
 		Promise.all([
@@ -81,25 +80,25 @@ export default function ProductPage() {
 		if (!product) {
 			return;
 		}
-		if (window.confirm(`Bạn có chắc chắn muốn xoá sản phẩm: "${product.name}"?`)) {
+		if (window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm: "${product.name}"?`)) {
 			api.delete(`/products/${product.id}`)
 				.then((res) => {
 					if (res.data.success) {
-						showSuccess("Xoá sản phẩm thành công!");
+						showSuccess("Xóa sản phẩm thành công!");
 						fetchProducts(paginationModel);
 					} else {
-						showError("Xoá sản phẩm thất bại!");
+						showError("Xóa sản phẩm thất bại!");
 					}
 				})
 				.catch((error) => {
 					console.error("Error deleting product:", error);
-					showError("Xoá sản phẩm thất bại!");
+					showError("Xóa sản phẩm thất bại!");
 				});
 		}
 	};
 
 	const handleGoToTrash = () => {
-		navigate("/products/trash");
+		navigate("/san-pham/thung-rac");
 	};
 
 	const columns = [
@@ -251,7 +250,6 @@ export default function ProductPage() {
 				brands={brands}
 				promotions={promotions}
 			/>
-			{/* Toast Notification */}
 			<Snackbar
 				open={toast.open}
 				autoHideDuration={3000}

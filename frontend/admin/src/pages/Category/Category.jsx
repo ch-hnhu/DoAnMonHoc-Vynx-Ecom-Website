@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, Box } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import DataTable from "../../components/Partial/DataTable";
 import api from "../../services/api";
 import { formatDate } from "@shared/utils/formatHelper.jsx";
@@ -12,10 +13,13 @@ import { useToast } from "@shared/hooks/useToast";
 import Snackbar from "@mui/material/Snackbar";
 import Alert from "@mui/material/Alert";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
+import { useNavigate } from "react-router-dom";
+import PageTransition from "../../components/PageTransition";
 
 export default function CategoryPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ DANH MỤC");
-	
+
+	const navigate = useNavigate();
 	const [categories, setCategories] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [openAddDialog, setOpenAddDialog] = useState(false);
@@ -24,7 +28,7 @@ export default function CategoryPage() {
 	const [rowCount, setRowCount] = useState(0);
 	const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 25 });
 	const { toast, showSuccess, showError, closeToast } = useToast();
-	
+
 	const fetchCategories = async (model = paginationModel) => {
 		setLoading(true);
 		try {
@@ -36,7 +40,7 @@ export default function CategoryPage() {
 				},
 			});
 
-			if(res.data.success) {
+			if (res.data.success) {
 				setCategories(res.data.data || []);
 				setRowCount(res.data.pagination?.total ?? 0);
 			} else {
@@ -67,7 +71,6 @@ export default function CategoryPage() {
 	};
 
 	const handleDelete = (id) => {
-		console.log("Delete category:", id);
 		if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này?")) {
 			api.delete(`/categories/${id}`)
 				.then(() => {
@@ -81,55 +84,59 @@ export default function CategoryPage() {
 		}
 	};
 
+	const handleGoToTrash = () => {
+		navigate("/danh-muc/thung-rac");
+	};
+
 	const columns = useMemo(
 		() => [
-		{ field: "id", headerName: "ID", width: 90 },
-		{ field: "name", headerName: "Tên danh mục", width: 200 },
-		{ field: "slug", headerName: "Slug", width: 180 },
-		{
-			field: "parent_id",
-			headerName: "Danh mục cha",
-			width: 200,
-			valueGetter: (params, row) => row.category?.name || "-",
-		},
-		{ field: "description", headerName: "Mô tả", width: 260 },
-		{
-			field: "created_at",
-			headerName: "Ngày tạo",
-			width: 150,
-			valueFormatter: (params) => {
-				return params ? formatDate(params) : "";
+			{ field: "id", headerName: "ID", width: 90 },
+			{ field: "name", headerName: "Tên danh mục", width: 200 },
+			{ field: "slug", headerName: "Slug", width: 180 },
+			{
+				field: "parent_id",
+				headerName: "Danh mục cha",
+				width: 200,
+				valueGetter: (params, row) => row.category?.name || "-",
 			},
-		},
-		{
-			field: "actions",
-			headerName: "Thao tác",
-			width: 200,
-			sortable: false,
-			renderCell: (params) => {
-				return (
-					<Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
-						<Button
-							variant='outlined'
-							color='primary'
-							size='small'
-							startIcon={<EditIcon />}
-							onClick={() => handleEdit(params.row)}>
-							Sửa
-						</Button>
-						<Button
-							variant='outlined'
-							color='error'
-							size='small'
-							startIcon={<DeleteIcon />}
-							onClick={() => handleDelete(params.row.id)}>
-							Xóa
-						</Button>
-					</Box>
-				);
+			{ field: "description", headerName: "Mô tả", width: 260 },
+			{
+				field: "created_at",
+				headerName: "Ngày tạo",
+				width: 150,
+				valueFormatter: (params) => {
+					return params ? formatDate(params) : "";
+				},
 			},
-		},
-	],
+			{
+				field: "actions",
+				headerName: "Thao tác",
+				width: 200,
+				sortable: false,
+				renderCell: (params) => {
+					return (
+						<Box sx={{ display: "flex", gap: 1, alignItems: "center", height: "100%" }}>
+							<Button
+								variant='outlined'
+								color='primary'
+								size='small'
+								startIcon={<EditIcon />}
+								onClick={() => handleEdit(params.row)}>
+								Sửa
+							</Button>
+							<Button
+								variant='outlined'
+								color='error'
+								size='small'
+								startIcon={<DeleteIcon />}
+								onClick={() => handleDelete(params.row.id)}>
+								Xóa
+							</Button>
+						</Box>
+					);
+				},
+			},
+		],
 		[]
 	);
 
@@ -139,32 +146,48 @@ export default function CategoryPage() {
 	];
 
 	return (
-		<>
-		<DataTable
-			columns={columns}
-			rows={categories}
-			loading={loading}
-			title='Quản lý danh mục'
-			breadcrumbs={breadcrumbs}
-			pageSize={25}
-			paginationMode='server'
-			rowCount={rowCount}
-			paginationModel={paginationModel}
-			onPaginationModelChange={setPaginationModel}
-			checkboxSelection={true}
-			actions={
-				<Button
-					variant='contained'
-					startIcon={<AddIcon />}
-						onClick={handleOpenDialog}
-					sx={{
-						backgroundColor: "#234C6A",
-						"&:hover": { backgroundColor: "#1B3C53" },
-					}}>
-					Thêm danh mục
-				</Button>
-			}
-		/>
+		<PageTransition>
+			<DataTable
+				columns={columns}
+				rows={categories}
+				loading={loading}
+				title='Quản lý danh mục'
+				breadcrumbs={breadcrumbs}
+				pageSize={25}
+				paginationMode='server'
+				rowCount={rowCount}
+				paginationModel={paginationModel}
+				onPaginationModelChange={setPaginationModel}
+				checkboxSelection={true}
+				actions={
+					<Box sx={{ display: "flex", gap: 2 }}>
+						<Button
+							variant='contained'
+							startIcon={<AddIcon />}
+							onClick={handleOpenDialog}
+							sx={{
+								backgroundColor: "#234C6A",
+								"&:hover": { backgroundColor: "#1B3C53" },
+							}}>
+							Thêm danh mục
+						</Button>
+						<Button
+							variant='outlined'
+							startIcon={<DeleteSweepIcon />}
+							onClick={handleGoToTrash}
+							sx={{
+								color: "#234C6A",
+								borderColor: "#234C6A",
+								"&:hover": {
+									backgroundColor: "#1B3C53",
+									color: "#ffffff",
+								},
+							}}>
+							Thùng rác
+						</Button>
+					</Box>
+				}
+			/>
 			<AddCategory
 				open={openAddDialog}
 				onClose={() => setOpenAddDialog(false)}
@@ -188,11 +211,11 @@ export default function CategoryPage() {
 				autoHideDuration={3000}
 				onClose={closeToast}
 				anchorOrigin={{ vertical: "top", horizontal: "right" }}
-			>
+				style={{ zIndex: 999999 }}>
 				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
 					{toast.message}
 				</Alert>
 			</Snackbar>
-		</>
+		</PageTransition>
 	);
 }

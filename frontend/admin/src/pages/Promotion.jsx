@@ -9,6 +9,7 @@ import { renderChip } from "@shared/utils/renderHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import AddIcon from "@mui/icons-material/Add";
 import { useDocumentTitle } from "@shared/hooks/useDocumentTitle";
+import PageTransition from "../components/PageTransition";
 
 export default function PromotionPage() {
 	useDocumentTitle("VYNX ADMIN | QUẢN LÝ KHUYẾN MÃI");
@@ -27,7 +28,7 @@ export default function PromotionPage() {
 				setPromotions(response.data.data || []);
 			})
 			.catch((error) => {
-				console.error("Error fetching promotions: ", error);
+				console.error("Error fetching khuyen-mai: ", error);
 			})
 			.finally(() => {
 				setLoading(false);
@@ -136,26 +137,28 @@ export default function PromotionPage() {
 	];
 
 	return (
-		<DataTable
-			columns={columns}
-			rows={promotions}
-			loading={loading}
-			title='Quản lý mã khuyến mãi'
-			breadcrumbs={breadcrumbs}
-			pageSize={25}
-			checkboxSelection={true}
-			actions={
-				<Button
-					variant='contained'
-					startIcon={<AddIcon />}
-					onClick={handleCreate}
-					sx={{
-						backgroundColor: "#234C6A",
-						"&:hover": { backgroundColor: "#1B3C53" },
-					}}>
-					Thêm mã khuyến mãi
-				</Button>
-			}
-		/>
+		<PageTransition>
+			<DataTable
+				columns={columns}
+				rows={promotions}
+				loading={loading}
+				title='Quản lý mã khuyến mãi'
+				breadcrumbs={breadcrumbs}
+				pageSize={25}
+				checkboxSelection={true}
+				actions={
+					<Button
+						variant='contained'
+						startIcon={<AddIcon />}
+						onClick={handleCreate}
+						sx={{
+							backgroundColor: "#234C6A",
+							"&:hover": { backgroundColor: "#1B3C53" },
+						}}>
+						Thêm mã khuyến mãi
+					</Button>
+				}
+			/>
+		</PageTransition>
 	);
 }

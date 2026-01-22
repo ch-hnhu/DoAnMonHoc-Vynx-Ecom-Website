@@ -53,7 +53,7 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 		if (res.data.success) {
 			setCategories(res.data.data || []);
 		} else {
-			console.log("Error fetching categories: ", res.data.error);
+			console.log("Error fetching danh-muc: ", res.data.error);
 		}
 	};
 
@@ -643,7 +643,7 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 							color: "#ffffff",
 						},
 					}}>
-					Cancel
+					Hủy
 				</Button>
 				<Button
 					onClick={handleSubmit}
@@ -653,7 +653,7 @@ export default function AddProduct({ open, onClose, onSuccess, brands, promotion
 						backgroundColor: "#234C6A",
 						"&:hover": { backgroundColor: "#1B3C53" },
 					}}>
-					{submitting ? "Saving..." : "Save Product"}
+					{submitting ? "Đang lưu..." : "Lưu sản phẩm"}
 				</Button>
 			</DialogActions>
 

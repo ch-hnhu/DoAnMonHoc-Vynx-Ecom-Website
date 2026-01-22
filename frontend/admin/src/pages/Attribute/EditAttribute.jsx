@@ -14,74 +14,61 @@ import {
 	InputLabel,
 	FormHelperText,
 	Typography,
+	FormControlLabel,
+	Checkbox,
 	Snackbar,
 	Alert,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import api from "../../services/api";
-import { formatSlug } from "../../../../shared/utils/formatHelper";
 import { useToast } from "@shared/hooks/useToast";
 
-export default function EditCategory({
-	open,
-	onClose,
-	category,
-	onUpdated,
-	showSuccess,
-	showError,
-}) {
-	const {
-		toast: editToast,
-		showSuccess: showEditSuccess,
-		showError: showEditError,
-		closeToast: closeEditToast,
-	} = useToast();
+const ATTRIBUTE_TYPES = [
+	{ value: "specification", label: "Thông số" },
+	{ value: "variant", label: "Biển thể" },
+	{ value: "both", label: "Cả hai" },
+];
+
+const DATA_TYPES = [
+	{ value: "string", label: "Chuỗi" },
+	{ value: "number", label: "Số" },
+	{ value: "decimal", label: "Số thập phân" },
+	{ value: "boolean", label: "Đúng/Sai" },
+	{ value: "date", label: "Ngày" },
+];
+
+export default function EditAttribute({ open, onClose, attribute, onUpdated }) {
+	const { toast, showSuccess, showError, closeToast } = useToast();
 	const [formData, setFormData] = useState({
 		name: "",
-		parent_id: "",
-		description: "",
+		attribute_type: "specification",
+		data_type: "string",
+		unit: "",
+		is_filterable: false,
 	});
-	const [categories, setCategories] = useState([]);
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
 
-
-    const fetchCategories = async () => {
-        const res = await api.get("/categories", {
-            params: {
-                flat: 1,
-                per_page: 10000,
-            },
-        });
-        if(res.data.success) {
-            setCategories(res.data.data || []);
-        } else {
-            console.log("Error fetching categories: ", res.data.error);
-        }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-        console.log("categories: ", categories);
-    }, []);
-
 	useEffect(() => {
-		if (category) {
+		if (attribute) {
 			setFormData({
-				name: category.name || "",
-				parent_id: category.parent_id ?? "",
-				description: category.description || "",
+				name: attribute.name || "",
+				attribute_type: attribute.attribute_type || "specification",
+				data_type: attribute.data_type || "string",
+				unit: attribute.unit || "",
+				is_filterable: !!attribute.is_filterable,
 			});
 			setErrors({});
 		}
-	}, [category, open]);
+	}, [attribute, open]);
 
 	const handleChange = (e) => {
-		const { name, value } = e.target;
+		const { name, value, type, checked } = e.target;
+		const nextValue = type === "checkbox" ? checked : value;
 		setFormData((prev) => ({
 			...prev,
-			[name]: value,
+			[name]: nextValue,
 		}));
 		if (errors[name]) {
 			setErrors((prev) => ({ ...prev, [name]: "" }));
@@ -92,13 +79,21 @@ export default function EditCategory({
 		const nextErrors = {};
 
 		if (!formData.name.trim()) {
-			nextErrors.name = "Vui lòng nhập tên danh mục.";
+			nextErrors.name = "Vui lòng nhập tên thuộc tính.";
 		} else if (formData.name.length > 255) {
-			nextErrors.name = "Tên danh mục không được vượt quá 255 ký tự.";
+			nextErrors.name = "Tên thuộc tính tối đa 255 ký tự.";
 		}
 
-		if (formData.description.length > 1000) {
-			nextErrors.description = "Mô tả không được vượt quá 1000 ký tự.";
+		if (!formData.attribute_type) {
+			nextErrors.attribute_type = "Vui lòng chọn loại thuộc tính.";
+		}
+
+		if (!formData.data_type) {
+			nextErrors.data_type = "Vui lòng chọn kiểu dữ liệu.";
+		}
+
+		if (formData.unit.length > 255) {
+			nextErrors.unit = "Đơn vị tối đa 255 ký tự.";
 		}
 
 		setErrors(nextErrors);
@@ -108,22 +103,23 @@ export default function EditCategory({
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
-		if (!validate() || !category) {
+		if (!validate() || !attribute) {
 			return;
 		}
 
 		setSubmitting(true);
 		const payload = {
 			name: formData.name.trim(),
-			slug: formatSlug(formData.name),
-			description: formData.description.trim() || null,
-			parent_id: formData.parent_id ? Number(formData.parent_id) : null,
+			attribute_type: formData.attribute_type,
+			data_type: formData.data_type,
+			unit: formData.unit.trim() || null,
+			is_filterable: !!formData.is_filterable,
 		};
 
-		api.put(`/categories/${category.id}`, payload)
+		api.put(`/attributes/${attribute.id}`, payload)
 			.then((response) => {
 				const updated = response?.data?.data ?? response?.data;
-				showEditSuccess("Cập nhật thành công!");
+				showSuccess("Cập nhật thuộc tính thành công!");
 				onUpdated?.(updated);
 				setTimeout(() => {
 					handleClose();
@@ -142,11 +138,11 @@ export default function EditCategory({
 					setErrors((prev) => ({ ...prev, ...nextErrors }));
 					const firstError = Object.values(nextErrors)[0];
 					if (firstError) {
-						showEditError(firstError);
+						showError(firstError);
 					}
 				} else {
-					console.error("Error updating category:", error);
-					showEditError("Cập nhật thất bại!");
+					console.error("Error updating attribute:", error);
+					showError("Cập nhật thuộc tính thất bại!");
 				}
 			})
 			.finally(() => {
@@ -157,23 +153,23 @@ export default function EditCategory({
 	const handleClose = () => {
 		setFormData({
 			name: "",
-			parent_id: "",
-			description: "",
+			attribute_type: "specification",
+			data_type: "string",
+			unit: "",
+			is_filterable: false,
 		});
-	setErrors({});
-	setSubmitting(false);
-	closeEditToast();
-	onClose();
-};
-
-	const parentOptions = categories?.filter((item) => item.id !== category?.id) || [];
+		setErrors({});
+		setSubmitting(false);
+		closeToast();
+		onClose();
+	};
 
 	return (
 		<Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
 			<DialogTitle>
 				<Box display="flex" alignItems="center" justifyContent="space-between">
 					<Typography variant="h6" component="div">
-						CHỈNH SỬA DANH MỤC
+						CHỈNH SỬA THUỘC TÍNH
 					</Typography>
 					<IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
 						<CloseIcon />
@@ -199,7 +195,7 @@ export default function EditCategory({
 							align="center"
 							sx={{ color: "white", letterSpacing: 1 }}
 						>
-							THÔNG TIN DANH MỤC
+							THÔNG TIN THUỘC TÍNH
 						</Typography>
 					</Box>
 
@@ -208,7 +204,7 @@ export default function EditCategory({
 							<TextField
 								fullWidth
 								required
-								label="Tên danh mục"
+								label="Tên thuộc tính"
 								name="name"
 								value={formData.name}
 								onChange={handleChange}
@@ -218,39 +214,71 @@ export default function EditCategory({
 							/>
 						</Grid>
 
-						<Grid size={12}>
-							<FormControl fullWidth>
-								<InputLabel>Danh mục cha</InputLabel>
+						<Grid size={6}>
+							<FormControl fullWidth error={!!errors.attribute_type}>
+								<InputLabel>Loại thuộc tính</InputLabel>
 								<Select
-									name="parent_id"
-									value={formData.parent_id}
+									name="attribute_type"
+									value={formData.attribute_type}
 									onChange={handleChange}
-									label="Danh mục cha"
+									label="Loại thuộc tính"
 								>
-									<MenuItem value="">
-										<em>Không có</em>
-									</MenuItem>
-									{parentOptions.map((item) => (
-										<MenuItem key={item.id} value={item.id}>
-											{item.name}
+									{ATTRIBUTE_TYPES.map((item) => (
+										<MenuItem key={item.value} value={item.value}>
+											{item.label}
 										</MenuItem>
 									))}
 								</Select>
-								{errors.parent_id && <FormHelperText>{errors.parent_id}</FormHelperText>}
+								{errors.attribute_type && (
+									<FormHelperText>{errors.attribute_type}</FormHelperText>
+								)}
+							</FormControl>
+						</Grid>
+
+						<Grid size={6}>
+							<FormControl fullWidth error={!!errors.data_type}>
+								<InputLabel>Kiểu dữ liệu</InputLabel>
+								<Select
+									name="data_type"
+									value={formData.data_type}
+									onChange={handleChange}
+									label="Kiểu dữ liệu"
+								>
+									{DATA_TYPES.map((item) => (
+										<MenuItem key={item.value} value={item.value}>
+											{item.label}
+										</MenuItem>
+									))}
+								</Select>
+								{errors.data_type && (
+									<FormHelperText>{errors.data_type}</FormHelperText>
+								)}
 							</FormControl>
 						</Grid>
 
 						<Grid size={12}>
 							<TextField
 								fullWidth
-								multiline
-								rows={4}
-								label="Mô tả"
-								name="description"
-								value={formData.description}
+								label="Đơn vị"
+								name="unit"
+								value={formData.unit}
 								onChange={handleChange}
-								error={!!errors.description}
-								helperText={errors.description || `${formData.description.length}/1000`}
+								error={!!errors.unit}
+								helperText={errors.unit || `${formData.unit.length}/255`}
+								inputProps={{ maxLength: 255 }}
+							/>
+						</Grid>
+
+						<Grid size={12}>
+							<FormControlLabel
+								control={
+									<Checkbox
+										name="is_filterable"
+										checked={formData.is_filterable}
+										onChange={handleChange}
+									/>
+								}
+								label="Dùng để lọc"
 							/>
 						</Grid>
 					</Grid>
@@ -282,22 +310,20 @@ export default function EditCategory({
 						"&:hover": { backgroundColor: "#1B3C53" },
 					}}
 				>
-					{submitting ? "Đang lưu..." : "Lưu danh mục"}
+					{submitting ? "Đang lưu..." : "Lưu thay đổi"}
 				</Button>
 			</DialogActions>
 			<Snackbar
-				open={editToast.open}
+				open={toast.open}
 				autoHideDuration={3000}
-				onClose={closeEditToast}
+				onClose={closeToast}
 				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-				<Alert onClose={closeEditToast} severity={editToast.severity} sx={{ width: "100%" }}>
-					{editToast.message}
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
 				</Alert>
 			</Snackbar>
-</Dialog>
+		</Dialog>
 	);
 }
-
-
 
 

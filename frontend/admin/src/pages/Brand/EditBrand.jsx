@@ -1,18 +1,13 @@
-﻿import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
 	Dialog,
 	DialogTitle,
 	DialogContent,
 	DialogActions,
 	TextField,
-	Select,
-	MenuItem,
 	Button,
 	Box,
 	IconButton,
-	FormControl,
-	InputLabel,
-	FormHelperText,
 	Typography,
 	Snackbar,
 	Alert,
@@ -20,62 +15,34 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import Grid from "@mui/material/Grid";
 import api from "../../services/api";
-import { formatSlug } from "../../../../shared/utils/formatHelper";
+import { getProductImage } from "@shared/utils/productHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
 
-export default function EditCategory({
-	open,
-	onClose,
-	category,
-	onUpdated,
-	showSuccess,
-	showError,
-}) {
-	const {
-		toast: editToast,
-		showSuccess: showEditSuccess,
-		showError: showEditError,
-		closeToast: closeEditToast,
-	} = useToast();
+export default function EditBrand({ open, onClose, brand, onUpdated }) {
+	const { toast, showSuccess, showError, closeToast } = useToast();
 	const [formData, setFormData] = useState({
 		name: "",
-		parent_id: "",
+		logo_url: "",
 		description: "",
 	});
-	const [categories, setCategories] = useState([]);
+	const [logoFile, setLogoFile] = useState(null);
+	const [logoPreview, setLogoPreview] = useState("");
 	const [errors, setErrors] = useState({});
 	const [submitting, setSubmitting] = useState(false);
-
-
-    const fetchCategories = async () => {
-        const res = await api.get("/categories", {
-            params: {
-                flat: 1,
-                per_page: 10000,
-            },
-        });
-        if(res.data.success) {
-            setCategories(res.data.data || []);
-        } else {
-            console.log("Error fetching categories: ", res.data.error);
-        }
-    };
-
-    useEffect(() => {
-        fetchCategories();
-        console.log("categories: ", categories);
-    }, []);
+	const logoInputRef = useRef(null);
 
 	useEffect(() => {
-		if (category) {
+		if (brand) {
 			setFormData({
-				name: category.name || "",
-				parent_id: category.parent_id ?? "",
-				description: category.description || "",
+				name: brand.name || "",
+				logo_url: brand.logo_url || "",
+				description: brand.description || "",
 			});
+			setLogoFile(null);
+			setLogoPreview(brand.logo_url ? getProductImage(brand.logo_url) : "");
 			setErrors({});
 		}
-	}, [category, open]);
+	}, [brand, open]);
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
@@ -92,13 +59,13 @@ export default function EditCategory({
 		const nextErrors = {};
 
 		if (!formData.name.trim()) {
-			nextErrors.name = "Vui lòng nhập tên danh mục.";
+			nextErrors.name = "Vui lòng nhập tên thương hiệu.";
 		} else if (formData.name.length > 255) {
-			nextErrors.name = "Tên danh mục không được vượt quá 255 ký tự.";
+			nextErrors.name = "Tên thương hiệu tối đa 255 ký tự.";
 		}
 
 		if (formData.description.length > 1000) {
-			nextErrors.description = "Mô tả không được vượt quá 1000 ký tự.";
+			nextErrors.description = "Mô tả tối đa 1000 ký tự.";
 		}
 
 		setErrors(nextErrors);
@@ -108,22 +75,31 @@ export default function EditCategory({
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
-		if (!validate() || !category) {
+		if (!validate() || !brand) {
 			return;
 		}
 
 		setSubmitting(true);
-		const payload = {
-			name: formData.name.trim(),
-			slug: formatSlug(formData.name),
-			description: formData.description.trim() || null,
-			parent_id: formData.parent_id ? Number(formData.parent_id) : null,
-		};
+		const payload = new FormData();
+		payload.append("name", formData.name.trim());
+		if (!logoFile && formData.logo_url.trim()) {
+			payload.append("logo_url", formData.logo_url.trim());
+		}
+		if (formData.description.trim()) {
+			payload.append("description", formData.description.trim());
+		}
+		if (logoFile) {
+			payload.append("logo", logoFile);
+		}
 
-		api.put(`/categories/${category.id}`, payload)
+		api.put(`/brands/${brand.id}`, payload, {
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		})
 			.then((response) => {
 				const updated = response?.data?.data ?? response?.data;
-				showEditSuccess("Cập nhật thành công!");
+				showSuccess("Cập nhật thương hiệu thành công!");
 				onUpdated?.(updated);
 				setTimeout(() => {
 					handleClose();
@@ -142,11 +118,11 @@ export default function EditCategory({
 					setErrors((prev) => ({ ...prev, ...nextErrors }));
 					const firstError = Object.values(nextErrors)[0];
 					if (firstError) {
-						showEditError(firstError);
+						showError(firstError);
 					}
 				} else {
-					console.error("Error updating category:", error);
-					showEditError("Cập nhật thất bại!");
+					console.error("Error updating brand:", error);
+					showError("Cập nhật thương hiệu thất bại!");
 				}
 			})
 			.finally(() => {
@@ -157,23 +133,44 @@ export default function EditCategory({
 	const handleClose = () => {
 		setFormData({
 			name: "",
-			parent_id: "",
+			logo_url: "",
 			description: "",
 		});
-	setErrors({});
-	setSubmitting(false);
-	closeEditToast();
-	onClose();
-};
+		setLogoFile(null);
+		setLogoPreview("");
+		setErrors({});
+		setSubmitting(false);
+		closeToast();
+		onClose();
+	};
 
-	const parentOptions = categories?.filter((item) => item.id !== category?.id) || [];
+	const handleLogoChange = (e) => {
+		const file = e.target.files?.[0];
+		if (!file) {
+			return;
+		}
+		setLogoFile(file);
+		const reader = new FileReader();
+		reader.onload = () => {
+			setLogoPreview(reader.result);
+		};
+		reader.readAsDataURL(file);
+	};
+
+	const handleRemoveLogo = () => {
+		setLogoFile(null);
+		setLogoPreview(brand?.logo_url ? getProductImage(brand.logo_url) : "");
+		if (logoInputRef.current) {
+			logoInputRef.current.value = "";
+		}
+	};
 
 	return (
 		<Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
 			<DialogTitle>
 				<Box display="flex" alignItems="center" justifyContent="space-between">
 					<Typography variant="h6" component="div">
-						CHỈNH SỬA DANH MỤC
+						CHỈNH SỬA THƯƠNG HIỆU
 					</Typography>
 					<IconButton edge="end" color="inherit" onClick={handleClose} aria-label="close">
 						<CloseIcon />
@@ -199,7 +196,7 @@ export default function EditCategory({
 							align="center"
 							sx={{ color: "white", letterSpacing: 1 }}
 						>
-							THÔNG TIN DANH MỤC
+							THÔNG TIN THƯƠNG HIỆU
 						</Typography>
 					</Box>
 
@@ -208,7 +205,7 @@ export default function EditCategory({
 							<TextField
 								fullWidth
 								required
-								label="Tên danh mục"
+								label="Tên thương hiệu"
 								name="name"
 								value={formData.name}
 								onChange={handleChange}
@@ -219,25 +216,72 @@ export default function EditCategory({
 						</Grid>
 
 						<Grid size={12}>
-							<FormControl fullWidth>
-								<InputLabel>Danh mục cha</InputLabel>
-								<Select
-									name="parent_id"
-									value={formData.parent_id}
-									onChange={handleChange}
-									label="Danh mục cha"
+							<Typography variant="subtitle1" sx={{ mb: 1 }}>
+								Ảnh logo
+							</Typography>
+							<Box
+								sx={{
+									display: "flex",
+									alignItems: "center",
+									gap: 2,
+									flexWrap: "wrap",
+								}}
+							>
+								{logoPreview || formData.logo_url ? (
+									<Box
+										component="img"
+										src={
+											logoPreview ||
+											(formData.logo_url ? getProductImage(formData.logo_url) : "")
+										}
+										alt="logo-preview"
+										sx={{
+										width: 96,
+										height: 96,
+										borderRadius: 2,
+										objectFit: "contain",
+										border: "1px solid #e5e7eb",
+										backgroundColor: "#f9fafb",
+										p: 1,
+									}}
+										onError={(e) => {
+										e.currentTarget.style.display = "none";
+									}}
+									/>
+								) : (
+									<Box
+									sx={{
+										width: 96,
+										height: 96,
+										borderRadius: 2,
+										border: "1px dashed #cbd5f5",
+										backgroundColor: "#f8fafc",
+										display: "flex",
+										alignItems: "center",
+										justifyContent: "center",
+										color: "#64748b",
+										fontSize: 12,
+									}}
 								>
-									<MenuItem value="">
-										<em>Không có</em>
-									</MenuItem>
-									{parentOptions.map((item) => (
-										<MenuItem key={item.id} value={item.id}>
-											{item.name}
-										</MenuItem>
-									))}
-								</Select>
-								{errors.parent_id && <FormHelperText>{errors.parent_id}</FormHelperText>}
-							</FormControl>
+									Ch?a c? ?nh
+								</Box>
+								)}
+								<Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+									<input
+										ref={logoInputRef}
+										type="file"
+										accept="image/*"
+										hidden
+										onChange={handleLogoChange}
+									/>
+									<Button variant="outlined" onClick={() => logoInputRef.current?.click()}>
+										Chọn ảnh
+									</Button>
+									<Button variant="text" color="error" onClick={handleRemoveLogo}>
+										Xóa ảnh
+									</Button>
+								</Box>
+							</Box>
 						</Grid>
 
 						<Grid size={12}>
@@ -282,22 +326,19 @@ export default function EditCategory({
 						"&:hover": { backgroundColor: "#1B3C53" },
 					}}
 				>
-					{submitting ? "Đang lưu..." : "Lưu danh mục"}
+					{submitting ? "Đang lưu..." : "Lưu thay đổi"}
 				</Button>
 			</DialogActions>
+
 			<Snackbar
-				open={editToast.open}
+				open={toast.open}
 				autoHideDuration={3000}
-				onClose={closeEditToast}
+				onClose={closeToast}
 				anchorOrigin={{ vertical: "top", horizontal: "right" }}>
-				<Alert onClose={closeEditToast} severity={editToast.severity} sx={{ width: "100%" }}>
-					{editToast.message}
+				<Alert onClose={closeToast} severity={toast.severity} sx={{ width: "100%" }}>
+					{toast.message}
 				</Alert>
 			</Snackbar>
-</Dialog>
+		</Dialog>
 	);
 }
-
-
-
-

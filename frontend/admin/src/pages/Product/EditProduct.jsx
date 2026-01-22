@@ -53,7 +53,7 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		if (res.data.success) {
 			setCategories(res.data.data || []);
 		} else {
-			console.log("Error fetching categories: ", res.data.error);
+			console.log("Error fetching danh-muc: ", res.data.error);
 		}
 	};
 
@@ -65,7 +65,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		if (open) {
 			const timer = setTimeout(() => {
 				if (window.CKEDITOR) {
-					// Check and destroy existing instance
 					if (window.CKEDITOR.instances["edit-description"]) {
 						window.CKEDITOR.instances["edit-description"].destroy(true);
 					}
@@ -77,10 +76,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 						setFormData((prev) => ({ ...prev, description: data }));
 					});
 
-					// Set initial data
-					// We use product.description here because formData might not be updated yet in this render cycle
-					// if they run interleaved, but usually product is stable when opening.
-					// Or wait, EditProduct receives `product` prop.
 					if (product) {
 						editor.setData(product.description || "");
 					}
@@ -90,7 +85,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		}
 	}, [open, product]);
 
-	// Update form khi product thay đổi
 	useEffect(() => {
 		if (product) {
 			setFormData({
@@ -103,7 +97,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 				description: product.description || "",
 			});
 
-			// Load existing images
 			if (product.image_url && Array.isArray(product.image_url)) {
 				const [firstImage, ...restImages] = product.image_url;
 				setHeroImage(firstImage || null);
@@ -114,20 +107,17 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		}
 	}, [product]);
 
-	// Handle text field changes
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({
 			...prev,
 			[name]: value,
 		}));
-		// Clear error for this field
 		if (errors[name]) {
 			setErrors((prev) => ({ ...prev, [name]: "" }));
 		}
 	};
 
-	// Handle hero image selection
 	const handleHeroImageChange = (e) => {
 		const file = e.target.files[0];
 		if (file && file.type.startsWith("image/")) {
@@ -138,18 +128,15 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 			};
 			reader.readAsDataURL(file);
 		}
-		// Reset input value to allow selecting the same file again
 		e.target.value = "";
 	};
 
-	// Handle gallery images selection
 	const handleGalleryImagesChange = (e) => {
 		const files = Array.from(e.target.files);
 		const imageFiles = files.filter((file) => file.type.startsWith("image/"));
 
 		setGalleryImages((prev) => [...prev, ...imageFiles]);
 
-		// Generate previews
 		imageFiles.forEach((file) => {
 			const reader = new FileReader();
 			reader.onloadend = () => {
@@ -159,53 +146,49 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		});
 	};
 
-	// Remove gallery image
 	const handleRemoveGalleryImage = (index) => {
 		setGalleryImages((prev) => prev.filter((_, i) => i !== index));
 		setGalleryPreviews((prev) => prev.filter((_, i) => i !== index));
 	};
 
-	// Remove hero image
 	const handleRemoveHeroImage = () => {
 		setHeroImage(null);
 		setHeroImagePreview(null);
 	};
 
-	// Validate form
 	const validate = () => {
-		const errors = {};
+		const nextErrors = {};
 
 		if (!formData.name.trim()) {
-			errors.name = "Vui lòng nhập tên sản phẩm";
+			nextErrors.name = "Vui lòng nhập tên sản phẩm";
 		} else if (formData.name.length > 255) {
-			errors.name = "Tên sản phẩm không được vượt quá 255 ký tự";
+			nextErrors.name = "Tên sản phẩm không vượt quá 255 ký tự";
 		}
 
 		if (!formData.price) {
-			errors.price = "Vui lòng nhập giá sản phẩm";
+			nextErrors.price = "Vui lòng nhập giá sản phẩm";
 		} else if (parseFloat(formData.price) <= 0) {
-			errors.price = "Giá phải lớn hơn 0";
+			nextErrors.price = "Giá phải lớn hơn 0";
 		}
 
 		if (!formData.stock_quantity) {
-			errors.stock_quantity = "Vui lòng nhập số lượng tồn kho";
+			nextErrors.stock_quantity = "Vui lòng nhập số lượng tồn kho";
 		} else if (parseInt(formData.stock_quantity) < 0) {
-			errors.stock_quantity = "Số lượng tồn kho không được âm";
+			nextErrors.stock_quantity = "Số lượng tồn kho không được âm";
 		}
 
 		if (!formData.category_id) {
-			errors.category_id = "Vui lòng chọn danh mục";
+			nextErrors.category_id = "Vui lòng chọn danh mục";
 		}
 
 		if (!formData.brand_id) {
-			errors.brand_id = "Vui lòng chọn thương hiệu";
+			nextErrors.brand_id = "Vui lòng chọn thương hiệu";
 		}
 
-		setErrors(errors);
-		return Object.keys(errors).length === 0;
+		setErrors(nextErrors);
+		return Object.keys(nextErrors).length === 0;
 	};
 
-	// Handle form submit
 	const handleSubmit = (e) => {
 		e.preventDefault();
 
@@ -216,10 +199,8 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		setSubmitting(true);
 
 		try {
-			// Tạo FormData để gửi dữ liệu
 			const formDataToSend = new FormData();
 
-			// Thêm các trường text
 			Object.keys(formData).forEach((key) => {
 				if (formData[key] !== "") {
 					formDataToSend.append(key, formData[key]);
@@ -229,27 +210,21 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 			const slug = formatSlug(formData.name);
 			formDataToSend.append("slug", slug);
 
-			// Gửi danh sách ảnh cũ muốn giữ lại
 			const existingImages = [];
 
-			// Nếu hero image là URL (ảnh cũ), thêm vào existing
 			if (heroImage && typeof heroImage === "string") {
 				existingImages.push(heroImage);
 			}
 
-			// Thêm gallery images cũ (URLs) vào existing
 			const existingGalleryImages = galleryImages.filter((img) => typeof img === "string");
 			existingImages.push(...existingGalleryImages);
 
-			// LUÔN gửi existing_images, kể cả khi rỗng (để backend biết user đã xóa ảnh)
 			formDataToSend.append("existing_images", JSON.stringify(existingImages));
 
-			// Thêm hero image mới nếu là file
 			if (heroImage && typeof heroImage !== "string") {
 				formDataToSend.append("hero_image", heroImage);
 			}
 
-			// Chỉ thêm gallery images mới (File objects, không phải URLs)
 			const newGalleryImages = galleryImages.filter((img) => img instanceof File);
 			newGalleryImages.forEach((image) => {
 				formDataToSend.append("gallery_images[]", image);
@@ -263,12 +238,12 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 				.then(() => {
 					showSuccess("Chỉnh sửa sản phẩm thành công!");
 					onSuccess?.();
-					// Delay close để toast kịp hiển thị
 					setTimeout(() => {
 						handleClose();
 					}, 1500);
 				})
 				.catch((error) => {
+					console.error("Error updating product:", error);
 					showError("Chỉnh sửa sản phẩm thất bại!");
 					setSubmitting(false);
 				})
@@ -281,9 +256,7 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		}
 	};
 
-	// Handle dialog close
 	const handleClose = () => {
-		// Reset form
 		setFormData({
 			name: "",
 			price: "",
@@ -299,7 +272,7 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 		setGalleryPreviews([]);
 		setErrors({});
 		setSubmitting(false);
-		closeToast(); // Reset toast state
+		closeToast();
 		onClose();
 	};
 
@@ -335,7 +308,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 					onChange={handleGalleryImagesChange}
 				/>
 				<Box component='form' onSubmit={handleSubmit} noValidate>
-					{/* Image Upload Section */}
 					<Box mb={3}>
 						<Box
 							sx={{
@@ -357,14 +329,13 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 
 						<Grid container spacing={2}>
 							<Grid size={5}>
-								{/* Hero Image */}
 								<Typography variant='body2' color='text.secondary' gutterBottom>
 									Hình ảnh chính (Hero Image) *
 								</Typography>
 								<Box
 									sx={{
 										width: "100%",
-										paddingTop: "100%", // 1:1 aspect ratio
+										paddingTop: "100%",
 										position: "relative",
 										border: "3px dashed",
 										borderColor: "divider",
@@ -425,7 +396,7 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 													"&:hover": { backgroundColor: "#1B3C53" },
 												}}
 												startIcon={<CloudUploadIcon />}>
-												TẢI ẢNH LÊN
+												Tải ảnh lên
 											</Button>
 											<Typography
 												variant='caption'
@@ -440,15 +411,13 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							</Grid>
 
 							<Grid size={7}>
-								{/* Gallery Images */}
 								<Typography variant='body2' color='text.secondary' gutterBottom>
 									Hình ảnh phụ (Gallery Images)
 								</Typography>
 								<Box
 									sx={{
 										display: "grid",
-										gridTemplateColumns:
-											"repeat(auto-fill, minmax(120px, 1fr))",
+										gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
 										gap: 2,
 										mb: 2,
 									}}>
@@ -509,13 +478,12 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 										width: "100%",
 									}}
 									startIcon={<CloudUploadIcon />}>
-									TẢI ẢNH LÊN
+									Tải ảnh lên
 								</Button>
 							</Grid>
 						</Grid>
 					</Box>
 
-					{/* Product Information */}
 					<Box
 						sx={{
 							background: "linear-gradient(360deg, #234C6A 0%, #456882 100%)",
@@ -535,7 +503,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 					</Box>
 
 					<Grid container spacing={2}>
-						{/* Product Name */}
 						<Grid size={12}>
 							<TextField
 								fullWidth
@@ -550,7 +517,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							/>
 						</Grid>
 
-						{/* Price */}
 						<Grid size={6}>
 							<TextField
 								fullWidth
@@ -571,7 +537,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							/>
 						</Grid>
 
-						{/* Stock Quantity */}
 						<Grid size={6}>
 							<TextField
 								fullWidth
@@ -587,7 +552,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							/>
 						</Grid>
 
-						{/* Category */}
 						<Grid size={4}>
 							<FormControl fullWidth required error={!!errors.category_id}>
 								<InputLabel>Danh mục</InputLabel>
@@ -608,7 +572,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							</FormControl>
 						</Grid>
 
-						{/* Brand */}
 						<Grid size={4}>
 							<FormControl fullWidth required error={!!errors.brand_id}>
 								<InputLabel>Thương hiệu</InputLabel>
@@ -629,7 +592,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							</FormControl>
 						</Grid>
 
-						{/* Promotion */}
 						<Grid size={4}>
 							<FormControl fullWidth>
 								<InputLabel>Khuyến mãi</InputLabel>
@@ -639,7 +601,7 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 									onChange={handleChange}
 									label='Khuyến mãi'>
 									<MenuItem value=''>
-										<em>No promotion</em>
+										<em>Không có khuyến mãi</em>
 									</MenuItem>
 									{promotions?.map((promotion) => (
 										<MenuItem key={promotion.id} value={promotion.id}>
@@ -650,7 +612,6 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							</FormControl>
 						</Grid>
 
-						{/* Description */}
 						<Grid size={12}>
 							<Typography variant='body2' gutterBottom>
 								Mô tả sản phẩm
@@ -678,7 +639,7 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 							color: "#ffffff",
 						},
 					}}>
-					Cancel
+					Hủy
 				</Button>
 				<Button
 					onClick={handleSubmit}
@@ -688,11 +649,10 @@ export default function EditProduct({ open, onClose, onSuccess, product, brands,
 						backgroundColor: "#234C6A",
 						"&:hover": { backgroundColor: "#1B3C53" },
 					}}>
-					{submitting ? "Saving..." : "Save Product"}
+					{submitting ? "Dang luu..." : "Luu san pham"}
 				</Button>
 			</DialogActions>
 
-			{/* Toast Notification */}
 			<Snackbar
 				open={toast.open}
 				autoHideDuration={3000}

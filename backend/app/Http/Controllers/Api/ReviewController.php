@@ -300,4 +300,96 @@ class ReviewController extends Controller
 			'message' => 'Xoa danh gia thanh cong',
 		]);
 	}
+
+	/**
+	 * Display a listing of trashed reviews.
+	 */
+	public function trashed(Request $request)
+	{
+		try {
+			$perPage = $request->input('per_page', 25);
+			$reviews = ProductReview::onlyTrashed()
+				->with(['product', 'user'])
+				->orderBy('deleted_at', 'desc')
+				->paginate($perPage);
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Lay danh sach danh gia da xoa thanh cong',
+				'data' => $reviews->items(),
+				'error' => null,
+				'pagination' => [
+					'total' => $reviews->total(),
+					'per_page' => $reviews->perPage(),
+					'current_page' => $reviews->currentPage(),
+					'last_page' => $reviews->lastPage(),
+					'from' => $reviews->firstItem(),
+					'to' => $reviews->lastItem(),
+				],
+				'timestamp' => now(),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi lay danh sach danh gia da xoa',
+				'data' => null,
+				'error' => $e->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
+	}
+
+	/**
+	 * Restore a trashed review.
+	 */
+	public function restore(string $id)
+	{
+		try {
+			$review = ProductReview::onlyTrashed()->with(['product', 'user'])->findOrFail($id);
+			$review->restore();
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Khoi phuc danh gia thanh cong',
+				'data' => $review,
+				'error' => null,
+				'timestamp' => now(),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi khoi phuc danh gia',
+				'data' => null,
+				'error' => $e->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
+	}
+
+	/**
+	 * Permanently delete a trashed review.
+	 */
+	public function forceDelete(string $id)
+	{
+		try {
+			$review = ProductReview::onlyTrashed()->findOrFail($id);
+			$review->forceDelete();
+
+			return response()->json([
+				'success' => true,
+				'message' => 'Xoa vinh vien danh gia thanh cong',
+				'data' => null,
+				'error' => null,
+				'timestamp' => now(),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'success' => false,
+				'message' => 'Loi khi xoa vinh vien danh gia',
+				'data' => null,
+				'error' => $e->getMessage(),
+				'timestamp' => now(),
+			], 500);
+		}
+	}
 }
