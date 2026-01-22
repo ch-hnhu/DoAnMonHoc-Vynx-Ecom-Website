@@ -124,9 +124,9 @@ export default function Account() {
 
 			<style jsx>{`
 				.list-group-item.active {
-					background-color: #007bff;
-					color: white;
-					border-color: #007bff;
+					background-color: #1b3c53;
+					color: #e3e3e3;
+					border-color: #1b3c53;
 				}
 
 				.list-group-item:hover {
@@ -134,7 +134,7 @@ export default function Account() {
 				}
 
 				.list-group-item.active:hover {
-					background-color: #0056b3;
+					background-color: #234c6a;
 				}
 
 				.list-group-item {
