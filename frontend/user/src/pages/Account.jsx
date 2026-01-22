@@ -71,9 +71,8 @@ export default function Account() {
 													Đánh giá
 												</span>
 												<i
-													className={`fas fa-chevron-${
-														isReviewOpen ? "down" : "right"
-													} text-muted`}></i>
+													className={`fas fa-chevron-${isReviewOpen ? "down" : "right"
+														} text-muted`}></i>
 											</button>
 
 											{/* Submenu Đánh giá */}
@@ -115,7 +114,7 @@ export default function Account() {
 								{/* Route cho đơn mua */}
 								<Route path='don-mua' element={<Orders />} />
 
-								{/* Route cho đánh giá (bao gồm cả sub-routes) */}
+								{/* Route cho đ/gia (bao gồm cả sub-routes) */}
 								<Route path='danh-gia/*' element={<Reviews />} />
 							</Routes>
 						</div>
