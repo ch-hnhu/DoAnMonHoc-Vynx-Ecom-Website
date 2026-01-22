@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { logout, getUser, isAuthenticated } from "../../services/authService";
 
 export default function Sidebar() {
 	const [configuration, setConfiguration] = useState({});
 	const navigate = useNavigate();
+	const location = useLocation();
 	const [user, setUser] = useState(null);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -45,6 +46,13 @@ export default function Sidebar() {
 			console.error("Logout error:", error);
 		}
 	};
+
+	const isActivePath = (paths) =>
+		paths.some((path) =>
+			path === "/"
+				? location.pathname === "/"
+				: location.pathname === path || location.pathname.startsWith(`${path}/`)
+		);
 	return (
 		<aside
 			className='app-sidebar shadow'
@@ -80,73 +88,97 @@ export default function Sidebar() {
 						data-accordion='false'
 						id='navigation'>
 						<li className='nav-item'>
-							<Link to='/' className='nav-link'>
+							<Link
+								to='/'
+								className={`nav-link${isActivePath(["/"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-speedometer'></i>
 								<p>Thống kê</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/san-pham' className='nav-link'>
+							<Link
+								to='/san-pham'
+								className={`nav-link${isActivePath(["/san-pham", "/products"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-box-seam' />
 								<p>Quản lý sản phẩm</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/don-hang' className='nav-link'>
+							<Link
+								to='/don-hang'
+								className={`nav-link${isActivePath(["/don-hang", "/orders"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-receipt' />
 								<p>Quản lý đơn hàng</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/nguoi-dung' className='nav-link'>
+							<Link
+								to='/nguoi-dung'
+								className={`nav-link${isActivePath(["/nguoi-dung", "/users"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-people' />
 								<p>Quản lý người dùng</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/danh-muc' className='nav-link'>
+							<Link
+								to='/danh-muc'
+								className={`nav-link${isActivePath(["/danh-muc", "/categories"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-grid' />
 								<p>Quản lý danh mục</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/thuong-hieu' className='nav-link'>
+							<Link
+								to='/thuong-hieu'
+								className={`nav-link${isActivePath(["/thuong-hieu", "/brands"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-tags' />
 								<p>Quản lý thương hiệu</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/thuoc-tinh' className='nav-link'>
+							<Link
+								to='/thuoc-tinh'
+								className={`nav-link${isActivePath(["/thuoc-tinh", "/attributes"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-sliders' />
 								<p>Quản lý thuộc tính</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/danh-gia' className='nav-link'>
+							<Link
+								to='/danh-gia'
+								className={`nav-link${isActivePath(["/danh-gia", "/reviews"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý đánh giá</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/bai-viet' className='nav-link'>
+							<Link
+								to='/bai-viet'
+								className={`nav-link${isActivePath(["/bai-viet", "/blogs"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-journal-text' />
 								<p>Quản lý bài viết</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/lien-he' className='nav-link'>
+							<Link
+								to='/lien-he'
+								className={`nav-link${isActivePath(["/lien-he", "/contacts"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý liên hệ</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/khuyen-mai' className='nav-link'>
+							<Link
+								to='/khuyen-mai'
+								className={`nav-link${isActivePath(["/khuyen-mai", "/promotions"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-ticket-perforated' />
 								<p>Quản lý khuyến mãi</p>
 							</Link>
 						</li>
 						<li className='nav-item'>
-							<Link to='/cau-hinh' className='nav-link'>
+							<Link
+								to='/cau-hinh'
+								className={`nav-link${isActivePath(["/cau-hinh", "/configurations"]) ? " active" : ""}`}>
 								<i className='nav-icon bi bi-gear' />
 								<p>Quản lý cấu hình</p>
 							</Link>
