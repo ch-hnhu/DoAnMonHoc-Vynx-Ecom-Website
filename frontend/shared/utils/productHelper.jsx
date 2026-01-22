@@ -7,26 +7,33 @@ export const getProductImage = (imageUrl) => {
 	if (!imageUrl) return "/img/product-default.png";
 
 	try {
-		const images = typeof imageUrl === "string" ? JSON.parse(imageUrl) : imageUrl;
-		const firstImage = Array.isArray(images) && images.length > 0 ? images[0] : null;
+		let firstImage = null;
 
-		if (!firstImage) return "/img/product-default.png";
+		if (Array.isArray(imageUrl)) {
+			firstImage = imageUrl.length > 0 ? imageUrl[0] : null;
+		}
+		else if (typeof imageUrl === "string") {
+			if (imageUrl.trim().startsWith("[") || imageUrl.trim().startsWith('"')) {
+				try {
+					const parsed = JSON.parse(imageUrl);
+					firstImage = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : parsed;
+				} catch {
+					firstImage = imageUrl;
+				}
+			} else {
+				firstImage = imageUrl;
+			}
+		}
 
-		// Nếu URL đã có protocol (http/https), return luôn
+		if (!firstImage || typeof firstImage !== 'string') return "/img/product-default.png";
+
 		if (firstImage.startsWith("http://") || firstImage.startsWith("https://")) {
 			return firstImage;
 		}
 
-		// Nếu là relative path, thêm domain backend
 		return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${firstImage}`;
-	} catch {
-		// Nếu imageUrl là string đơn giản (không phải JSON)
-		if (typeof imageUrl === "string") {
-			if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-				return imageUrl;
-			}
-			return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${imageUrl}`;
-		}
+	} catch (error) {
+		console.error("Error processing product image:", error, imageUrl);
 		return "/img/product-default.png";
 	}
 };
@@ -46,7 +53,6 @@ export const getAllProductImages = (imageUrl) => {
 			return ["/img/product-default.png"];
 		}
 
-		// Convert tất cả URLs
 		return images.map((url) => {
 			if (url.startsWith("http://") || url.startsWith("https://")) {
 				return url;
@@ -54,7 +60,6 @@ export const getAllProductImages = (imageUrl) => {
 			return `${import.meta.env.VITE_API_URL || "http://localhost:8000"}${url}`;
 		});
 	} catch {
-		// Nếu imageUrl là string đơn giản
 		if (typeof imageUrl === "string") {
 			if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
 				return [imageUrl];

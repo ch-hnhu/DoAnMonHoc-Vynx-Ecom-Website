@@ -49,6 +49,32 @@ export const deliveryStatusColors = {
 };
 
 /**
+ * Định nghĩa màu hex cho các trạng thái giao hàng (dùng cho custom badge)
+ * Key là ID tiếng Anh của trạng thái
+ */
+export const deliveryStatusColorHex = {
+	"delivered": "#10b981",
+	"shipping": "#3b82f6",
+	"confirmed": "#8b5cf6",
+	"pending": "#f59e0b",
+	"failed": "#ef4444",
+	"returned": "#6b7280",
+	"cancelled": "#ef4444",
+};
+
+/**
+ * Định nghĩa màu hex cho các trạng thái thanh toán (dùng cho custom badge)
+ * Key là ID tiếng Anh của trạng thái
+ */
+export const paymentStatusColorHex = {
+	"paid": "#10b981",
+	"pending": "#f59e0b",
+	"failed": "#ef4444",
+	"refunded": "#3b82f6",
+	"cancelled": "#6b7280",
+};
+
+/**
  * Helper functions để map trạng thái thanh toán tiếng Anh sang tiếng Việt
  * @param {string} id - ID của trạng thái
  * @returns {string} - Tên trạng thái bằng tiếng Việt

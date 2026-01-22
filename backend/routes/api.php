@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\SupportRequestController;
 use App\Http\Controllers\Api\SlideshowController;
 use App\Http\Controllers\Api\WishlistController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\DashboardController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,13 @@ Route::prefix('configuration')->group(function () {
 	Route::post('/', [ConfigurationController::class, 'store']);
 	Route::put('/{id}', [ConfigurationController::class, 'update']);
 	Route::delete('/{id}', [ConfigurationController::class, 'destroy']);
+});
+
+// Dashboard routes (for admin)
+Route::prefix('dashboard')->group(function () {
+	Route::get('/statistics', [DashboardController::class, 'statistics']);
+	Route::get('/recent-orders', [DashboardController::class, 'recentOrders']);
+	Route::get('/chart-data', [DashboardController::class, 'chartData']);
 });
 
 // Resource routes

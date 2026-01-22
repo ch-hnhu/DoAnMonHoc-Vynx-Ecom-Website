@@ -43,3 +43,14 @@ export const formatSlug = (text) => {
 		.replace(/^-+/, "") // xóa dấu gạch ngang ở đầu
 		.replace(/-+$/, ""); // xóa dấu gạch ngang ở cuối
 };
+
+/**
+ * Format ngày tháng theo định dạng Việt Nam
+ * @param {string} dateString - Ngày cần format
+ * @returns {string} - Ngày đã format
+ */
+export const formatVietnameseDate = (dateString) => {
+	if (!dateString) return '';
+	const [day, month, year] = dateString.split('-');
+	return `Ngày ${parseInt(day)} tháng ${parseInt(month)}, ${year}`;
+};
