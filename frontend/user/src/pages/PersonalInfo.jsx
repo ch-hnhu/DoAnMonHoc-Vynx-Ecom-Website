@@ -4,7 +4,7 @@ import { getUser } from "../services/authService";
 import { useToast } from "@shared/hooks/useToast";
 import { Snackbar, Alert } from "@mui/material";
 
-// Avatar mặc định khi không có ảnh
+
 const DEFAULT_AVATAR = "https://placehold.co/400?text=Chưa+có+ảnh";
 
 // Base URL của backend (không bao gồm /api)
