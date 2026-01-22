@@ -128,6 +128,12 @@ export default function Sidebar() {
 							</Link>
 						</li>
 						<li className='nav-item'>
+							<Link to='/blogs' className='nav-link'>
+								<i className='nav-icon bi bi-journal-text' />
+								<p>Quản lý bài viết</p>
+							</Link>
+						</li>
+						<li className='nav-item'>
 							<Link to='/contacts' className='nav-link'>
 								<i className='nav-icon bi bi-chat-left-text' />
 								<p>Quản lý liên hệ</p>
