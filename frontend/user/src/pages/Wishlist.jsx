@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link, useNavigate } from "react-router-dom";
-import api from "../services/api";
-import { isAuthenticated } from "../services/authService";
+import { getWishlistItems, removeFromWishlist, clearWishlist } from "../services/supabase";
+import { isAuthenticated } from "../services/supabaseAuthService";
 import { getProductImage, getFinalPrice, isInStock } from "@shared/utils/productHelper.jsx";
 import { formatCurrency } from "@shared/utils/formatHelper.jsx";
 import { useToast } from "@shared/hooks/useToast";
@@ -20,18 +20,22 @@ export default function Wishlist() {
 	const [loading, setLoading] = useState(true);
 
 	useEffect(() => {
-		if (!isAuthenticated()) {
-			navigate("/dang-nhap");
-			return;
-		}
-		fetchWishlistItems();
+		const checkAuthAndFetch = async () => {
+			const authenticated = await isAuthenticated();
+			if (!authenticated) {
+				navigate("/dang-nhap");
+				return;
+			}
+			fetchWishlistItems();
+		};
+		checkAuthAndFetch();
 	}, []);
 
 	const fetchWishlistItems = async () => {
 		try {
 			setLoading(true);
-			const response = await api.get("/wishlists");
-			setWishlistItems(response.data.data || []);
+			const items = await getWishlistItems();
+			setWishlistItems(items || []);
 		} catch (error) {
 			console.error("Error fetching wishlist:", error);
 			showError("Không thể tải danh sách yêu thích");
@@ -43,7 +47,7 @@ export default function Wishlist() {
 	const handleRemoveFromWishlist = async (id) => {
 		if (!window.confirm("Bạn có chắc muốn xóa sản phẩm này khỏi danh sách yêu thích?")) return;
 		try {
-			await api.delete(`/wishlists/${id}`);
+			await removeFromWishlist(id);
 			setWishlistItems((prev) => prev.filter((item) => item.product.id !== id));
 			showSuccess("Đã xóa sản phẩm khỏi danh sách yêu thích");
 			updateWishlistCount();
@@ -66,10 +70,7 @@ export default function Wishlist() {
 		if (!window.confirm("Bạn có chắc muốn xóa tất cả sản phẩm khỏi danh sách yêu thích?"))
 			return;
 		try {
-			// Xóa lần lượt (hoặc gọi API xóa tất cả nếu có)
-			await Promise.all(
-				wishlistItems.map((item) => api.delete(`/wishlists/${item.product.id}`)),
-			);
+			await clearWishlist();
 			setWishlistItems([]);
 			showSuccess("Đã xóa danh sách yêu thích");
 			updateWishlistCount();

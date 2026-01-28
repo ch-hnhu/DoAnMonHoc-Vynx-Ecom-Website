@@ -5,7 +5,7 @@ import ProductBanner from "../components/Partial/ProductBanner";
 import ProductOffers from "../components/Partial/ProductOffers";
 import ServicesBar from "../components/Partial/ServicesBar";
 import { Helmet } from "react-helmet-async";
-import api from "../services/api";
+import { getProducts, getBlogs } from "../services/supabase";
 import ProductCarousel from "../components/Partial/ProductCarousel";
 import ProductCarousel2 from "../components/Partial/ProductCarousel2";
 import { getBlogImage } from "@shared/utils/blogHelper.js";
@@ -25,12 +25,12 @@ export default function Home() {
 		let isActive = true;
 
 		Promise.all([
-			api.get("/products?has_promotion=1&per_page=8"),
-			api.get("/products?sort=bestseller&per_page=8"),
-			api.get("/products?sort=newest&per_page=8"),
-			api.get("/products?category_slug=laptop&per_page=8"),
-			api.get("/products?category_slug=phu-kien&per_page=8"),
-			api.get("/products?category_slug=linh-kien-may-tinh&per_page=8"),
+			getProducts({ has_promotion: 1, per_page: 8 }),
+			getProducts({ sort: "bestseller", per_page: 8 }),
+			getProducts({ sort: "newest", per_page: 8 }),
+			getProducts({ category_slug: "laptop", per_page: 8 }),
+			getProducts({ category_slug: "phu-kien", per_page: 8 }),
+			getProducts({ category_slug: "linh-kien-may-tinh", per_page: 8 }),
 		])
 			.then(
 				([
@@ -42,12 +42,12 @@ export default function Home() {
 					componentRes,
 				]) => {
 					if (!isActive) return;
-					setPromotionProducts(promotionRes.data.data || []);
-					setBestsellerProducts(bestsellerRes.data.data || []);
-					setNewestProducts(newestRes.data.data || []);
-					setLaptopProducts(laptopRes.data.data || []);
-					setAccessoryProducts(accessoryRes.data.data || []);
-					setComponentProducts(componentRes.data.data || []);
+					setPromotionProducts(promotionRes.data || []);
+					setBestsellerProducts(bestsellerRes.data || []);
+					setNewestProducts(newestRes.data || []);
+					setLaptopProducts(laptopRes.data || []);
+					setAccessoryProducts(accessoryRes.data || []);
+					setComponentProducts(componentRes.data || []);
 				},
 			)
 			.catch((err) => {
@@ -66,10 +66,10 @@ export default function Home() {
 			if (!isActive) return;
 			setBlogsLoading(true);
 		});
-		api.get("/blogs", { params: { per_page: 10 } })
+		getBlogs({ per_page: 10 })
 			.then((res) => {
 				if (!isActive) return;
-				const data = res?.data?.data || [];
+				const data = res?.data || [];
 				const activeBlogs = data.filter((item) => item.is_active !== false);
 				setBlogs(activeBlogs.slice(0, 5));
 			})
@@ -180,7 +180,7 @@ export default function Home() {
 											onError={handleBlogImageError}
 										/>
 									</Link>
-									
+
 									<div className='p-3'>
 										<h6 className='fw-semibold mb-2' style={{ minHeight: 40 }}>
 											<Link
